@@ -217,10 +217,8 @@ export const agregarServicio = async (req: Request, res: Response) => {
   try {
     const { servicioId, cantidad, precioUnitario, notas } = req.body
     const subtotal = cantidad * precioUnitario
-
-    await prisma.ordenServicio.create({
-      data: {
-      where: { id: req.params.id as string  },
+       await prisma.ordenServicio.create({
+        data: {
         ordenId: req.params.id as string,
         servicioId,
         cantidad,
@@ -229,7 +227,6 @@ export const agregarServicio = async (req: Request, res: Response) => {
         notas
       }
     })
-
     // Recalcular totales
     const servicios = await prisma.ordenServicio.findMany({
       where: { ordenId: req.params.id as string}
