@@ -1,0 +1,403 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+generator client {
+  provider      = "prisma-client"
+  output = "../src/generated"
+  moduleFormat  = "cjs"
+}
+datasource db {
+  provider = "postgresql"
+}
+ 
+
+enum Rol {
+  ADMIN
+  MECANICO
+  RECEPCIONISTA
+}
+enum TipoPago {
+  CONTADO
+  ANTICIPO
+  CREDITO
+  ABONO
+}
+
+enum EstadoPago {
+  PAGADO
+  PARCIAL
+  PENDIENTE
+}
+
+enum EstadoCotizacion {
+  PENDIENTE
+  APROBADA
+  RECHAZADA
+  CONVERTIDA
+}
+
+model Usuario {
+  id        String   @id @default(uuid())
+  nombre    String
+  email     String   @unique
+  password  String
+  rol       Rol      @default(RECEPCIONISTA)
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ordenesCreadas     OrdenTrabajo[] @relation("OrdenCreadaPor")
+  ordenesModificadas OrdenTrabajo[] @relation("OrdenModificadaPor")
+  pagos              Pago[]
+  bitacora           BitacoraOrden[]
+  cotizaciones       Cotizacion[]
+
+  @@map("usuarios")
+  ventaRefaccions VentaRefaccion[]
+    mecanico  Mecanico?
+}
+
+model Cliente {
+  id        String     @id @default(uuid())
+  nombre    String
+  telefono  String?
+  email     String?    @unique
+  direccion String?
+  activo    Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Un cliente puede tener muchos vehículos
+  vehiculos Vehiculo[]
+  ordenes   OrdenTrabajo[]
+  ventas VentaRefaccion[]
+  cotizaciones Cotizacion[]
+  @@map("clientes")
+}
+
+// ─── Vehículo ────────────────────────────────────────────────
+model Vehiculo {
+  id           String   @id @default(uuid())
+  placa        String   @unique
+  marca        String
+  modelo       String
+  anio         Int
+  color        String?
+  numSerie     String?  @unique
+  kilometraje  Int?
+  notas        String?
+  activo       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relación con cliente
+  clienteId    String
+  cotizaciones Cotizacion[]
+  cliente   Cliente  @relation(fields: [clienteId], references: [id])
+  ordenes   OrdenTrabajo[]
+  @@map("vehiculos")
+}
+model Mecanico {
+  id           String   @id @default(uuid())
+  nombre       String
+  telefono     String?
+  especialidad String?
+  activo       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Vínculo con el usuario del sistema
+  usuarioId    String?  @unique
+  usuario      Usuario? @relation(fields: [usuarioId], references: [id])
+
+  ordenes      OrdenTrabajo[]
+
+  @@map("mecanicos")
+}
+// ─── Tipo de servicio ────────────────────────────────────────
+model TipoServicio {
+  id          String   @id @default(uuid())
+  nombre      String   @unique
+  descripcion String?
+  precioBase  Decimal  @db.Decimal(10, 2)
+  activo      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  ordenes   OrdenServicio[]
+  cotizacionItems CotizacionItem[]
+  @@map("tipos_servicio")
+}
+// ─── Estados de la orden ─────────────────────────────────────
+enum EstadoOrden {
+  RECIBIDO
+  EN_PROCESO
+  EN_ESPERA_REFACCION
+  LISTO
+  ENTREGADO
+  CANCELADO
+}
+
+model OrdenTrabajo {
+  id               String      @id @default(uuid())
+  numero           Int         @unique @default(autoincrement())
+  estado           EstadoOrden @default(RECIBIDO)
+  estadoPago       EstadoPago  @default(PENDIENTE)
+  fechaIngreso     DateTime    @default(now())
+  fechaEntrega     DateTime?
+  fechaPromesa     DateTime?
+  kilometraje      Int?
+  diagnostico      String?
+  observaciones    String?
+  totalManoObra    Decimal     @default(0) @db.Decimal(10, 2)
+  totalRefacciones Decimal     @default(0) @db.Decimal(10, 2)
+  total            Decimal     @default(0) @db.Decimal(10, 2)
+  totalPagado      Decimal     @default(0) @db.Decimal(10, 2)
+  saldoPendiente   Decimal     @default(0) @db.Decimal(10, 2)
+  pagado           Boolean     @default(false)
+  archivada        Boolean     @default(false)
+  activo           Boolean     @default(true)
+
+  // Auditoría
+  creadoPorId      String?
+  creadoPor        Usuario?    @relation("OrdenCreadaPor", fields: [creadoPorId], references: [id])
+  modificadoPorId  String?
+  modificadoPor    Usuario?    @relation("OrdenModificadaPor", fields: [modificadoPorId], references: [id])
+
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  clienteId        String
+  cliente          Cliente     @relation(fields: [clienteId], references: [id])
+  vehiculoId       String
+  vehiculo         Vehiculo    @relation(fields: [vehiculoId], references: [id])
+  mecanicoId       String?
+  mecanico         Mecanico?   @relation(fields: [mecanicoId], references: [id])
+
+  servicios        OrdenServicio[]
+  detalle          OrdenDetalle[]
+  pagos            Pago[]
+  bitacora         BitacoraOrden[]
+  ventasRefacciones VentaRefaccion[]
+  cotizacion   Cotizacion?
+  @@map("ordenes_trabajo")
+}
+
+// ─── Servicios dentro de la orden (tabla intermedia) ─────────
+model OrdenServicio {
+  id             String       @id @default(uuid())
+  cantidad       Int          @default(1)
+  precioUnitario Decimal      @db.Decimal(10, 2)
+  subtotal       Decimal      @db.Decimal(10, 2)
+  notas          String?
+
+  ordenId        String
+  orden          OrdenTrabajo @relation(fields: [ordenId], references: [id])
+
+  servicioId     String
+  servicio       TipoServicio @relation(fields: [servicioId], references: [id])
+  ventasRefacciones VentaRefaccion[]
+  
+  @@map("orden_servicios")
+}
+// ─── Tipo de venta ───────────────────────────────────────────
+enum TipoVenta {
+  MOSTRADOR
+  TALLER
+  MAYOREO
+}
+
+// ─── Proveedor ───────────────────────────────────────────────
+model Proveedor {
+  id               String       @id @default(uuid())
+  nombre           String       @unique
+  contacto         String?
+  telefono         String?
+  ivaPocentaje     Decimal      @default(16) @db.Decimal(5, 2)
+  descuentoPorcentaje Decimal   @default(0)  @db.Decimal(5, 2)
+  activo           Boolean      @default(true)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  refacciones      Refaccion[]
+  facturas         FacturaProveedor[]
+
+  @@map("proveedores")
+}
+
+// ─── Refacción / Inventario ──────────────────────────────────
+model Refaccion {
+  id               String    @id @default(uuid())
+  codigo           String    @unique
+  nombre           String
+  descripcion      String?
+  marca            String?
+  unidad           String    @default("pieza")
+  stockActual      Int       @default(0)
+  stockMinimo      Int       @default(1)
+  costoCompra      Decimal   @db.Decimal(10, 2)
+  margenGanancia   Decimal   @default(30) @db.Decimal(5, 2)  // % configurable por pieza
+  precioMostrador  Decimal   @db.Decimal(10, 2)  // precio final con IVA
+  precioTaller     Decimal   @db.Decimal(10, 2)  // puede ser diferente
+  precioMayoreo    Decimal?  @db.Decimal(10, 2)  // precio especial
+  activo           Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  proveedorId      String?
+  proveedor        Proveedor? @relation(fields: [proveedorId], references: [id])
+  ordenDetalle    OrdenDetalle[]
+  cotizacionItems CotizacionItem[]
+  ventas           VentaRefaccion[]
+  movimientos      MovimientoInventario[]
+
+  @@map("refacciones")
+}
+
+// ─── Venta de refacción ──────────────────────────────────────
+model VentaRefaccion {
+  id               String    @id @default(uuid())
+  tipoVenta        TipoVenta @default(MOSTRADOR)
+  cantidad         Int
+  precioUnitario   Decimal   @db.Decimal(10, 2)  // precio con IVA
+  precioSinIva     Decimal   @db.Decimal(10, 2)  // precio ÷ 1.16
+  costoCompra      Decimal   @db.Decimal(10, 2)  // snapshot del costo al vender
+  ganancia         Decimal   @db.Decimal(10, 2)  // (precioSinIva - costoCompra) × cantidad
+  subtotal         Decimal   @db.Decimal(10, 2)  // precioUnitario × cantidad
+  fecha            DateTime  @default(now())
+
+  refaccionId      String
+  refaccion        Refaccion  @relation(fields: [refaccionId], references: [id])
+
+  // Si la venta es dentro de una orden de trabajo
+  ordenId          String?
+  orden            OrdenTrabajo? @relation(fields: [ordenId], references: [id])
+
+  // Quién vendió
+  usuarioId        String?
+  usuario          Usuario?   @relation(fields: [usuarioId], references: [id])
+
+  @@map("ventas_refacciones")
+  ordenServicios OrdenServicio[]
+  clientes Cliente[]
+}
+
+// ─── Movimiento de inventario (entradas/salidas) ─────────────
+model MovimientoInventario {
+  id          String   @id @default(uuid())
+  tipo        String   // ENTRADA, SALIDA, AJUSTE
+  cantidad    Int
+  motivo      String?
+  fecha       DateTime @default(now())
+
+  refaccionId String
+  refaccion   Refaccion @relation(fields: [refaccionId], references: [id])
+
+  @@map("movimientos_inventario")
+}
+
+// ─── Factura de proveedor ────────────────────────────────────
+model FacturaProveedor {
+  id               String    @id @default(uuid())
+  numeroFactura    String
+  subtotal         Decimal   @db.Decimal(10, 2)  // suma de facturas del periodo
+  ivaPorcentaje    Decimal   @db.Decimal(5, 2)   // 13% Mayasa / 16% Vipla
+  ivaImporte       Decimal   @db.Decimal(10, 2)  // subtotal × ivaPorcentaje
+  descuentoPorcentaje Decimal @db.Decimal(5, 2)  // 13% Mayasa / 10% Vipla
+  descuentoImporte Decimal   @db.Decimal(10, 2)  // (subtotal+iva) × descuentoPorcentaje
+  totalPagar       Decimal   @db.Decimal(10, 2)  // resultado final
+  pagada           Boolean   @default(false)
+  fecha            DateTime  @default(now())
+  notas            String?
+
+  proveedorId      String
+  proveedor        Proveedor @relation(fields: [proveedorId], references: [id])
+
+  @@map("facturas_proveedor")
+}
+model OrdenDetalle {
+  id             String   @id @default(uuid())
+  cantidad       Int
+  precioUnitario Decimal  @db.Decimal(10, 2)
+  costoSnapshot  Decimal  @db.Decimal(10, 2)  // costo al momento de agregar
+  subtotal       Decimal  @db.Decimal(10, 2)
+  notas          String?
+  createdAt      DateTime @default(now())
+
+  ordenId        String
+  orden          OrdenTrabajo @relation(fields: [ordenId], references: [id])
+  refaccionId    String
+  refaccion      Refaccion    @relation(fields: [refaccionId], references: [id])
+
+  @@map("orden_detalle")
+}
+model Pago {
+  id          String     @id @default(uuid())
+  tipo        TipoPago
+  monto       Decimal    @db.Decimal(10, 2)
+  notas       String?
+  fecha       DateTime   @default(now())
+
+  ordenId     String
+  orden       OrdenTrabajo @relation(fields: [ordenId], references: [id])
+  usuarioId   String?
+  usuario     Usuario?     @relation(fields: [usuarioId], references: [id])
+
+  @@map("pagos")
+}
+model Cotizacion {
+  id           String           @id @default(uuid())
+  numero       Int              @unique @default(autoincrement())
+  estado       EstadoCotizacion @default(PENDIENTE)
+  notas        String?
+  total        Decimal          @db.Decimal(10, 2)
+  validaHasta  DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  clienteId    String
+  cliente      Cliente          @relation(fields: [clienteId], references: [id])
+  vehiculoId   String?
+  vehiculo     Vehiculo?        @relation(fields: [vehiculoId], references: [id])
+  creadoPorId  String?
+  creadoPor    Usuario?         @relation(fields: [creadoPorId], references: [id])
+
+  // Si se convirtió en orden
+  ordenId      String?          @unique
+  orden        OrdenTrabajo?    @relation(fields: [ordenId], references: [id])
+
+
+  items        CotizacionItem[]
+
+  @@map("cotizaciones")
+}
+
+model CotizacionItem {
+  id             String     @id @default(uuid())
+  descripcion    String
+  cantidad       Int
+  precioUnitario Decimal    @db.Decimal(10, 2)
+  subtotal       Decimal    @db.Decimal(10, 2)
+
+  cotizacionId   String
+  cotizacion     Cotizacion @relation(fields: [cotizacionId], references: [id])
+  refaccionId    String?
+  refaccion      Refaccion? @relation(fields: [refaccionId], references: [id])
+  servicioId     String?
+  servicio       TipoServicio? @relation(fields: [servicioId], references: [id])
+
+  @@map("cotizacion_items")
+}
+model BitacoraOrden {
+  id          String   @id @default(uuid())
+  estadoAntes String
+  estadoDespues String
+  notas       String?
+  fecha       DateTime @default(now())
+
+  ordenId     String
+  orden       OrdenTrabajo @relation(fields: [ordenId], references: [id])
+  usuarioId   String?
+  usuario     Usuario?     @relation(fields: [usuarioId], references: [id])
+
+  @@map("bitacora_ordenes")
+}
