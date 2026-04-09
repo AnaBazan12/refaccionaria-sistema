@@ -26,21 +26,29 @@ const origenesPermitidos = [
   process.env.FRONTEND_URL
 ].filter(Boolean) as string[]
 
+// ── CONFIGURACIÓN DE CORS "INTELIGENTE" ────────────────────────────
 app.use(cors({
-  origin: (origin, callback) => {
-    // Si no hay origin (como Postman) o está en la lista de permitidos
-    if (!origin || origenesPermitidos.some(o => origin.includes(o))) {
-      callback(null, true)
+  origin: function (origin, callback) {
+    const origenesEstaticos = [
+      'https://refaccionaria-sistema.vercel.app',
+      'http://localhost:5173',
+      process.env.FRONTEND_URL
+    ];
+    
+    // Verificamos si el origen es de Vercel (incluyendo ramas de previsualización)
+    const esVercel = origin?.endsWith('.vercel.app');
+
+    if (!origin || origenesEstaticos.includes(origin) || esVercel) {
+      callback(null, true);
     } else {
-      console.error('CORS bloqueado para el origen:', origin)
-      callback(new Error('No permitido por CORS'))
+      console.error('CORS Bloqueado para:', origin);
+      callback(new Error('No permitido por CORS'));
     }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
-}))
-
+}));
 app.use(express.json({ limit: '10mb' }))
 
 // ── Health check ──────────────────────────────────────────────
