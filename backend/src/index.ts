@@ -17,7 +17,7 @@ import cotizacionRoutes  from './routes/cotizacion.routes'
 dotenv.config()
 
 const app  = express()
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 4000
 
 // ── CORS — permitir frontend en producción y local ────────────
 const origenes = [
@@ -28,8 +28,11 @@ const origenes = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Permite requests sin origin (Postman, mobile, curl)
-    if (!origin || origenes.includes(origin)) {
+    if (
+      !origin ||
+      origenes.includes(origin) ||
+      /https:\/\/refaccionaria-sistema.*\.vercel\.app$/.test(origin)
+    ) {
       callback(null, true)
     } else {
       console.warn(`⚠️ CORS bloqueado para origen: ${origin}`)
@@ -49,7 +52,7 @@ app.get('/health',  (_req, res) => res.json({
   status:    'ok',
   timestamp: new Date().toISOString(),
   env:       process.env.NODE_ENV,
-  origenes:  origenes  // 👈 útil para debuggear que FRONTEND_URL se cargó
+  origenes:  origenes
 }))
 
 // ── Rutas ─────────────────────────────────────────────────────
@@ -79,5 +82,5 @@ app.use((err: any, _req: express.Request, res: express.Response,
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en puerto ${PORT}`)
   console.log(`📦 Ambiente: ${process.env.NODE_ENV || 'development'}`)
-  console.log(`🌐 Orígenes CORS permitidos:`, origenes)  // 👈 verifica en logs
+  console.log(`🌐 Orígenes CORS permitidos:`, origenes)
 })
