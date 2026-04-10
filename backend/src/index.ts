@@ -1,54 +1,36 @@
 import express    from 'express'
 import cors       from 'cors'
 import dotenv     from 'dotenv'
-import authRoutes         from './routes/auth.routes'
-import clienteRoutes      from './routes/cliente.routes'
-import vehiculoRoutes     from './routes/vehiculo.routes'
-import mecanicoRoutes     from './routes/mecanico.routes'
+import authRoutes        from './routes/auth.routes'
+import clienteRoutes     from './routes/cliente.routes'
+import vehiculoRoutes    from './routes/vehiculo.routes'
+import mecanicoRoutes    from './routes/mecanico.routes'
 import tipoServicioRoutes from './routes/tipoServicio.routes'
-import ordenRoutes        from './routes/orden.routes'
-import refaccionRoutes    from './routes/refaccion.routes'
-import ventaRoutes        from './routes/venta.routes'
-import proveedorRoutes    from './routes/proveedor.routes'
-import reporteRoutes      from './routes/reporte.routes'
-import pdfRoutes          from './routes/pdf.routes'
-import cotizacionRoutes   from './routes/cotizacion.routes'
+import ordenRoutes       from './routes/orden.routes'
+import refaccionRoutes   from './routes/refaccion.routes'
+import ventaRoutes       from './routes/venta.routes'
+import proveedorRoutes   from './routes/proveedor.routes'
+import reporteRoutes     from './routes/reporte.routes'
+import pdfRoutes         from './routes/pdf.routes'
+import cotizacionRoutes  from './routes/cotizacion.routes'
 
 dotenv.config()
 
 const app  = express()
 const PORT = process.env.PORT || 3000
 
-// ── CONFIGURACIÓN DE CORS MEJORADA ────────────────────────────
-const origenesPermitidos = [
+// ── CORS — permitir frontend en producción y local ────────────
+const origenes = [
   'http://localhost:5173',
   'http://localhost:4173',
-  process.env.FRONTEND_URL
+  process.env.FRONTEND_URL  // URL del frontend en producción
 ].filter(Boolean) as string[]
 
-// ── CONFIGURACIÓN DE CORS "INTELIGENTE" ────────────────────────────
 app.use(cors({
-  origin: function (origin, callback) {
-    const origenesEstaticos = [
-      'https://refaccionaria-sistema.vercel.app',
-      'http://localhost:5173',
-      process.env.FRONTEND_URL
-    ];
-    
-    // Verificamos si el origen es de Vercel (incluyendo ramas de previsualización)
-    const esVercel = origin?.endsWith('.vercel.app');
+  origin:      origenes,
+  credentials: true
+}))
 
-    if (!origin || origenesEstaticos.includes(origin) || esVercel) {
-      callback(null, true);
-    } else {
-      console.error('CORS Bloqueado para:', origin);
-      callback(new Error('No permitido por CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
 app.use(express.json({ limit: '10mb' }))
 
 // ── Health check ──────────────────────────────────────────────
@@ -75,7 +57,7 @@ app.use('/api/cotizaciones',cotizacionRoutes)
 
 // ── Manejo de errores global ──────────────────────────────────
 app.use((err: any, _req: express.Request, res: express.Response,
-          _next: express.NextFunction) => {
+         _next: express.NextFunction) => {
   console.error('Error no manejado:', err)
   res.status(500).json({
     mensaje: 'Error interno del servidor',
