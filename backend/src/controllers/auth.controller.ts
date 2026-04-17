@@ -145,3 +145,26 @@ export const cambiarPassword = async (
     return res.status(500).json({ mensaje: 'Error del servidor', error })
   }
 }
+// ── Solicitar reset de contraseña ─────────────────────────────
+export const solicitarReset = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body
+    const usuario = await prisma.usuario.findUnique({ where: { email } })
+
+    // Siempre responder igual — no revelar si el email existe
+    if (!usuario) {
+      return res.json({
+        mensaje: 'Si el correo existe recibirás instrucciones del administrador'
+      })
+    }
+
+    // En un sistema real aquí mandarías un email
+    // Por ahora el admin puede cambiar la contraseña manualmente
+    return res.json({
+      mensaje: 'Contacta al administrador del sistema para restablecer tu contraseña',
+      adminEmail: 'admin@taller.com'  // configura este campo
+    })
+  } catch (error) {
+    return res.status(500).json({ mensaje: 'Error del servidor', error })
+  }
+}
