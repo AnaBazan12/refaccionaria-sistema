@@ -15,7 +15,7 @@ import Proveedores    from './pages/Proveedores'
 import Usuarios       from './pages/Usuarios'
 import Deudas         from './pages/Deudas'
 import Cotizaciones   from './pages/Cotizaciones'
-
+import Register from './pages/Register'
 // ── Pantalla de carga ─────────────────────────────────────────
 const Cargando = () => (
   <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -172,6 +172,14 @@ export default function App() {
                 <RutaProtegida rolesPermitidos={['ADMIN']}>
                   <Usuarios />
                 </RutaProtegida>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <RutaPublica>
+                  <Register />
+                </RutaPublica>
               }
             />
 

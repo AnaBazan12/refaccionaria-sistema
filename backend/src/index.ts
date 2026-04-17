@@ -54,7 +54,30 @@ app.get('/health',  (_req, res) => res.json({
   env:       process.env.NODE_ENV,
   origenes:  origenes
 }))
+const dominiosPermitidos = [
+  'https://refaccionaria-sistema.vercel.app', // Tu frontend en Vercel
+  'http://localhost:5173',                   // Tu entorno local de Vite
+  undefined,                                  // Permite herramientas como Postman
+];
 
+const corsOptions = {
+  origin: function (origin: string | undefined, callback: any) {
+    // Si el origen es undefined (como en Postman o apps móviles) 
+    // o está en la lista de permitidos, dejamos pasar.
+    if (!origin || dominiosPermitidos.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      // Este es el error que estás viendo en tus logs
+      console.log("⚠️ Origen bloqueado por CORS:", origin);
+      callback(new Error('CORS bloqueado para este origen'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 // ── Rutas ─────────────────────────────────────────────────────
 app.use('/api/auth',        authRoutes)
 app.use('/api/clientes',    clienteRoutes)
