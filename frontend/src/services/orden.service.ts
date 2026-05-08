@@ -1,11 +1,21 @@
 import api from './api'
 
+export interface RespuestaPaginada<T> {
+  data: T[]
+  total: number
+  page: number
+  limit: number
+  totalPaginas: number
+}
+
 // Ordenes de trabajo
 export const getOrdenes = async (filtros?: {
   estado?: string
   pagado?: boolean
-  archivadas?: boolean // <--- AGREGAMOS ESTA LÍNEA
-}) => {
+  archivadas?: boolean
+  page?: number
+  limit?: number
+}): Promise<RespuestaPaginada<any>> => {
   const { data } = await api.get('/ordenes', { params: filtros })
   return data
 }

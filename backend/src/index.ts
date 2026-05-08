@@ -1,5 +1,7 @@
 import express    from 'express'
 import cors       from 'cors'
+import helmet     from 'helmet'
+import rateLimit  from 'express-rate-limit'
 import dotenv     from 'dotenv'
 import authRoutes        from './routes/auth.routes'
 import clienteRoutes     from './routes/cliente.routes'
@@ -19,11 +21,14 @@ dotenv.config()
 const app  = express()
 const PORT = process.env.PORT || 4000
 
-// ── CORS — permitir frontend en producción y local ────────────
+// ── Seguridad HTTP headers ────────────────────────────────────
+app.use(helmet())
+
+// ── CORS ──────────────────────────────────────────────────────
 const origenes = [
   'http://localhost:5173',
   'http://localhost:4173',
-  process.env.FRONTEND_URL
+  process.env.FRONTEND_URL,
 ].filter(Boolean) as string[]
 
 app.use(cors({
@@ -46,51 +51,36 @@ app.use(cors({
 
 app.use(express.json({ limit: '10mb' }))
 
+// ── Rate limiting — protege el login contra fuerza bruta ──────
+const limiterAuth = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 20,                   // máximo 20 intentos por IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { mensaje: 'Demasiados intentos. Espera 15 minutos antes de reintentar.' },
+})
+
 // ── Health check ──────────────────────────────────────────────
-app.get('/',        (_req, res) => res.json({ status: 'ok' }))
-app.get('/health',  (_req, res) => res.json({
+app.get('/',       (_req, res) => res.json({ status: 'ok' }))
+app.get('/health', (_req, res) => res.json({
   status:    'ok',
   timestamp: new Date().toISOString(),
   env:       process.env.NODE_ENV,
-  origenes:  origenes
 }))
-const dominiosPermitidos = [
-  'https://refaccionaria-sistema.vercel.app', // Tu frontend en Vercel
-  'http://localhost:5173',                   // Tu entorno local de Vite
-  undefined,                                  // Permite herramientas como Postman
-];
 
-const corsOptions = {
-  origin: function (origin: string | undefined, callback: any) {
-    // Si el origen es undefined (como en Postman o apps móviles) 
-    // o está en la lista de permitidos, dejamos pasar.
-    if (!origin || dominiosPermitidos.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      // Este es el error que estás viendo en tus logs
-      console.log("⚠️ Origen bloqueado por CORS:", origin);
-      callback(new Error('CORS bloqueado para este origen'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-};
-
-app.use(cors(corsOptions));
 // ── Rutas ─────────────────────────────────────────────────────
-app.use('/api/auth',        authRoutes)
-app.use('/api/clientes',    clienteRoutes)
-app.use('/api/vehiculos',   vehiculoRoutes)
-app.use('/api/mecanicos',   mecanicoRoutes)
-app.use('/api/servicios',   tipoServicioRoutes)
-app.use('/api/ordenes',     ordenRoutes)
-app.use('/api/refacciones', refaccionRoutes)
-app.use('/api/ventas',      ventaRoutes)
-app.use('/api/proveedores', proveedorRoutes)
-app.use('/api/reportes',    reporteRoutes)
-app.use('/api/pdf',         pdfRoutes)
-app.use('/api/cotizaciones',cotizacionRoutes)
+app.use('/api/auth',         limiterAuth, authRoutes)
+app.use('/api/clientes',     clienteRoutes)
+app.use('/api/vehiculos',    vehiculoRoutes)
+app.use('/api/mecanicos',    mecanicoRoutes)
+app.use('/api/servicios',    tipoServicioRoutes)
+app.use('/api/ordenes',      ordenRoutes)
+app.use('/api/refacciones',  refaccionRoutes)
+app.use('/api/ventas',       ventaRoutes)
+app.use('/api/proveedores',  proveedorRoutes)
+app.use('/api/reportes',     reporteRoutes)
+app.use('/api/pdf',          pdfRoutes)
+app.use('/api/cotizaciones', cotizacionRoutes)
 
 // ── Manejo de errores global ──────────────────────────────────
 app.use((err: any, _req: express.Request, res: express.Response,

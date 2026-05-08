@@ -13,15 +13,16 @@ const incluirRelaciones = {
     }
   }
 }
-// Obtener Ordenes 
+// Obtener Ordenes
 export const obtenerOrdenes = async (req: RequestConUsuario, res: Response) => {
   try {
     const { estado, pagado, archivadas } = req.query
+    const page  = Math.max(1, Number(req.query.page)  || 1)
+    const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20))
+    const skip  = (page - 1) * limit
+
     const where: any = { activo: true }
-
-    // Por defecto ocultar archivadas — solo mostrar si se pide explícitamente
     where.archivada = archivadas === 'true' ? true : false
-
     if (estado) where.estado = estado as EstadoOrden
     if (pagado !== undefined) where.pagado = pagado === 'true'
 
@@ -37,13 +38,24 @@ export const obtenerOrdenes = async (req: RequestConUsuario, res: Response) => {
       where.mecanicoId = mecanico.id
     }
 
-    const ordenes = await prisma.ordenTrabajo.findMany({
-      where,
-      include: incluirRelaciones,
-      orderBy: { createdAt: 'desc' }
-    })
+    const [ordenes, total] = await prisma.$transaction([
+      prisma.ordenTrabajo.findMany({
+        where,
+        include: incluirRelaciones,
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip,
+      }),
+      prisma.ordenTrabajo.count({ where }),
+    ])
 
-    return res.json(ordenes)
+    return res.json({
+      data: ordenes,
+      total,
+      page,
+      limit,
+      totalPaginas: Math.ceil(total / limit),
+    })
   } catch (error) {
     return res.status(500).json({ mensaje: 'Error del servidor', error })
   }

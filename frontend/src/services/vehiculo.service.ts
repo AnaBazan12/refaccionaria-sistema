@@ -1,7 +1,12 @@
 import api from './api'
+import type { RespuestaPaginada } from './orden.service'
 
-export const getVehiculos = async () => {
-  const { data } = await api.get('/vehiculos')
+export const getVehiculos = async (params?: {
+  q?: string
+  page?: number
+  limit?: number
+}): Promise<RespuestaPaginada<any>> => {
+  const { data } = await api.get('/vehiculos', { params })
   return data
 }
 

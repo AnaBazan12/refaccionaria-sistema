@@ -14,13 +14,28 @@ const incluirCotizacion = {
   }
 }
 
-export const obtenerCotizaciones = async (_req: Request, res: Response) => {
+export const obtenerCotizaciones = async (req: Request, res: Response) => {
   try {
-    const cotizaciones = await prisma.cotizacion.findMany({
-      include: incluirCotizacion,
-      orderBy: { createdAt: 'desc' }
-    })
-    return res.json(cotizaciones)
+    const { estado } = req.query
+    const page  = Math.max(1, Number(req.query.page)  || 1)
+    const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20))
+    const skip  = (page - 1) * limit
+
+    const where: any = {}
+    if (estado) where.estado = estado
+
+    const [cotizaciones, total] = await prisma.$transaction([
+      prisma.cotizacion.findMany({
+        where,
+        include: incluirCotizacion,
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip,
+      }),
+      prisma.cotizacion.count({ where }),
+    ])
+
+    return res.json({ data: cotizaciones, total, page, limit, totalPaginas: Math.ceil(total / limit) })
   } catch (error) {
     return res.status(500).json({ mensaje: 'Error del servidor', error })
   }

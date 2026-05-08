@@ -9,42 +9,52 @@ import ModalCrearOrden from '../components/ui/ModalCrearOrden'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 import OrdenDetalleModal from '../components/ui/OrdenDetalle'
+import Paginacion from '../components/ui/Paginacion'
+import { LIMITE } from '../constants/paginacion'
 
 export default function Ordenes() {
   const [ordenes, setOrdenes] = useState<any[]>([])
   const [cargando, setCargando] = useState(true)
   const [filtroEstado, setFiltroEstado] = useState('')
-  const [modalAbierto, setModalAbierto] = useState(false) // Corregido: eliminado el estado de vehículos de aquí
+  const [modalAbierto, setModalAbierto] = useState(false)
   const { usuario } = useAuth()
   const esMecanico = usuario?.rol === 'MECANICO'
   const [verArchivadas, setVerArchivadas] = useState(false)
- const [ordenSeleccionada, setOrdenSeleccionada] = useState<any>(null)
+  const [ordenSeleccionada, setOrdenSeleccionada] = useState<any>(null)
+  const [pagina, setPagina] = useState(1)
+  const [totalPaginas, setTotalPaginas] = useState(1)
+  const [total, setTotal] = useState(0)
 
-  const cargar = async () => {
+  const cargar = async (pag = pagina) => {
     setCargando(true)
     try {
-      const data = await getOrdenes({
+      const resp = await getOrdenes({
         ...(filtroEstado ? { estado: filtroEstado } : {}),
-        archivadas: verArchivadas
+        archivadas: verArchivadas,
+        page: pag,
+        limit: LIMITE.ORDENES,
       })
-      setOrdenes(data)
+      setOrdenes(resp.data)
+      setTotal(resp.total)
+      setTotalPaginas(resp.totalPaginas)
     } catch (error) {
-      console.error("Error cargando órdenes:", error)
+      console.error('Error cargando órdenes:', error)
     } finally {
       setCargando(false)
     }
   }
 
-  useEffect(() => { 
-    cargar() 
+  useEffect(() => {
+    setPagina(1)
+    cargar(1)
   }, [filtroEstado, verArchivadas])
 
   const handleCambiarEstado = async (id: string, nuevoEstado: string) => {
     try {
       await cambiarEstado(id, nuevoEstado)
       cargar()
-    } catch (error) {
-      alert("No se pudo cambiar el estado")
+    } catch {
+      alert('No se pudo cambiar el estado')
     }
   }
 
@@ -52,8 +62,8 @@ export default function Ordenes() {
     try {
       await marcarPagada(id)
       cargar()
-    } catch (error) {
-      alert("Error al procesar pago")
+    } catch {
+      alert('Error al procesar pago')
     }
   }
 
@@ -61,8 +71,8 @@ export default function Ordenes() {
     try {
       await api.patch(`/ordenes/${id}/archivar`)
       cargar()
-    } catch (error) {
-      alert("Error al archivar la orden")
+    } catch {
+      alert('Error al archivar la orden')
     }
   }
 
@@ -71,13 +81,12 @@ export default function Ordenes() {
     try {
       await api.post('/ordenes/archivar-viejas')
       cargar()
-    } catch (error) {
-      alert("Error al archivar órdenes antiguas")
+    } catch {
+      alert('Error al archivar órdenes antiguas')
     }
   }
 
   return (
-    
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -86,7 +95,7 @@ export default function Ordenes() {
             {verArchivadas ? 'Archivo de Órdenes' : (esMecanico ? 'Mis órdenes asignadas' : 'Órdenes de trabajo')}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            {ordenes.length} {ordenes.length === 1 ? 'orden' : 'órdenes'} {verArchivadas ? 'archivadas' : 'activas'}
+            {total} {total === 1 ? 'orden' : 'órdenes'} {verArchivadas ? 'archivadas' : 'activas'}
           </p>
         </div>
 
@@ -97,8 +106,8 @@ export default function Ordenes() {
               setFiltroEstado('')
             }}
             className={`text-xs px-4 py-2 rounded-lg border font-medium transition-all
-              ${verArchivadas 
-                ? 'bg-gray-800 text-white border-gray-800 shadow-md' 
+              ${verArchivadas
+                ? 'bg-gray-800 text-white border-gray-800 shadow-md'
                 : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-50'}`}
           >
             {verArchivadas ? '← Ver activas' : '📁 Ver archivadas'}
@@ -120,7 +129,7 @@ export default function Ordenes() {
         <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => setFiltroEstado('')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors 
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors
               ${!filtroEstado ? 'bg-white text-gray-800 shadow-sm border border-gray-200' : 'text-gray-500 hover:bg-gray-200'}`}
           >
             Todas
@@ -129,7 +138,7 @@ export default function Ordenes() {
             <button
               key={estado}
               onClick={() => setFiltroEstado(estado)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors 
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors
                 ${filtroEstado === estado ? 'bg-white text-gray-800 shadow-sm border border-gray-200' : 'text-gray-500 hover:bg-gray-200'}`}
             >
               {labelEstado[estado]}
@@ -146,7 +155,7 @@ export default function Ordenes() {
           </button>
         )}
       </div>
-      
+
       {/* Lista de órdenes */}
       {cargando ? (
         <div className="text-center py-12 text-gray-400">Cargando órdenes...</div>
@@ -168,39 +177,15 @@ export default function Ordenes() {
                     {orden.pagado && (
                       <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-green-100 text-green-700">✓ PAGADA</span>
                     )}
+                    <button
+                      onClick={() => setOrdenSeleccionada(orden)}
+                      className="text-xs text-blue-500 hover:text-blue-700 hover:underline ml-auto"
+                    >
+                      Ver detalle →
+                    </button>
                   </div>
 
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                    
-                  <div
-  key={orden.id}
-  className="bg-white rounded-xl border border-gray-200
-             p-5 hover:shadow-sm transition-shadow"
->
-  {/* Agrega este botón arriba de las acciones */}
-  <button
-    onClick={() => setOrdenSeleccionada(orden)}
-    className="text-xs text-blue-600 hover:underline mb-2"
-  >
-    Ver detalle completo →
-  </button>
-
-  {/* ...resto del contenido... */}
-                    </div>
-
-                {/* Al final del return, antes del modal de crear */}
-                 {ordenSeleccionada && (
-             <OrdenDetalleModal
-               orden={ordenSeleccionada}
-                     onCerrar={() => setOrdenSeleccionada(null)}
-              onActualizar={() => {
-                   cargar()
-             // Refrescar la orden seleccionada
-             api.get(`/ordenes/${ordenSeleccionada.id}`)
-                .then(({ data }) => setOrdenSeleccionada(data))
-         }}
-   />
-        )}
                     <div>
                       <div className="text-[10px] font-bold text-gray-400 uppercase mb-1">Cliente</div>
                       <div className="text-sm font-bold text-gray-800">{orden.cliente?.nombre}</div>
@@ -244,7 +229,7 @@ export default function Ordenes() {
                           💸 Cobrar
                         </button>
                       )}
-                      
+
                       {orden.estado === 'ENTREGADO' && orden.pagado && (
                         <button
                           onClick={() => handleArchivarIndividual(orden.id)}
@@ -261,7 +246,30 @@ export default function Ordenes() {
           ))}
         </div>
       )}
-      
+
+      {/* Paginación */}
+      <Paginacion
+        paginaActual={pagina}
+        totalPaginas={totalPaginas}
+        total={total}
+        limite={LIMITE.ORDENES}
+        onCambiar={(p) => { setPagina(p); cargar(p) }}
+        cargando={cargando}
+      />
+
+      {/* Modal detalle de orden */}
+      {ordenSeleccionada && (
+        <OrdenDetalleModal
+          orden={ordenSeleccionada}
+          onCerrar={() => setOrdenSeleccionada(null)}
+          onActualizar={() => {
+            cargar()
+            api.get(`/ordenes/${ordenSeleccionada.id}`)
+              .then(({ data }) => setOrdenSeleccionada(data))
+          }}
+        />
+      )}
+
       {modalAbierto && (
         <ModalCrearOrden
           onCerrar={() => setModalAbierto(false)}

@@ -4,6 +4,8 @@ import {
   actualizarRefaccion, entradaInventario,
   eliminarRefaccion, getProveedores
 } from '../services/inventario.service'
+import Paginacion from '../components/ui/Paginacion'
+import { LIMITE } from '../constants/paginacion'
 
 interface Refaccion {
   id:              string
@@ -45,30 +47,43 @@ export default function Inventario() {
   const [error,         setError]         = useState('')
   const [confirmElim,   setConfirmElim]   = useState<string | null>(null)
   const [vista,         setVista]         = useState<'tabla' | 'tarjetas'>('tabla')
+  const [pagina,        setPagina]        = useState(1)
+  const [totalPaginas,  setTotalPaginas]  = useState(1)
+  const [total,         setTotal]         = useState(0)
 
-  const cargar = async () => {
+
+  const cargar = async (pag = pagina) => {
     setCargando(true)
     try {
-      const [r, p] = await Promise.all([
-        getRefacciones({ stockBajo: soloStockBajo || undefined }),
+      const [resp, p] = await Promise.all([
+        getRefacciones({ stockBajo: soloStockBajo || undefined, page: pag, limit: LIMITE.INVENTARIO}),
         getProveedores()
       ])
-      setRefacciones(r)
+      setRefacciones(resp.data)
+      setTotal(resp.total)
+      setTotalPaginas(resp.totalPaginas)
       setProveedores(p)
     } finally {
       setCargando(false)
     }
   }
 
-  useEffect(() => { cargar() }, [soloStockBajo])
-
-  // Búsqueda con delay
   useEffect(() => {
-    if (!busqueda.trim()) { cargar(); return }
+    setPagina(1)
+    cargar(1)
+  }, [soloStockBajo])
+
+  // Búsqueda con delay — resetea a página 1 en cada búsqueda
+  useEffect(() => {
+    if (!busqueda.trim()) { setPagina(1); cargar(1); return }
     const timer = setTimeout(async () => {
       setCargando(true)
       try {
-        setRefacciones(await buscarRefaccion(busqueda))
+        const resultado = await buscarRefaccion(busqueda)
+        setRefacciones(resultado)
+        setTotal(resultado.length)
+        setTotalPaginas(1)
+        setPagina(1)
       } finally {
         setCargando(false)
       }
@@ -192,7 +207,7 @@ export default function Inventario() {
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Inventario</h1>
           <p className="text-sm text-gray-500 mt-1">
-            {refacciones.length} refacción{refacciones.length !== 1 ? 'es' : ''}
+            {total} refacción{total !== 1 ? 'es' : ''}
             {stockBajoCount > 0 && (
               <span className="ml-2 text-red-500 font-medium">
                 · {stockBajoCount} con stock bajo
@@ -485,6 +500,18 @@ export default function Inventario() {
             </div>
           ))}
         </div>
+      )}
+
+      {/* Paginación */}
+      {!busqueda && (
+        <Paginacion
+          paginaActual={pagina}
+          totalPaginas={totalPaginas}
+          total={total}
+          limite={LIMITE.INVENTARIO}
+          onCambiar={(p) => { setPagina(p); cargar(p) }}
+          cargando={cargando}
+        />
       )}
 
       {/* ── Modal crear / editar ─────────────────────────── */}

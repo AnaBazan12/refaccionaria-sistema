@@ -3,6 +3,8 @@ import {
   getClientes, crearCliente,
   actualizarCliente, eliminarCliente
 } from '../services/cliente.service'
+import Paginacion from '../components/ui/Paginacion'
+import { LIMITE } from '../constants/paginacion'
 
 interface Cliente {
   id: string
@@ -27,22 +29,31 @@ export default function Clientes() {
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState('')
   const [confirmElim, setConfirmElim] = useState<string | null>(null)
+  const [pagina, setPagina] = useState(1)
+  const [totalPaginas, setTotalPaginas] = useState(1)
+  const [total, setTotal] = useState(0)
 
-  const cargar = async (q?: string) => {
+  const cargar = async (pag = 1, q?: string) => {
     setCargando(true)
     try {
-      setClientes(await getClientes(q))
+      const resp = await getClientes({ q: q || undefined, page: pag, limit: LIMITE.CLIENTES})
+      setClientes(resp.data)
+      setTotal(resp.total)
+      setTotalPaginas(resp.totalPaginas)
     } catch (err) {
-      console.error("Error al cargar clientes", err)
+      console.error('Error al cargar clientes', err)
     } finally {
       setCargando(false)
     }
   }
 
-  useEffect(() => { cargar() }, [])
+  useEffect(() => { cargar(1) }, [])
 
   useEffect(() => {
-    const timer = setTimeout(() => cargar(busqueda || undefined), 350)
+    const timer = setTimeout(() => {
+      setPagina(1)
+      cargar(1, busqueda)
+    }, 350)
     return () => clearTimeout(timer)
   }, [busqueda])
 
@@ -80,7 +91,7 @@ export default function Clientes() {
         await crearCliente(form)
       }
       setModalAbierto(false)
-      cargar(busqueda || undefined)
+      cargar(pagina, busqueda)
     } catch (err: any) {
       setError(err.response?.data?.mensaje || 'Error al guardar')
     } finally {
@@ -92,7 +103,7 @@ export default function Clientes() {
     try {
       await eliminarCliente(id)
       setConfirmElim(null)
-      cargar(busqueda || undefined)
+      cargar(pagina, busqueda)
     } catch {
       alert('Error al eliminar el cliente')
     }
@@ -105,7 +116,7 @@ export default function Clientes() {
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Clientes</h1>
           <p className="text-sm text-gray-500 mt-1">
-            {clientes.length} cliente{clientes.length !== 1 ? 's' : ''} registrados
+            {total} cliente{total !== 1 ? 's' : ''} registrados
           </p>
         </div>
         <button
@@ -173,6 +184,16 @@ export default function Clientes() {
           </table>
         </div>
       )}
+
+      {/* Paginación */}
+      <Paginacion
+        paginaActual={pagina}
+        totalPaginas={totalPaginas}
+        total={total}
+        limite={LIMITE.CLIENTES}
+        onCambiar={(p) => { setPagina(p); cargar(p, busqueda) }}
+        cargando={cargando}
+      />
 
       {/* Modal Crear/Editar */}
       {modalAbierto && (

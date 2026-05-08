@@ -7,8 +7,11 @@ import { prisma } from '../utils/prisma'
 export const obtenerClientes = async (req: Request, res: Response) => {
   try {
     const { q } = req.query
-    const where: any = { activo: true }
+    const page  = Math.max(1, Number(req.query.page)  || 1)
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 25))
+    const skip  = (page - 1) * limit
 
+    const where: any = { activo: true }
     if (q) {
       where.OR = [
         { nombre:   { contains: q as string, mode: 'insensitive' } },
@@ -17,16 +20,24 @@ export const obtenerClientes = async (req: Request, res: Response) => {
       ]
     }
 
-    const clientes = await prisma.cliente.findMany({
-      where,
-      orderBy: { nombre: 'asc' },
-      include: {
-        _count: {
-          select: { vehiculos: true, ordenes: true }
-        }
-      }
+    const [clientes, total] = await prisma.$transaction([
+      prisma.cliente.findMany({
+        where,
+        orderBy: { nombre: 'asc' },
+        include: { _count: { select: { vehiculos: true, ordenes: true } } },
+        take: limit,
+        skip,
+      }),
+      prisma.cliente.count({ where }),
+    ])
+
+    return res.json({
+      data: clientes,
+      total,
+      page,
+      limit,
+      totalPaginas: Math.ceil(total / limit),
     })
-    return res.json(clientes)
   } catch (error) {
     return res.status(500).json({ mensaje: 'Error del servidor', error })
   }
