@@ -34,9 +34,9 @@ export default function Ordenes() {
         page: pag,
         limit: LIMITE.ORDENES,
       })
-      setOrdenes(resp.data)
-      setTotal(resp.total)
-      setTotalPaginas(resp.totalPaginas)
+      setOrdenes(Array.isArray(resp) ? resp : (resp.data ?? []))
+      setTotal(Array.isArray(resp) ? resp.length : (resp.total ?? 0))
+      setTotalPaginas(Array.isArray(resp) ? 1 : (resp.totalPaginas ?? 1))
     } catch (error) {
       console.error('Error cargando órdenes:', error)
     } finally {

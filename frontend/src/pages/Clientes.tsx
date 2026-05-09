@@ -37,9 +37,9 @@ export default function Clientes() {
     setCargando(true)
     try {
       const resp = await getClientes({ q: q || undefined, page: pag, limit: LIMITE.CLIENTES})
-      setClientes(resp.data)
-      setTotal(resp.total)
-      setTotalPaginas(resp.totalPaginas)
+      setClientes(Array.isArray(resp) ? resp : (resp.data ?? []))
+      setTotal(Array.isArray(resp) ? resp.length : (resp.total ?? 0))
+      setTotalPaginas(Array.isArray(resp) ? 1 : (resp.totalPaginas ?? 1))
     } catch (err) {
       console.error('Error al cargar clientes', err)
     } finally {

@@ -59,10 +59,12 @@ export default function Inventario() {
         getRefacciones({ stockBajo: soloStockBajo || undefined, page: pag, limit: LIMITE.INVENTARIO}),
         getProveedores()
       ])
-      setRefacciones(resp.data)
-      setTotal(resp.total)
-      setTotalPaginas(resp.totalPaginas)
-      setProveedores(p)
+      // resp puede ser array (backend viejo) o {data,total,...} (backend nuevo)
+      const lista = Array.isArray(resp) ? resp : (resp.data ?? [])
+      setRefacciones(lista)
+      setTotal(Array.isArray(resp) ? resp.length : (resp.total ?? lista.length))
+      setTotalPaginas(Array.isArray(resp) ? 1 : (resp.totalPaginas ?? 1))
+      setProveedores(Array.isArray(p) ? p : (p.data ?? []))
     } finally {
       setCargando(false)
     }
@@ -80,8 +82,9 @@ export default function Inventario() {
       setCargando(true)
       try {
         const resultado = await buscarRefaccion(busqueda)
-        setRefacciones(resultado)
-        setTotal(resultado.length)
+        const lista = Array.isArray(resultado) ? resultado : []
+        setRefacciones(lista)
+        setTotal(lista.length)
         setTotalPaginas(1)
         setPagina(1)
       } finally {
@@ -197,7 +200,7 @@ export default function Inventario() {
     }
   }
 
-  const stockBajoCount = refacciones.filter(r => r.stockBajo).length
+  const stockBajoCount = (refacciones ?? []).filter(r => r.stockBajo).length
 
   return (
     <div className="p-6 space-y-6">
