@@ -25,8 +25,8 @@ export default function Dashboard() {
           getOrdenesActivas()
         ])
         setReporte(rep)
-        setStockBajo(stock.refacciones)
-        setOrdenesActivas(ordenes)
+        setStockBajo(Array.isArray(stock) ? stock : (stock?.refacciones ?? []))
+        setOrdenesActivas(Array.isArray(ordenes) ? ordenes : (ordenes?.data ?? []))
       } catch (err) {
         console.error(err)
       } finally {

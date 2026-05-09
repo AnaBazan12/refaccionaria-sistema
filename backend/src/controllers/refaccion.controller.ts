@@ -1,41 +1,42 @@
 import { Request, Response } from 'express'
-import {prisma} from '../utils/prisma'
-
-// ── Helper: calcular precios a partir del costo ──────────────
-const calcularPrecios = (costoCompra: number, margenGanancia: number) => {
-  // El precio final YA incluye IVA
-  // Fórmula: precio con IVA = costo / (1 - margen/100) * 1.16
-  const precioSinIva  = costoCompra / (1 - margenGanancia / 100)
-  const precioConIva  = precioSinIva * 1.16
-  return {
-    precioSinIva: Number(precioSinIva.toFixed(2)),
-    precioConIva: Number(precioConIva.toFixed(2))
-  }
-}
+import { prisma } from '../utils/prisma'
+import { calcularPreciosVenta } from '../utils/precios'
 
 export const obtenerRefacciones = async (req: Request, res: Response) => {
   try {
     const { stockBajo } = req.query
-    const where: any = { activo: true }
+    const page  = Math.max(1, Number(req.query.page)  || 1)
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20))
+    const skip  = (page - 1) * limit
 
-    // Filtrar piezas con stock bajo
+    const where: any = { activo: true }
     if (stockBajo === 'true') {
       where.stockActual = { lte: prisma.refaccion.fields.stockMinimo }
     }
 
-    const refacciones = await prisma.refaccion.findMany({
-      where,
-      include: { proveedor: { select: { nombre: true } } },
-      orderBy: { nombre: 'asc' }
-    })
+    const [refacciones, total] = await prisma.$transaction([
+      prisma.refaccion.findMany({
+        where,
+        include: { proveedor: { select: { nombre: true } } },
+        orderBy: { nombre: 'asc' },
+        take: limit,
+        skip,
+      }),
+      prisma.refaccion.count({ where }),
+    ])
 
-    // Marcar cuáles tienen stock bajo
     const resultado = refacciones.map(r => ({
       ...r,
-      stockBajo: r.stockActual <= r.stockMinimo
+      stockBajo: r.stockActual <= r.stockMinimo,
     }))
 
-    return res.json(resultado)
+    return res.json({
+      data: resultado,
+      total,
+      page,
+      limit,
+      totalPaginas: Math.ceil(total / limit),
+    })
   } catch (error) {
     return res.status(500).json({ mensaje: 'Error del servidor', error })
   }
@@ -84,7 +85,7 @@ export const crearRefaccion = async (req: Request, res: Response) => {
     } = req.body
 
     const margen = margenGanancia ?? 30
-    const { precioConIva } = calcularPrecios(costoCompra, margen)
+    const { precioConIva } = calcularPreciosVenta(costoCompra, margen)
 
     const refaccion = await prisma.refaccion.create({
       data: {
@@ -122,7 +123,7 @@ export const actualizarRefaccion = async (req: Request, res: Response) => {
     // Si cambia costo o margen, recalcular precios automáticamente
     let precios: any = {}
     if (costoCompra && margenGanancia) {
-      const { precioConIva } = calcularPrecios(costoCompra, margenGanancia)
+      const { precioConIva } = calcularPreciosVenta(costoCompra, margenGanancia)
       precios = {
         precioMostrador: precioConIva,
         precioTaller:    precioConIva

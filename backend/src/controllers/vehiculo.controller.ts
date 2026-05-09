@@ -2,18 +2,35 @@ import { Request, Response } from 'express'
 import {prisma} from '../utils/prisma'
 
 // Obtener todos los vehículos (con datos del cliente)
-export const obtenerVehiculos = async (_req: Request, res: Response) => {
+export const obtenerVehiculos = async (req: Request, res: Response) => {
   try {
-    const vehiculos = await prisma.vehiculo.findMany({
-      where: { activo: true },
-      include: {
-        cliente: {
-          select: { id: true, nombre: true, telefono: true }
-        }
-      },
-      orderBy: { createdAt: 'desc' }
-    })
-    return res.json(vehiculos)
+    const { q } = req.query
+    const page  = Math.max(1, Number(req.query.page)  || 1)
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 25))
+    const skip  = (page - 1) * limit
+
+    const where: any = { activo: true }
+    if (q) {
+      where.OR = [
+        { placa:  { contains: q as string, mode: 'insensitive' } },
+        { marca:  { contains: q as string, mode: 'insensitive' } },
+        { modelo: { contains: q as string, mode: 'insensitive' } },
+        { cliente: { nombre: { contains: q as string, mode: 'insensitive' } } },
+      ]
+    }
+
+    const [vehiculos, total] = await prisma.$transaction([
+      prisma.vehiculo.findMany({
+        where,
+        include: { cliente: { select: { id: true, nombre: true, telefono: true } } },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip,
+      }),
+      prisma.vehiculo.count({ where }),
+    ])
+
+    return res.json({ data: vehiculos, total, page, limit, totalPaginas: Math.ceil(total / limit) })
   } catch (error) {
     return res.status(500).json({ mensaje: 'Error del servidor', error })
   }

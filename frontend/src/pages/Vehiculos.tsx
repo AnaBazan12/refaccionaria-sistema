@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
-import { 
+import {
   getVehiculos, buscarPorPlaca, crearVehiculo,
-  actualizarVehiculo, eliminarVehiculo 
+  actualizarVehiculo, eliminarVehiculo
 } from '../services/vehiculo.service'
 import { getClientes } from '../services/cliente.service'
+import Paginacion from '../components/ui/Paginacion'
+import { LIMITE } from '../constants/paginacion'
 
 interface Vehiculo {
   id:           string
@@ -41,28 +43,45 @@ export default function Vehiculos() {
   const [guardando,     setGuardando]     = useState(false)
   const [error,         setError]         = useState('')
   const [confirmElim,   setConfirmElim]   = useState<string | null>(null)
+  const [pagina,        setPagina]        = useState(1)
+  const [totalPaginas,  setTotalPaginas]  = useState(1)
+  const [total,         setTotal]         = useState(0)
 
-  async function cargar() {
+  async function cargar(pag = 1, q?: string) {
     setCargando(true)
     try {
-      const [v, c] = await Promise.all([getVehiculos(), getClientes()])
-      setVehiculos(v)
-      setClientes(c)
+      const [respV, respC] = await Promise.all([
+        getVehiculos({ page: pag, limit: LIMITE.VEHICULOS, q: q || undefined }),
+        // limit alto para el select del formulario (todos los clientes)
+        getClientes({ limit: 500 }),
+      ])
+      setVehiculos(Array.isArray(respV) ? respV : (respV.data ?? []))
+      setTotal(Array.isArray(respV) ? respV.length : (respV.total ?? 0))
+      setTotalPaginas(Array.isArray(respV) ? 1 : (respV.totalPaginas ?? 1))
+      setClientes(Array.isArray(respC) ? respC : (respC.data ?? []))
     } catch (err) {
-      console.error("Error al cargar datos", err)
+      console.error('Error al cargar datos', err)
     } finally {
       setCargando(false)
     }
   }
 
-  useEffect(() => { cargar() }, [])
+  useEffect(() => { cargar(1) }, [])
+
+  // Búsqueda con debounce
+  useEffect(() => {
+    const t = setTimeout(() => { setPagina(1); cargar(1, busqueda) }, 350)
+    return () => clearTimeout(t)
+  }, [busqueda])
 
   const handleBuscarPlaca = async () => {
-    if (!busqueda.trim()) { cargar(); return }
+    if (!busqueda.trim()) { setPagina(1); cargar(1); return }
     setBuscandoPlaca(true)
     try {
       const v = await buscarPorPlaca(busqueda.trim())
       setVehiculos(v ? [v] : [])
+      setTotal(v ? 1 : 0)
+      setTotalPaginas(1)
     } catch {
       setVehiculos([])
     } finally {
@@ -70,14 +89,7 @@ export default function Vehiculos() {
     }
   }
 
-  const vehiculosFiltrados = busqueda && !buscandoPlaca
-    ? vehiculos.filter(v =>
-        v.marca.toLowerCase().includes(busqueda.toLowerCase())   ||
-        v.modelo.toLowerCase().includes(busqueda.toLowerCase())  ||
-        v.placa.toLowerCase().includes(busqueda.toLowerCase())   ||
-        v.cliente.nombre.toLowerCase().includes(busqueda.toLowerCase())
-      )
-    : vehiculos
+  const vehiculosFiltrados = vehiculos
 
   const abrirCrear = () => {
     setEditando(null)
@@ -123,7 +135,7 @@ export default function Vehiculos() {
         await crearVehiculo(payload)
       }
       setModalAbierto(false)
-      cargar()
+      cargar(pagina, busqueda)
     } catch (err: any) {
       setError(err.response?.data?.mensaje || 'Error al guardar el vehículo')
     } finally {
@@ -135,7 +147,7 @@ export default function Vehiculos() {
     try {
       await eliminarVehiculo(id)
       setConfirmElim(null)
-      cargar()
+      cargar(pagina, busqueda)
     } catch {
       alert('Error al eliminar el vehículo')
     }
@@ -148,7 +160,7 @@ export default function Vehiculos() {
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Vehículos</h1>
           <p className="text-sm text-gray-500 mt-1">
-            {vehiculos.length} registrado{vehiculos.length !== 1 ? 's' : ''}
+            {total} registrado{total !== 1 ? 's' : ''}
           </p>
         </div>
         <button onClick={abrirCrear} className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors">
@@ -207,6 +219,16 @@ export default function Vehiculos() {
           ))}
         </div>
       )}
+
+      {/* Paginación */}
+      <Paginacion
+        paginaActual={pagina}
+        totalPaginas={totalPaginas}
+        total={total}
+        limite={LIMITE.VEHICULOS}
+        onCambiar={(p) => { setPagina(p); cargar(p, busqueda) }}
+        cargando={cargando}
+      />
 
       {/* Modal de Formulario */}
       {modalAbierto && (

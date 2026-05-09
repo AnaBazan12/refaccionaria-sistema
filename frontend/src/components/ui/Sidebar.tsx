@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import LogoRefaccionaria from './LogoRefaccionaria'
 
 // Cada item del menú tiene una lista de roles que pueden verlo
 const menu = [
@@ -95,9 +96,14 @@ export default function Sidebar() {
     <aside className="w-64 min-h-screen bg-gray-900 text-white flex flex-col">
 
       {/* Logo */}
-      <div className="px-6 py-5 border-b border-gray-700">
-        <div className="text-xl font-bold">🔧 Refaccionaria</div>
-        <div className="text-xs text-gray-400 mt-1">Sistema de gestión</div>
+      <div className="px-5 py-4 border-b border-gray-700">
+        <div className="flex items-center gap-3">
+          <LogoRefaccionaria size={36} />
+          <div>
+            <div className="text-sm font-bold leading-tight">Refaccionaria</div>
+            <div className="text-xs text-purple-300 font-medium">Sistema de gestión</div>
+          </div>
+        </div>
       </div>
 
       {/* Usuario actual */}

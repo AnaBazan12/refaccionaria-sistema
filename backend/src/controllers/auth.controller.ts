@@ -65,17 +65,14 @@ export const login = async (req: Request, res: Response) => {
 
 export const obtenerUsurios = async (_req: Request, res: Response) => {
   try {
-    const clientes = await prisma.usuario.findMany({
-      where: { activo: true }, // solo clientes activos
-      orderBy: { createdAt: 'desc' } // ordenados por fecha
+    const usuarios = await prisma.usuario.findMany({
+      where: { activo: true },
+      select: { id: true, nombre: true, email: true, rol: true, createdAt: true },
+      orderBy: { createdAt: 'desc' },
     })
-
-    return res.json(clientes)
+    return res.json(usuarios)
   } catch (error) {
-    return res.status(500).json({
-      mensaje: 'Error del servidor',
-      error
-    })
+    return res.status(500).json({ mensaje: 'Error del servidor', error })
   }
 }
 export const obtenerUsuarios = async (_req: Request, res: Response) => {
@@ -162,7 +159,7 @@ export const solicitarReset = async (req: Request, res: Response) => {
     // Por ahora el admin puede cambiar la contraseña manualmente
     return res.json({
       mensaje: 'Contacta al administrador del sistema para restablecer tu contraseña',
-      adminEmail: 'admin@taller.com'  // configura este campo
+      adminEmail: process.env.ADMIN_EMAIL ?? 'administrador del sistema'
     })
   } catch (error) {
     return res.status(500).json({ mensaje: 'Error del servidor', error })

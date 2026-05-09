@@ -9,6 +9,8 @@ import { getMecanicos }         from '../services/mecanico.service'
 import { buscarRefaccion }      from '../services/inventario.service'
 import api                      from '../services/api'
 import { abrirPDF } from '../utils/pdf'
+import Paginacion from '../components/ui/Paginacion'
+import { LIMITE } from '../constants/paginacion'
 
 
 
@@ -48,6 +50,9 @@ export default function Cotizaciones() {
   const [modalDetalle,  setModalDetalle]  = useState<any>(null)
   const [modalConvertir,setModalConvertir]= useState<any>(null)
   const [filtroEstado,  setFiltroEstado]  = useState<EstadoCot | ''>('')
+  const [pagina,        setPagina]        = useState(1)
+  const [totalPaginas,  setTotalPaginas]  = useState(1)
+  const [total,         setTotal]         = useState(0)
 
   // Form crear
   const [clienteId,    setClienteId]    = useState('')
@@ -75,17 +80,19 @@ export default function Cotizaciones() {
   const [guardando,    setGuardando]    = useState(false)
   const [error,        setError]        = useState('')
 
-  const cargar = async () => {
+  const cargar = async (pag = 1, estado?: string) => {
     setCargando(true)
     try {
-      const [cots, cls, mecs] = await Promise.all([
-        getCotizaciones(),
-        getClientes(),
-        getMecanicos()
+      const [respCots, respCls, mecs] = await Promise.all([
+        getCotizaciones({ estado: estado || undefined, page: pag, limit: LIMITE.COTIZACIONES}),
+        getClientes({ limit: 500 }),
+        getMecanicos(),
       ])
-      setCotizaciones(cots)
-      setClientes(cls)
-      setMecanicos(mecs)
+      setCotizaciones(Array.isArray(respCots) ? respCots : (respCots.data ?? []))
+      setTotal(Array.isArray(respCots) ? respCots.length : (respCots.total ?? 0))
+      setTotalPaginas(Array.isArray(respCots) ? 1 : (respCots.totalPaginas ?? 1))
+      setClientes(Array.isArray(respCls) ? respCls : (respCls.data ?? []))
+      setMecanicos(Array.isArray(mecs) ? mecs : (mecs.data ?? []))
     } finally {
       setCargando(false)
     }
@@ -96,7 +103,7 @@ export default function Cotizaciones() {
     setServicios(data)
   }
 
-  useEffect(() => { cargar(); cargarServicios() }, [])
+  useEffect(() => { cargar(1, filtroEstado || undefined); cargarServicios() }, [filtroEstado])
 
   useEffect(() => {
     if (!clienteId) { setVehiculos([]); return }
@@ -170,7 +177,7 @@ export default function Cotizaciones() {
       })
       setModalCrear(false)
       resetForm()
-      cargar()
+      cargar(pagina, filtroEstado || undefined)
     } catch (err: any) {
       setError(err.response?.data?.mensaje || 'Error al crear')
     } finally {
@@ -191,7 +198,7 @@ export default function Cotizaciones() {
       })
       alert(`✅ Orden #${resultado.numero} creada exitosamente`)
       setModalConvertir(null)
-      cargar()
+      cargar(pagina, filtroEstado || undefined)
     } catch (err: any) {
       setError(err.response?.data?.mensaje || 'Error al convertir')
     } finally {
@@ -202,7 +209,7 @@ export default function Cotizaciones() {
   const handleRechazar = async (id: string) => {
     if (!confirm('¿Marcar esta cotización como rechazada?')) return
     await rechazarCotizacion(id)
-    cargar()
+    cargar(pagina, filtroEstado || undefined)
   }
 
   const resetForm = () => {
@@ -213,9 +220,8 @@ export default function Cotizaciones() {
   const fmt = (n: any) =>
     `$${Number(n ?? 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}`
 
-  const cotizacionesFiltradas = filtroEstado
-    ? cotizaciones.filter(c => c.estado === filtroEstado)
-    : cotizaciones
+  // El filtro por estado ya se aplica en el servidor
+  const cotizacionesFiltradas = cotizaciones
 
   return (
     <div className="p-6 space-y-6">
@@ -240,7 +246,7 @@ export default function Cotizaciones() {
       {/* Filtros */}
       <div className="flex gap-2 flex-wrap">
         <button
-          onClick={() => setFiltroEstado('')}
+          onClick={() => { setFiltroEstado(''); setPagina(1) }}
           className={`px-3 py-1.5 rounded-full text-xs font-medium
             ${!filtroEstado
               ? 'bg-gray-800 text-white'
@@ -251,7 +257,7 @@ export default function Cotizaciones() {
         {(Object.keys(colorEstadoCot) as EstadoCot[]).map(e => (
           <button
             key={e}
-            onClick={() => setFiltroEstado(e)}
+            onClick={() => { setFiltroEstado(e); setPagina(1) }}
             className={`px-3 py-1.5 rounded-full text-xs font-medium
               ${filtroEstado === e
                 ? 'bg-gray-800 text-white'
@@ -390,6 +396,16 @@ export default function Cotizaciones() {
           ))}
         </div>
       )}
+
+      {/* Paginación */}
+      <Paginacion
+        paginaActual={pagina}
+        totalPaginas={totalPaginas}
+        total={total}
+        limite={LIMITE.COTIZACIONES}
+        onCambiar={(p) => { setPagina(p); cargar(p, filtroEstado || undefined) }}
+        cargando={cargando}
+      />
 
       {/* ── Modal crear cotización ───────────────────────── */}
       {modalCrear && (
@@ -821,13 +837,26 @@ export default function Cotizaciones() {
                 </div>
               </div>
 
-              <button
-                onClick={() => setModalDetalle(null)}
-                className="w-full py-2.5 border border-gray-300 text-gray-600
-                           rounded-lg hover:bg-gray-50 text-sm"
-              >
-                Cerrar
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => abrirPDF(
+                    `/pdf/cotizacion/${modalDetalle.id}`,
+                    `cotizacion-${modalDetalle.numero}.pdf`
+                  )}
+                  className="flex-1 flex items-center justify-center gap-2
+                             bg-gray-800 hover:bg-gray-700 text-white text-sm
+                             font-medium py-2.5 rounded-lg transition-colors"
+                >
+                  Imprimir PDF
+                </button>
+                <button
+                  onClick={() => setModalDetalle(null)}
+                  className="flex-1 py-2.5 border border-gray-300 text-gray-600
+                             rounded-lg hover:bg-gray-50 text-sm"
+                >
+                  Cerrar
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -940,17 +969,6 @@ export default function Cotizaciones() {
                 >
                   {guardando ? 'Creando...' : '✓ Crear orden'}
                 </button>
-                <button
-           onClick={() => abrirPDF(
-             `/pdf/cotizacion/${modalDetalle.id}`,
-           `cotizacion-${modalDetalle.numero}.pdf`
-                        )}
-                className="flex-1 flex items-center justify-center gap-2
-             bg-gray-800 hover:bg-gray-700 text-white text-sm
-             font-medium py-2.5 rounded-lg transition-colors"
->
-  📄 Imprimir PDF
-</button>
               </div>
             </form>
           </div>

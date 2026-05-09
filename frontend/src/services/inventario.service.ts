@@ -1,14 +1,17 @@
 import api from './api'
+import type { RespuestaPaginada } from './orden.service'
 
 export const getRefacciones = async (filtros?: {
   stockBajo?: boolean
   q?: string
-}) => {
+  page?: number
+  limit?: number
+}): Promise<RespuestaPaginada<any>> => {
   const { data } = await api.get('/refacciones', { params: filtros })
   return data
 }
 
-export const buscarRefaccion = async (q: string) => {
+export const buscarRefaccion = async (q: string): Promise<any[]> => {
   const { data } = await api.get('/refacciones/buscar', { params: { q } })
   return data
 }

@@ -1,9 +1,12 @@
 import api from './api'
+import type { RespuestaPaginada } from './orden.service'
 
-export const getClientes = async (busqueda?: string) => {
-  const { data } = await api.get('/clientes', {
-    params: busqueda ? { q: busqueda } : {}
-  })
+export const getClientes = async (params?: {
+  q?: string
+  page?: number
+  limit?: number
+}): Promise<RespuestaPaginada<any>> => {
+  const { data } = await api.get('/clientes', { params })
   return data
 }
 

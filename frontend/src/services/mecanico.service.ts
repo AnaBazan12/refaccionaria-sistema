@@ -32,6 +32,6 @@ export const eliminarMecanico = async (id: string) => {
 
 export const getUsuariosMecanicos = async () => {
   const { data } = await api.get('/auth/usuarios')
-  // Solo usuarios con rol MECANICO sin vincular
-  return data.filter((u: any) => u.rol === 'MECANICO')
+  const lista = Array.isArray(data) ? data : (data?.data ?? [])
+  return lista.filter((u: any) => u.rol === 'MECANICO')
 }
