@@ -98,7 +98,17 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="px-5 py-4 border-b border-gray-700">
         <div className="flex items-center gap-3">
-          <LogoRefaccionaria size={36} />
+          <img
+            src="/logo.png"
+            alt="Logo"
+            className="h-9 w-9 object-contain rounded-lg"
+            onError={e => {
+              const img = e.target as HTMLImageElement
+              img.style.display = 'none'
+              img.nextElementSibling?.classList.remove('hidden')
+            }}
+          />
+          <LogoRefaccionaria size={36} className="hidden" />
           <div>
             <div className="text-sm font-bold leading-tight">Refaccionaria El Chino</div>
             <div className="text-xs text-purple-300 font-medium">y Taller Mecánico</div>

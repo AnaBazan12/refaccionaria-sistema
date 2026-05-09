@@ -269,20 +269,12 @@ export default function Login() {
 
             {/* Header con logo */}
             <div className="px-7 pt-8 pb-2 text-center">
-              <div className="w-16 h-16 bg-gray-900 rounded-2xl
-                              flex items-center justify-center
-                              text-3xl mx-auto mb-4 shadow-lg">
-                🔧
-              </div>
-              <div className="text-xs font-semibold tracking-widest text-red-600 uppercase mb-1">
-                Refaccionaria
-              </div>
-              <h1 className="text-2xl font-extrabold text-gray-900 leading-tight">
-                El Chino
-              </h1>
-              <p className="text-sm font-medium text-gray-500">
-                y Taller Mecánico
-              </p>
+              <img
+                src="/logo.png"
+                alt="Refaccionaria El Chino y Taller Mecánico"
+                className="h-28 mx-auto mb-2 object-contain"
+                onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+              />
               <p className="text-xs text-gray-400 italic mt-1">
                 "Expertos en Repuestos y Servicio Mecánico de Calidad"
               </p>
