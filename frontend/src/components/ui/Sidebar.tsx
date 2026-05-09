@@ -100,8 +100,8 @@ export default function Sidebar() {
         <div className="flex items-center gap-3">
           <LogoRefaccionaria size={36} />
           <div>
-            <div className="text-sm font-bold leading-tight">Refaccionaria</div>
-            <div className="text-xs text-purple-300 font-medium">Sistema de gestión</div>
+            <div className="text-sm font-bold leading-tight">Refaccionaria El Chino</div>
+            <div className="text-xs text-purple-300 font-medium">y Taller Mecánico</div>
           </div>
         </div>
       </div>
