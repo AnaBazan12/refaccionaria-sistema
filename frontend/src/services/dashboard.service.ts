@@ -13,7 +13,8 @@ export const getStockBajo = async () => {
 
 export const getOrdenesActivas = async () => {
   const { data } = await api.get('/ordenes', {
-    params: { estado: 'EN_PROCESO' }
+    params: { estado: 'EN_PROCESO', limit: 50 }
   })
-  return data
+  // /ordenes devuelve formato paginado {data: [...]}
+  return Array.isArray(data) ? data : (data.data ?? [])
 }

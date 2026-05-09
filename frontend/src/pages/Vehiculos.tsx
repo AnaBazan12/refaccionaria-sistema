@@ -55,10 +55,10 @@ export default function Vehiculos() {
         // limit alto para el select del formulario (todos los clientes)
         getClientes({ limit: 500 }),
       ])
-      setVehiculos(respV.data)
-      setTotal(respV.total)
-      setTotalPaginas(respV.totalPaginas)
-      setClientes(respC.data)
+      setVehiculos(Array.isArray(respV) ? respV : (respV.data ?? []))
+      setTotal(Array.isArray(respV) ? respV.length : (respV.total ?? 0))
+      setTotalPaginas(Array.isArray(respV) ? 1 : (respV.totalPaginas ?? 1))
+      setClientes(Array.isArray(respC) ? respC : (respC.data ?? []))
     } catch (err) {
       console.error('Error al cargar datos', err)
     } finally {

@@ -88,11 +88,11 @@ export default function Cotizaciones() {
         getClientes({ limit: 500 }),
         getMecanicos(),
       ])
-      setCotizaciones(respCots.data)
-      setTotal(respCots.total)
-      setTotalPaginas(respCots.totalPaginas)
-      setClientes(respCls.data)
-      setMecanicos(mecs)
+      setCotizaciones(Array.isArray(respCots) ? respCots : (respCots.data ?? []))
+      setTotal(Array.isArray(respCots) ? respCots.length : (respCots.total ?? 0))
+      setTotalPaginas(Array.isArray(respCots) ? 1 : (respCots.totalPaginas ?? 1))
+      setClientes(Array.isArray(respCls) ? respCls : (respCls.data ?? []))
+      setMecanicos(Array.isArray(mecs) ? mecs : (mecs.data ?? []))
     } finally {
       setCargando(false)
     }
