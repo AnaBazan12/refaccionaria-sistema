@@ -268,18 +268,28 @@ export default function Login() {
                           overflow-hidden">
 
             {/* Header con logo */}
-            <div className="px-7 pt-7 pb-2 text-center">
-              <div className="w-12 h-12 bg-gray-900 rounded-xl
+            <div className="px-7 pt-8 pb-2 text-center">
+              <div className="w-16 h-16 bg-gray-900 rounded-2xl
                               flex items-center justify-center
-                              text-2xl mx-auto mb-4">
+                              text-3xl mx-auto mb-4 shadow-lg">
                 🔧
               </div>
-              <h1 className="text-xl font-medium text-gray-900">
-                {tab === 'login' ? 'Bienvenido' : 'Crear cuenta'}
+              <div className="text-xs font-semibold tracking-widest text-red-600 uppercase mb-1">
+                Refaccionaria
+              </div>
+              <h1 className="text-2xl font-extrabold text-gray-900 leading-tight">
+                El Chino
               </h1>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm font-medium text-gray-500">
+                y Taller Mecánico
+              </p>
+              <p className="text-xs text-gray-400 italic mt-1">
+                "Expertos en Repuestos y Servicio Mecánico de Calidad"
+              </p>
+              <div className="border-t border-gray-100 mt-5 mb-1" />
+              <p className="text-sm text-gray-500 mt-3">
                 {tab === 'login'
-                  ? 'Ingresa con tu cuenta del sistema'
+                  ? 'Inicia sesión en el sistema'
                   : 'Registro controlado por el administrador'}
               </p>
             </div>
