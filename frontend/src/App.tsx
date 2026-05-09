@@ -15,6 +15,7 @@ import Proveedores    from './pages/Proveedores'
 import Usuarios       from './pages/Usuarios'
 import Deudas         from './pages/Deudas'
 import Cotizaciones   from './pages/Cotizaciones'
+import MecanicoApp   from './pages/MecanicoApp'
 
 // ── Pantalla de carga ─────────────────────────────────────────
 const Cargando = () => (
@@ -36,6 +37,9 @@ const LayoutPrivado = () => {
   // Si no hay sesión manda al login
   if (!usuario) return <Navigate to="/login" replace />
 
+  // Mecánico siempre va a su app móvil
+  if (usuario.rol === 'MECANICO') return <Navigate to="/mecanico" replace />
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       <Sidebar />
@@ -46,14 +50,25 @@ const LayoutPrivado = () => {
   )
 }
 
-// ── Ruta pública — si ya tiene sesión manda al dashboard ──────
+// ── Layout mecánico — sin sidebar, pantalla completa móvil ────
+const LayoutMecanico = () => {
+  const { usuario, cargando } = useAuth()
+  if (cargando) return <Cargando />
+  if (!usuario) return <Navigate to="/login" replace />
+  if (usuario.rol !== 'MECANICO') return <Navigate to="/dashboard" replace />
+  return <Outlet />
+}
+
+// ── Ruta pública — si ya tiene sesión manda según rol ─────────
 const RutaPublica = ({ children }: { children: React.ReactNode }) => {
   const { usuario, cargando } = useAuth()
 
   if (cargando) return <Cargando />
 
   // Si ya está logueado no puede ver el login
-  if (usuario) return <Navigate to="/dashboard" replace />
+  if (usuario) {
+    return <Navigate to={usuario.rol === 'MECANICO' ? '/mecanico' : '/dashboard'} replace />
+  }
 
   return <>{children}</>
 }
@@ -73,6 +88,11 @@ export default function App() {
               </RutaPublica>
             }
           />
+
+          {/* ── Ruta mecánico (sin sidebar) ─────────────── */}
+          <Route element={<LayoutMecanico />}>
+            <Route path="/mecanico" element={<MecanicoApp />} />
+          </Route>
 
           {/* ── Rutas privadas ───────────────────────────── */}
           <Route element={<LayoutPrivado />}>
@@ -191,9 +211,10 @@ export default function App() {
   )
 }
 
-// Componente que decide a dónde mandar según si hay sesión
+// Componente que decide a dónde mandar según rol
 const RedirigirInicio = () => {
   const { usuario, cargando } = useAuth()
   if (cargando) return <Cargando />
-  return <Navigate to={usuario ? '/dashboard' : '/login'} replace />
+  if (!usuario) return <Navigate to="/login" replace />
+  return <Navigate to={usuario.rol === 'MECANICO' ? '/mecanico' : '/dashboard'} replace />
 }
