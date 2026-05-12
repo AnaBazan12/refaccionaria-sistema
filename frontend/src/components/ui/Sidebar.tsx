@@ -139,7 +139,8 @@ export default function Sidebar() {
                 : 'text-gray-300 hover:bg-gray-800'}`
             }
           >
-          
+            
+            <span>{item.label}</span>
           </NavLink>
         ))}
       </nav>
