@@ -99,7 +99,7 @@ export default function Sidebar() {
       <div className="px-5 py-4 border-b border-gray-700">
         <div className="flex items-center gap-3">
           <img
-            src="/logo.png"
+            src="/LogoRefaccionaria.png"
             alt="Logo"
             className="h-9 w-9 object-contain rounded-lg"
             onError={e => {
