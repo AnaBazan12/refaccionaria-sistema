@@ -108,7 +108,9 @@ export default function Sidebar() {
               img.nextElementSibling?.classList.remove('hidden')
             }}
           />
-          <LogoRefaccionaria size={36} className="hidden" />
+          <div className="hidden">
+            <LogoRefaccionaria size={36} />
+          </div>
           <div>
             <div className="text-sm font-bold leading-tight">Refaccionaria El Chino</div>
             <div className="text-xs text-purple-300 font-medium">y Taller Mecánico</div>
@@ -137,8 +139,7 @@ export default function Sidebar() {
                 : 'text-gray-300 hover:bg-gray-800'}`
             }
           >
-            <span>{item.icono}</span>
-            <span>{item.label}</span>
+          
           </NavLink>
         ))}
       </nav>
