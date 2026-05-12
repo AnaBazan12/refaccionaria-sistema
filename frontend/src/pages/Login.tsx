@@ -270,7 +270,7 @@ export default function Login() {
             {/* Header con logo */}
             <div className="px-7 pt-8 pb-2 text-center">
               <img
-                src="/logo.png"
+                src="/LogoRefaccionaria.png"
                 alt="Refaccionaria El Chino y Taller Mecánico"
                 className="h-28 mx-auto mb-2 object-contain"
                 onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
