@@ -342,6 +342,7 @@ export default function Login() {
                         value={lPass}
                         onChange={e => setLPass(e.target.value)}
                         placeholder="••••••••"
+                        autoComplete="current-password"
                         className={inputCls + ' pr-10'}
                       />
                       <button
@@ -482,6 +483,7 @@ export default function Login() {
                         value={rPass}
                         onChange={e => setRPass(e.target.value)}
                         placeholder="mínimo 6 caracteres"
+                        autoComplete="new-password"
                         className={inputCls + ' pr-10'}
                       />
                       <button
@@ -523,6 +525,7 @@ export default function Login() {
                       value={rPass2}
                       onChange={e => setRPass2(e.target.value)}
                       placeholder="repetir contraseña"
+                      autoComplete="new-password"
                       className={`${inputCls} ${
                         rPass2 && rPass !== rPass2
                           ? 'border-red-300 focus:ring-red-300'

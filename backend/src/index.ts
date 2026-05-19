@@ -1,5 +1,4 @@
 import express    from 'express'
-import cors       from 'cors'
 import helmet     from 'helmet'
 import rateLimit  from 'express-rate-limit'
 import dotenv     from 'dotenv'
@@ -22,32 +21,39 @@ dotenv.config()
 const app  = express()
 const PORT = process.env.PORT || 4000
 
-// ── Seguridad HTTP headers ────────────────────────────────────
-app.use(helmet())
-
-// ── CORS ──────────────────────────────────────────────────────
-const origenes = [
+// ── CORS — debe ir ANTES de helmet ───────────────────────────
+// Se maneja manualmente para máxima compatibilidad con Railway + Vercel
+const origenesPermitidos = [
   'http://localhost:5173',
   'http://localhost:4173',
   process.env.FRONTEND_URL,
 ].filter(Boolean) as string[]
 
-app.use(cors({
-  origin: (origin, callback) => {
-    if (
-      !origin ||
-      origenes.includes(origin) ||
-      /https:\/\/refaccionaria-sistema.*\.vercel\.app$/.test(origin)
-    ) {
-      callback(null, true)
-    } else {
-      console.warn(`⚠️ CORS bloqueado para origen: ${origin}`)
-      callback(new Error(`CORS bloqueado: ${origin}`))
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+const esOrigenPermitido = (origin: string | undefined): boolean => {
+  if (!origin) return true
+  if (origenesPermitidos.includes(origin)) return true
+  if (/https:\/\/refaccionaria-sistema.*\.vercel\.app$/.test(origin)) return true
+  return false
+}
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin
+  if (esOrigenPermitido(origin)) {
+    res.setHeader('Access-Control-Allow-Origin',      origin ?? '*')
+    res.setHeader('Access-Control-Allow-Credentials', 'true')
+    res.setHeader('Access-Control-Allow-Methods',     'GET,POST,PUT,DELETE,PATCH,OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers',     'Content-Type,Authorization')
+  } else {
+    console.warn(`⚠️ CORS bloqueado para origen: ${origin}`)
+  }
+  // Preflight — responde inmediatamente
+  if (req.method === 'OPTIONS') return res.status(204).end()
+  next()
+})
+
+// ── Seguridad HTTP headers ────────────────────────────────────
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' }, // permite recursos desde otros orígenes
 }))
 
 app.use(express.json({ limit: '10mb' }))
@@ -97,5 +103,5 @@ app.use((err: any, _req: express.Request, res: express.Response,
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en puerto ${PORT}`)
   console.log(`📦 Ambiente: ${process.env.NODE_ENV || 'development'}`)
-  console.log(`🌐 Orígenes CORS permitidos:`, origenes)
+  console.log(`🌐 Orígenes CORS permitidos:`, origenesPermitidos)
 })
