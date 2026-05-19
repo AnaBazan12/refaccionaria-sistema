@@ -14,7 +14,6 @@ import {
 } from '../controllers/pago.controller'
 import { obtenerBitacora } from '../controllers/orden.controller'
 import { protegerRuta, soloRoles } from '../middlewares/auth.middleware'
-import { validar, schemaCliente, schemaOrden, schemaPago } from '../utils/validaciones'
 
 const router = Router()
 router.use(protegerRuta)
@@ -43,7 +42,5 @@ router.get('/:id/bitacora', obtenerBitacora)
 
 // Deudas
 router.get('/deudas/pendientes', protegerRuta, soloRoles('ADMIN','RECEPCIONISTA'), clientesConDeuda)
-router.post('/',    protegerRuta, validar(schemaOrden), crearOrden)
-router.put('/:id',  protegerRuta, validar(schemaPago.partial()), crearOrden)
 
 export default router

@@ -50,8 +50,8 @@ export const agregarServicioOrden = async (
 
 // Para los selects del formulario
 export const getClientes = async () => {
-  const { data } = await api.get('/clientes')
-  return data
+  const { data } = await api.get('/clientes?limit=100')
+  return data.data  // la ruta devuelve respuesta paginada { data: [...], total, ... }
 }
 
 export const getVehiculosPorCliente = async (clienteId: string) => {
