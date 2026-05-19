@@ -15,6 +15,7 @@ import proveedorRoutes   from './routes/proveedor.routes'
 import reporteRoutes     from './routes/reporte.routes'
 import pdfRoutes         from './routes/pdf.routes'
 import cotizacionRoutes  from './routes/cotizacion.routes'
+import iaRoutes          from './routes/ia.routes'
 
 dotenv.config()
 
@@ -81,6 +82,7 @@ app.use('/api/proveedores',  proveedorRoutes)
 app.use('/api/reportes',     reporteRoutes)
 app.use('/api/pdf',          pdfRoutes)
 app.use('/api/cotizaciones', cotizacionRoutes)
+app.use('/api/ia',          iaRoutes)
 
 // ── Manejo de errores global ──────────────────────────────────
 app.use((err: any, _req: express.Request, res: express.Response,
