@@ -15,6 +15,7 @@ import Proveedores    from './pages/Proveedores'
 import Usuarios       from './pages/Usuarios'
 import Deudas         from './pages/Deudas'
 import Cotizaciones   from './pages/Cotizaciones'
+import Servicios      from './pages/Servicios'
 import MecanicoApp   from './pages/MecanicoApp'
 
 // ── Pantalla de carga ─────────────────────────────────────────
@@ -170,6 +171,14 @@ export default function App() {
             />
 
             {/* Solo Admin */}
+            <Route
+              path="/servicios"
+              element={
+                <RutaProtegida rolesPermitidos={['ADMIN']}>
+                  <Servicios />
+                </RutaProtegida>
+              }
+            />
             <Route
               path="/mecanicos"
               element={
