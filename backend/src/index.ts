@@ -29,16 +29,21 @@ const origenesPermitidos = [
   process.env.FRONTEND_URL,
 ].filter(Boolean) as string[]
 
+const CORS_ABIERTO = process.env.CORS_ABIERTO === 'true'
+
 const esOrigenPermitido = (origin: string | undefined): boolean => {
+  if (CORS_ABIERTO) return true                                       // variable de emergencia
   if (!origin) return true
   if (origenesPermitidos.includes(origin)) return true
   if (/https:\/\/refaccionaria-sistema.*\.vercel\.app$/.test(origin)) return true
   return false
 }
 
-app.use((req, res, next) => {
-  const origin = req.headers.origin
-  if (esOrigenPermitido(origin)) {
+app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const origin = req.headers.origin as string | undefined
+  const permitido = esOrigenPermitido(origin)
+
+  if (permitido) {
     res.setHeader('Access-Control-Allow-Origin',      origin ?? '*')
     res.setHeader('Access-Control-Allow-Credentials', 'true')
     res.setHeader('Access-Control-Allow-Methods',     'GET,POST,PUT,DELETE,PATCH,OPTIONS')
@@ -46,8 +51,12 @@ app.use((req, res, next) => {
   } else {
     console.warn(`⚠️ CORS bloqueado para origen: ${origin}`)
   }
-  // Preflight — responde inmediatamente
-  if (req.method === 'OPTIONS') return res.status(204).end()
+
+  // Preflight — responde inmediatamente sin pasar por más middleware
+  if (req.method === 'OPTIONS') {
+    res.status(204).end()
+    return
+  }
   next()
 })
 
