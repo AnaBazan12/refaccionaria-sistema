@@ -91,31 +91,49 @@ export const obtenerPagos = async (req: Request, res: Response) => {
   }
 }
 
-// ── Clientes con saldo pendiente ──────────────────────────────
+// ── Clientes con saldo pendiente (deudas + anticipos/abonos) ──
 export const clientesConDeuda = async (_req: Request, res: Response) => {
   try {
-    const ordenes = await prisma.ordenTrabajo.findMany({
+    const includeBase = {
+      cliente:  { select: { nombre: true, telefono: true } },
+      vehiculo: { select: { placa: true, marca: true, modelo: true } },
+      pagos: {
+        orderBy: { fecha: 'asc' as const },
+        include: { usuario: { select: { nombre: true } } }
+      }
+    }
+
+    // Deudas: órdenes entregadas con saldo pendiente
+    const deudas = await prisma.ordenTrabajo.findMany({
       where: {
         saldoPendiente: { gt: 0 },
         estado:         'ENTREGADO',
         activo:         true
       },
-      include: {
-        cliente:  { select: { nombre: true, telefono: true } },
-        vehiculo: { select: { placa: true, marca: true, modelo: true } },
-        pagos:    true
-      },
+      include: includeBase,
       orderBy: { saldoPendiente: 'desc' }
     })
 
-    const totalDeuda = ordenes.reduce(
-      (s, o) => s + Number(o.saldoPendiente), 0
-    )
+    // Anticipos / Abonos: órdenes activas (no entregadas ni canceladas) con algo pagado
+    const anticipos = await prisma.ordenTrabajo.findMany({
+      where: {
+        totalPagado: { gt: 0 },
+        estado: { notIn: ['ENTREGADO', 'CANCELADO'] },
+        activo: true
+      },
+      include: includeBase,
+      orderBy: { updatedAt: 'desc' }
+    })
+
+    const totalDeuda     = deudas.reduce((s, o) => s + Number(o.saldoPendiente), 0)
+    const totalAnticipos = anticipos.reduce((s, o) => s + Number(o.totalPagado), 0)
 
     return res.json({
-      totalDeuda:    totalDeuda.toFixed(2),
-      totalClientes: ordenes.length,
-      ordenes
+      totalDeuda:     totalDeuda.toFixed(2),
+      totalAnticipos: totalAnticipos.toFixed(2),
+      totalClientes:  new Set([...deudas, ...anticipos].map(o => o.clienteId)).size,
+      deudas,
+      anticipos
     })
   } catch (error) {
     return res.status(500).json({ mensaje: 'Error del servidor', error })
