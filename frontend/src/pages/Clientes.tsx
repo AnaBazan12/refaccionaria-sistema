@@ -5,6 +5,7 @@ import {
 } from '../services/cliente.service'
 import Paginacion from '../components/ui/Paginacion'
 import { LIMITE } from '../constants/paginacion'
+import ClientePerfil from '../components/ui/ClientePerfil'
 
 interface Cliente {
   id: string
@@ -29,6 +30,7 @@ export default function Clientes() {
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState('')
   const [confirmElim, setConfirmElim] = useState<string | null>(null)
+  const [clientePerfil, setClientePerfil] = useState<Cliente | null>(null)
   const [pagina, setPagina] = useState(1)
   const [totalPaginas, setTotalPaginas] = useState(1)
   const [total, setTotal] = useState(0)
@@ -175,8 +177,11 @@ export default function Clientes() {
                     </span>
                   </td>
                   <td className="px-5 py-3 text-right">
-                    <button onClick={() => abrirEditar(cliente)} className="text-blue-600 mr-3">Editar</button>
-                    <button onClick={() => setConfirmElim(cliente.id)} className="text-red-600">Eliminar</button>
+                    <button onClick={() => setClientePerfil(cliente)} className="text-purple-600 hover:underline mr-3 text-sm">
+                      🔍 Ver perfil
+                    </button>
+                    <button onClick={() => abrirEditar(cliente)} className="text-blue-600 hover:underline mr-3 text-sm">Editar</button>
+                    <button onClick={() => setConfirmElim(cliente.id)} className="text-red-600 hover:underline text-sm">Eliminar</button>
                   </td>
                 </tr>
               ))}
@@ -248,6 +253,14 @@ export default function Clientes() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal Perfil de Cliente */}
+      {clientePerfil && (
+        <ClientePerfil
+          cliente={clientePerfil}
+          onCerrar={() => setClientePerfil(null)}
+        />
       )}
     </div>
   )

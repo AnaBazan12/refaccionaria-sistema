@@ -306,7 +306,10 @@ export const historialVehiculo = async (req: Request, res: Response) => {
           include: {
             mecanico:  { select: { nombre: true } },
             servicios: {
-              include: { servicio: { select: { nombre: true } } }
+              select: {
+                subtotal: true,
+                servicio: { select: { nombre: true } }
+              }
             }
           },
           orderBy: { createdAt: 'desc' }
