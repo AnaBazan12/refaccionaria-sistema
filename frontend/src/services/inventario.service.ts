@@ -59,3 +59,19 @@ export const getProveedores = async () => {
   const { data } = await api.get('/proveedores')
   return data
 }
+
+export const getMetricasInventario = async (): Promise<{
+  totalProductos:      number
+  totalPiezas:         number
+  valorInvertido:      number
+  utilidadPotencial:   number
+  margenPromedio:      number
+  stockBajoCount:      number
+  top5ValorInventario: {
+    id: string; codigo: string; nombre: string
+    valor: number; utilidad: number; margen: number; stock: number
+  }[]
+}> => {
+  const { data } = await api.get('/refacciones/metricas')
+  return data
+}

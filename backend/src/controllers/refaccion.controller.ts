@@ -186,3 +186,73 @@ export const eliminarRefaccion = async (req: Request, res: Response) => {
     return res.status(500).json({ mensaje: 'Error del servidor', error })
   }
 }
+
+// ── Métricas financieras globales del inventario ─────────────
+export const metricasInventario = async (_req: Request, res: Response) => {
+  try {
+    const refacciones = await prisma.refaccion.findMany({
+      where: { activo: true },
+      select: {
+        id:              true,
+        codigo:          true,
+        nombre:          true,
+        costoCompra:     true,
+        precioMostrador: true,
+        margenGanancia:  true,
+        stockActual:     true,
+        stockMinimo:     true,
+      }
+    })
+
+    let valorInvertido   = 0
+    let utilidadPotencial = 0
+    let totalPiezas      = 0
+    let stockBajoCount   = 0
+    let sumMargen        = 0
+
+    for (const r of refacciones) {
+      const costo   = Number(r.costoCompra)
+      const precio  = Number(r.precioMostrador)
+      const stock   = r.stockActual
+
+      valorInvertido    += costo * stock
+      utilidadPotencial += (precio - costo) * stock
+      totalPiezas       += stock
+      sumMargen         += Number(r.margenGanancia)
+      if (stock <= r.stockMinimo) stockBajoCount++
+    }
+
+    const margenPromedio = refacciones.length > 0
+      ? sumMargen / refacciones.length
+      : 0
+
+    // Top 5 productos por valor en inventario
+    const top5 = [...refacciones]
+      .sort((a, b) =>
+        (Number(b.costoCompra) * b.stockActual) -
+        (Number(a.costoCompra) * a.stockActual)
+      )
+      .slice(0, 5)
+      .map(r => ({
+        id:       r.id,
+        codigo:   r.codigo,
+        nombre:   r.nombre,
+        valor:    Number(r.costoCompra)     * r.stockActual,
+        utilidad: (Number(r.precioMostrador) - Number(r.costoCompra)) * r.stockActual,
+        margen:   Number(r.margenGanancia),
+        stock:    r.stockActual,
+      }))
+
+    return res.json({
+      totalProductos:   refacciones.length,
+      totalPiezas,
+      valorInvertido,
+      utilidadPotencial,
+      margenPromedio,
+      stockBajoCount,
+      top5ValorInventario: top5,
+    })
+  } catch (error) {
+    return res.status(500).json({ mensaje: 'Error del servidor', error })
+  }
+}
