@@ -321,11 +321,49 @@ export const agregarServicio = async (req: Request, res: Response) => {
 // ── Cancelar orden ─────────────────────────────────────────
 export const cancelarOrden = async (req: Request, res: Response) => {
   try {
-    const orden = await prisma.ordenTrabajo.update({
-      where: { id: req.params.id as string },
-      data: { estado: 'CANCELADO', activo: false }
+    const id = req.params.id as string
+
+    // Obtener detalles de refacciones para devolver stock
+    const detalles = await prisma.ordenDetalle.findMany({
+      where: { ordenId: id },
+      include: { orden: { select: { numero: true } } }
     })
-    return res.json({ mensaje: 'Orden cancelada', orden })
+
+    // Transacción: cancelar orden + devolver stock de cada refacción
+    await prisma.$transaction([
+      // 1. Cancelar la orden
+      prisma.ordenTrabajo.update({
+        where: { id },
+        data: { estado: 'CANCELADO', activo: false }
+      }),
+
+      // 2. Devolver stock de cada refacción usada
+      ...detalles.map(d =>
+        prisma.refaccion.update({
+          where: { id: d.refaccionId },
+          data:  { stockActual: { increment: d.cantidad } }
+        })
+      ),
+
+      // 3. Registrar movimientos de devolución
+      ...detalles.map(d =>
+        prisma.movimientoInventario.create({
+          data: {
+            refaccionId: d.refaccionId,
+            tipo:        'ENTRADA',
+            cantidad:    d.cantidad,
+            motivo:      `Cancelación de orden #${d.orden.numero}`
+          }
+        })
+      )
+    ])
+
+    return res.json({
+      mensaje: `Orden cancelada${detalles.length > 0
+        ? `. Se devolvió stock de ${detalles.length} refacción${detalles.length !== 1 ? 'es' : ''}`
+        : ''
+      }`
+    })
   } catch (error) {
     return res.status(500).json({ mensaje: 'Error del servidor', error })
   }
