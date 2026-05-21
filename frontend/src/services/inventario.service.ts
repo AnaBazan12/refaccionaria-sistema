@@ -6,6 +6,7 @@ export const getRefacciones = async (filtros?: {
   q?: string
   page?: number
   limit?: number
+  orderBy?: 'nombre' | 'margen' | 'stock' | 'valor'
 }): Promise<RespuestaPaginada<any>> => {
   const { data } = await api.get('/refacciones', { params: filtros })
   return data

@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import {
   getRefacciones, buscarRefaccion, crearRefaccion,
   actualizarRefaccion, entradaInventario,
@@ -115,11 +115,16 @@ export default function Inventario() {
   const [ordenarPor,    setOrdenarPor]    = useState<'nombre' | 'valor' | 'margen' | 'stock'>('nombre')
   const [mostrarTop5,   setMostrarTop5]   = useState(false)
 
-  const cargar = async (pag = pagina) => {
+  const cargar = async (pag = pagina, orden = ordenarPor) => {
     setCargando(true)
     try {
       const [resp, p, met] = await Promise.all([
-        getRefacciones({ stockBajo: soloStockBajo || undefined, page: pag, limit: LIMITE.INVENTARIO }),
+        getRefacciones({
+          stockBajo: soloStockBajo || undefined,
+          page: pag,
+          limit: LIMITE.INVENTARIO,
+          orderBy: orden,
+        }),
         getProveedores(),
         getMetricasInventario(),
       ])
@@ -134,10 +139,11 @@ export default function Inventario() {
     }
   }
 
-  useEffect(() => { setPagina(1); cargar(1) }, [soloStockBajo])
+  useEffect(() => { setPagina(1); cargar(1, ordenarPor) }, [soloStockBajo])
+  useEffect(() => { setPagina(1); cargar(1, ordenarPor) }, [ordenarPor])
 
   useEffect(() => {
-    if (!busqueda.trim()) { setPagina(1); cargar(1); return }
+    if (!busqueda.trim()) { setPagina(1); cargar(1, ordenarPor); return }
     const timer = setTimeout(async () => {
       setCargando(true)
       try {
@@ -153,19 +159,6 @@ export default function Inventario() {
     }, 350)
     return () => clearTimeout(timer)
   }, [busqueda])
-
-  // Ordenamiento client-side
-  const refaccionesOrdenadas = useMemo(() => {
-    const arr = [...refacciones]
-    switch (ordenarPor) {
-      case 'valor':  return arr.sort((a, b) =>
-        (Number(b.costoCompra) * b.stockActual) - (Number(a.costoCompra) * a.stockActual))
-      case 'margen': return arr.sort((a, b) =>
-        Number(b.margenGanancia) - Number(a.margenGanancia))
-      case 'stock':  return arr.sort((a, b) => b.stockActual - a.stockActual)
-      default:       return arr.sort((a, b) => a.nombre.localeCompare(b.nombre))
-    }
-  }, [refacciones, ordenarPor])
 
   const calcularPrecios = (costo: string, margen: string) => {
     const c = parseFloat(costo)
@@ -438,7 +431,7 @@ export default function Inventario() {
       {/* ── Contenido ─────────────────────────────────── */}
       {cargando ? (
         <div className="text-center py-12 text-gray-400">Cargando...</div>
-      ) : refaccionesOrdenadas.length === 0 ? (
+      ) : refacciones.length === 0 ? (
         <div className="text-center py-16">
           <div className="text-5xl mb-3">📦</div>
           <div className="text-gray-500 font-medium">
@@ -472,7 +465,7 @@ export default function Inventario() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {refaccionesOrdenadas.map(r => {
+                {refacciones.map(r => {
                   const utilidadUnit  = Number(r.precioMostrador) - Number(r.costoCompra)
                   const valorInv      = Number(r.costoCompra) * r.stockActual
                   return (
@@ -554,7 +547,7 @@ export default function Inventario() {
 
         // ── Vista tarjetas ───────────────────────────────────
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {refaccionesOrdenadas.map(r => {
+          {refacciones.map(r => {
             const utilidadUnit = Number(r.precioMostrador) - Number(r.costoCompra)
             const valorInv     = Number(r.costoCompra) * r.stockActual
             const utilidadInv  = utilidadUnit * r.stockActual
@@ -669,7 +662,7 @@ export default function Inventario() {
           totalPaginas={totalPaginas}
           total={total}
           limite={LIMITE.INVENTARIO}
-          onCambiar={(p) => { setPagina(p); cargar(p) }}
+          onCambiar={(p) => { setPagina(p); cargar(p, ordenarPor) }}
           cargando={cargando}
         />
       )}

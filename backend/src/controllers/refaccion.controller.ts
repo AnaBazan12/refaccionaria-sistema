@@ -14,11 +14,22 @@ export const obtenerRefacciones = async (req: Request, res: Response) => {
       where.stockActual = { lte: prisma.refaccion.fields.stockMinimo }
     }
 
+    // Ordenamiento configurable
+    const orderByParam = (req.query.orderBy as string) ?? 'nombre'
+    const orderByMap: Record<string, any> = {
+      nombre: [{ nombre: 'asc' }],
+      margen: [{ margenGanancia: 'desc' }, { nombre: 'asc' }],
+      stock:  [{ stockActual: 'desc' }, { nombre: 'asc' }],
+      // "valor" = costo × stock; proxy con ambos campos DESC para aproximar bien
+      valor:  [{ costoCompra: 'desc' }, { stockActual: 'desc' }],
+    }
+    const orderBy = orderByMap[orderByParam] ?? [{ nombre: 'asc' }]
+
     const [refacciones, total] = await prisma.$transaction([
       prisma.refaccion.findMany({
         where,
         include: { proveedor: { select: { nombre: true } } },
-        orderBy: { nombre: 'asc' },
+        orderBy,
         take: limit,
         skip,
       }),
