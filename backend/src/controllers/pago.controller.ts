@@ -8,7 +8,7 @@ export const registrarPago = async (
   res: Response
 ) => {
   try {
-    const { monto, tipo, notas } = req.body
+    const { monto, tipo, notas, metodoPago } = req.body
     const ordenId = req.params.id
 
     const orden = await prisma.ordenTrabajo.findUnique({
@@ -33,11 +33,12 @@ export const registrarPago = async (
     const [pago, ordenActualizada] = await prisma.$transaction([
       prisma.pago.create({
         data: {
-          ordenId: ordenId as string,
+          ordenId:    ordenId as string,
           tipo,
-          monto:     Number(monto),
-          notas:     notas ?? null,
-          usuarioId: req.usuario?.id  ?? null
+          metodoPago: metodoPago ?? 'EFECTIVO',
+          monto:      Number(monto),
+          notas:      notas ?? null,
+          usuarioId:  req.usuario?.id ?? null
         }
       }),
       prisma.ordenTrabajo.update({

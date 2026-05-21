@@ -16,6 +16,7 @@ import pdfRoutes         from './routes/pdf.routes'
 import cotizacionRoutes  from './routes/cotizacion.routes'
 import iaRoutes          from './routes/ia.routes'
 import dashboardRoutes   from './routes/dashboard.routes'
+import cajaRoutes        from './routes/caja.routes'
 
 dotenv.config()
 
@@ -100,6 +101,7 @@ app.use('/api/pdf',          pdfRoutes)
 app.use('/api/cotizaciones', cotizacionRoutes)
 app.use('/api/ia',          iaRoutes)
 app.use('/api/dashboard',   dashboardRoutes)
+app.use('/api/caja',        cajaRoutes)
 
 // ── Manejo de errores global ──────────────────────────────────
 app.use((err: any, _req: express.Request, res: express.Response,

@@ -41,6 +41,12 @@ const menu = [
     roles: ['ADMIN', 'RECEPCIONISTA']
   },
   {
+    ruta: '/caja',
+    icono: '🏦',
+    label: 'Corte de caja',
+    roles: ['ADMIN', 'RECEPCIONISTA']
+  },
+  {
     ruta: '/reportes',
     icono: '📈',
     label: 'Reportes',

@@ -25,6 +25,12 @@ enum TipoPago {
   ABONO
 }
 
+enum MetodoPago {
+  EFECTIVO
+  TARJETA
+  TRANSFERENCIA
+}
+
 enum EstadoPago {
   PAGADO
   PARCIAL
@@ -332,11 +338,12 @@ model OrdenDetalle {
   @@map("orden_detalle")
 }
 model Pago {
-  id          String     @id @default(uuid())
+  id          String      @id @default(uuid())
   tipo        TipoPago
-  monto       Decimal    @db.Decimal(10, 2)
+  metodoPago  MetodoPago  @default(EFECTIVO)
+  monto       Decimal     @db.Decimal(10, 2)
   notas       String?
-  fecha       DateTime   @default(now())
+  fecha       DateTime    @default(now())
 
   ordenId     String
   orden       OrdenTrabajo @relation(fields: [ordenId], references: [id])

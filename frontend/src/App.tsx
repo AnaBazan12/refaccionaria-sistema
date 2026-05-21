@@ -18,6 +18,7 @@ import Cotizaciones   from './pages/Cotizaciones'
 import Servicios      from './pages/Servicios'
 import MecanicoApp   from './pages/MecanicoApp'
 import Landing       from './pages/Landing'
+import Caja          from './pages/Caja'
 
 // ── Pantalla de carga ─────────────────────────────────────────
 const Cargando = () => (
@@ -151,6 +152,14 @@ export default function App() {
               element={
                 <RutaProtegida rolesPermitidos={['ADMIN','RECEPCIONISTA']}>
                   <Cotizaciones />
+                </RutaProtegida>
+              }
+            />
+            <Route
+              path="/caja"
+              element={
+                <RutaProtegida rolesPermitidos={['ADMIN','RECEPCIONISTA']}>
+                  <Caja />
                 </RutaProtegida>
               }
             />

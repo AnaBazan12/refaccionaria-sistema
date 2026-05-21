@@ -69,11 +69,12 @@ function ModalPago({
   onCerrar: () => void
   onGuardado: () => void
 }) {
-  const [monto, setMonto] = useState('')
-  const [tipo, setTipo] = useState('ABONO')
-  const [notas, setNotas] = useState('')
-  const [guardando, setGuardando] = useState(false)
-  const [error, setError] = useState('')
+  const [monto,      setMonto]      = useState('')
+  const [tipo,       setTipo]       = useState('ABONO')
+  const [metodoPago, setMetodoPago] = useState('EFECTIVO')
+  const [notas,      setNotas]      = useState('')
+  const [guardando,  setGuardando]  = useState(false)
+  const [error,      setError]      = useState('')
 
   const guardar = async () => {
     const m = parseFloat(monto)
@@ -85,7 +86,7 @@ function ModalPago({
     setGuardando(true)
     setError('')
     try {
-      await api.post(`/ordenes/${orden.id}/pagos`, { monto: m, tipo, notas })
+      await api.post(`/ordenes/${orden.id}/pagos`, { monto: m, tipo, metodoPago, notas })
       onGuardado()
     } catch (e: any) {
       setError(e?.response?.data?.mensaje ?? 'Error al registrar el pago')
@@ -190,6 +191,29 @@ function ModalPago({
           </div>
 
           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Método de pago</label>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { id: 'EFECTIVO',      label: '💵 Efectivo' },
+                { id: 'TARJETA',       label: '💳 Tarjeta' },
+                { id: 'TRANSFERENCIA', label: '📲 Transfer.' },
+              ].map((m) => (
+                <button
+                  key={m.id}
+                  onClick={() => setMetodoPago(m.id)}
+                  className={`py-2 text-sm rounded-lg border font-medium transition-colors ${
+                    metodoPago === m.id
+                      ? 'bg-green-600 text-white border-green-600'
+                      : 'border-gray-200 text-gray-600 hover:border-green-300'
+                  }`}
+                >
+                  {m.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Notas <span className="font-normal text-gray-400">(opcional)</span>
             </label>
@@ -197,7 +221,7 @@ function ModalPago({
               type="text"
               value={notas}
               onChange={(e) => setNotas(e.target.value)}
-              placeholder="Ej. Pago con transferencia…"
+              placeholder="Ej. Depósito BBVA…"
               className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
