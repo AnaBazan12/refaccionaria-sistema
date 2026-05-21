@@ -16,15 +16,42 @@ const incluirRelaciones = {
 // Obtener Ordenes
 export const obtenerOrdenes = async (req: RequestConUsuario, res: Response) => {
   try {
-    const { estado, pagado, archivadas } = req.query
+    const { estado, pagado, archivadas, q, mecanicoId, fechaDesde, fechaHasta } = req.query
     const page  = Math.max(1, Number(req.query.page)  || 1)
     const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20))
     const skip  = (page - 1) * limit
 
     const where: any = { activo: true }
     where.archivada = archivadas === 'true' ? true : false
-    if (estado) where.estado = estado as EstadoOrden
+    if (estado)            where.estado    = estado as EstadoOrden
     if (pagado !== undefined) where.pagado = pagado === 'true'
+    if (mecanicoId)        where.mecanicoId = mecanicoId as string
+
+    // Búsqueda por texto: placa, nombre de cliente o número de orden
+    if (q && typeof q === 'string' && q.trim()) {
+      const texto = q.trim()
+      const numero = parseInt(texto)
+      where.OR = [
+        { cliente:  { nombre: { contains: texto, mode: 'insensitive' } } },
+        { vehiculo: { placa:  { contains: texto, mode: 'insensitive' } } },
+        ...(!isNaN(numero) ? [{ numero }] : []),
+      ]
+    }
+
+    // Rango de fechas por createdAt
+    if (fechaDesde || fechaHasta) {
+      where.createdAt = {}
+      if (fechaDesde) {
+        const desde = new Date(fechaDesde as string)
+        desde.setHours(0, 0, 0, 0)
+        where.createdAt.gte = desde
+      }
+      if (fechaHasta) {
+        const hasta = new Date(fechaHasta as string)
+        hasta.setHours(23, 59, 59, 999)
+        where.createdAt.lte = hasta
+      }
+    }
 
     if (req.usuario?.rol === 'MECANICO') {
       const mecanico = await prisma.mecanico.findUnique({
