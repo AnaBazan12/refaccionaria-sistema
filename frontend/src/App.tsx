@@ -17,6 +17,7 @@ import Deudas         from './pages/Deudas'
 import Cotizaciones   from './pages/Cotizaciones'
 import Servicios      from './pages/Servicios'
 import MecanicoApp   from './pages/MecanicoApp'
+import Landing       from './pages/Landing'
 
 // ── Pantalla de carga ─────────────────────────────────────────
 const Cargando = () => (
@@ -208,10 +209,10 @@ export default function App() {
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Route>
 
-          {/* ── Ruta raíz — verifica sesión antes de redirigir ── */}
+          {/* ── Ruta raíz — landing si no hay sesión ─────────── */}
           <Route
             path="/"
-            element={<RedirigirInicio />}
+            element={<RutaRaiz />}
           />
 
         </Routes>
@@ -220,10 +221,10 @@ export default function App() {
   )
 }
 
-// Componente que decide a dónde mandar según rol
-const RedirigirInicio = () => {
+// Ruta raíz: landing para visitantes, dashboard para usuarios con sesión
+const RutaRaiz = () => {
   const { usuario, cargando } = useAuth()
   if (cargando) return <Cargando />
-  if (!usuario) return <Navigate to="/login" replace />
+  if (!usuario) return <Landing />
   return <Navigate to={usuario.rol === 'MECANICO' ? '/mecanico' : '/dashboard'} replace />
 }
