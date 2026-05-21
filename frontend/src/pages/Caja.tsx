@@ -7,7 +7,11 @@ const fmt = (n: number) =>
 const hora = (iso: string) =>
   new Date(iso).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
 
-const fechaHoy = () => new Date().toISOString().slice(0, 10)
+// México = UTC-6 permanente desde 2023
+const fechaHoy = () => {
+  const d = new Date(Date.now() - 6 * 60 * 60 * 1000)
+  return d.toISOString().slice(0, 10)
+}
 
 const METODO_LABEL: Record<string, string> = {
   EFECTIVO:      '💵 Efectivo',
@@ -30,14 +34,18 @@ export default function Caja() {
   const [fecha,    setFecha]    = useState(fechaHoy())
   const [resumen,  setResumen]  = useState<ResumenCaja | null>(null)
   const [cargando, setCargando] = useState(true)
+  const [errorMsg, setErrorMsg] = useState('')
   const [tab,      setTab]      = useState<'pagos' | 'ventas'>('pagos')
   const printRef = useRef<HTMLDivElement>(null)
 
   const cargar = async (f = fecha) => {
     setCargando(true)
+    setErrorMsg('')
     try {
       const data = await getResumenCaja(f)
       setResumen(data)
+    } catch (e: any) {
+      setErrorMsg(e?.response?.data?.mensaje ?? 'Error al cargar el corte de caja')
     } finally {
       setCargando(false)
     }
@@ -52,7 +60,7 @@ export default function Caja() {
 
   const imprimir = () => window.print()
 
-  if (cargando && !resumen) {
+  if (cargando) {
     return (
       <div className="p-6 text-center text-gray-400 py-16">
         <div className="text-4xl mb-3">🏦</div>
@@ -61,7 +69,27 @@ export default function Caja() {
     )
   }
 
-  const r = resumen!
+  if (errorMsg) {
+    return (
+      <div className="p-6">
+        <div className="max-w-md mx-auto mt-16 text-center">
+          <div className="text-4xl mb-3">⚠️</div>
+          <h2 className="text-lg font-bold text-gray-800 mb-2">No se pudo cargar el corte</h2>
+          <p className="text-sm text-gray-500 mb-4">{errorMsg}</p>
+          <button
+            onClick={() => cargar()}
+            className="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm hover:bg-blue-700"
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (!resumen) return null
+
+  const r = resumen
 
   // Fecha legible
   const fechaLegible = new Date(`${r.fecha}T12:00:00`).toLocaleDateString('es-MX', {

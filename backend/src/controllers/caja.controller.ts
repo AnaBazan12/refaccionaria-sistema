@@ -4,10 +4,16 @@ import { RequestConUsuario } from '../middlewares/auth.middleware'
 
 export const resumenCaja = async (req: RequestConUsuario, res: Response) => {
   try {
-    // fecha = 'YYYY-MM-DD', default hoy
-    const fechaParam = (req.query.fecha as string) ?? new Date().toISOString().slice(0, 10)
-    const inicio = new Date(`${fechaParam}T00:00:00.000Z`)
-    const fin    = new Date(`${fechaParam}T23:59:59.999Z`)
+    // fecha = 'YYYY-MM-DD', default hoy en hora de México (UTC-6)
+    // México abolió el horario de verano en 2023 → siempre UTC-6
+    const ahora = new Date()
+    const hoyMexico = new Date(ahora.getTime() - 6 * 60 * 60 * 1000)
+      .toISOString().slice(0, 10)
+    const fechaParam = (req.query.fecha as string) ?? hoyMexico
+
+    // Rango del día completo en México (UTC-6): medianoche a medianoche local
+    const inicio = new Date(`${fechaParam}T00:00:00-06:00`)
+    const fin    = new Date(`${fechaParam}T23:59:59.999-06:00`)
 
     // ── Pagos de órdenes del día ───────────────────────────
     const pagos = await prisma.pago.findMany({
