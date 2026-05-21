@@ -218,7 +218,11 @@ export const cambiarEstado = async (
       prisma.ordenTrabajo.update({
         where: { id: req.params.id as string},
         data,
-        include: incluirRelaciones
+        include: {
+          ...incluirRelaciones,
+          cliente:  { select: { id: true, nombre: true, telefono: true } },
+          vehiculo: { select: { id: true, placa: true, marca: true, modelo: true, anio: true } },
+        }
       }),
       prisma.bitacoraOrden.create({
         data: {
@@ -231,7 +235,31 @@ export const cambiarEstado = async (
       })
     ])
 
-    return res.json({ mensaje: 'Estado actualizado', orden })
+    // ── WhatsApp automático al pasar a LISTO ──────────────────
+    let whatsapp: { url: string; mensaje: string } | null = null
+
+    if (estado === 'LISTO' && orden.cliente?.telefono) {
+      const NEGOCIO_NOMBRE = process.env.NEGOCIO_NOMBRE ?? 'el taller'
+      const NEGOCIO_TEL    = process.env.NEGOCIO_TELEFONO ?? ''
+      const tel    = orden.cliente.telefono.replace(/\D/g, '')
+      const nombre = orden.cliente.nombre
+      const auto   = `${orden.vehiculo?.marca} ${orden.vehiculo?.modelo}`
+      const placa  = orden.vehiculo?.placa ?? ''
+      const saldo  = Number(orden.saldoPendiente)
+      const fmt    = (n: number) =>
+        `$${n.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`
+
+      const mensaje = saldo > 0
+        ? `Hola ${nombre} 👋\n\nTu *${auto}* (${placa}) ya está *listo para recoger* 🔧✅\n\n*Total del servicio:* ${fmt(Number(orden.total))}\n*Saldo pendiente:* ${fmt(saldo)}\n\nTe esperamos. ¡Gracias por tu preferencia!\n\n_${NEGOCIO_NOMBRE}_ ${NEGOCIO_TEL ? '· ' + NEGOCIO_TEL : ''}`
+        : `Hola ${nombre} 👋\n\nTu *${auto}* (${placa}) ya está *listo para recoger* 🔧✅\n\n*Total:* ${fmt(Number(orden.total))} ✓ _Pagado_\n\nTe esperamos. ¡Gracias por tu preferencia!\n\n_${NEGOCIO_NOMBRE}_ ${NEGOCIO_TEL ? '· ' + NEGOCIO_TEL : ''}`
+
+      whatsapp = {
+        mensaje,
+        url: `https://wa.me/52${tel}?text=${encodeURIComponent(mensaje)}`
+      }
+    }
+
+    return res.json({ mensaje: 'Estado actualizado', orden, whatsapp })
   } catch (error) {
     return res.status(500).json({ mensaje: 'Error del servidor', error })
   }

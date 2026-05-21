@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import {
   getOrdenes,
-  cambiarEstado,
   agregarServicioOrden,
   getServicios,
   getOrdenPorId,
 } from '../services/orden.service'
 import api from '../services/api'
+import WhatsAppToast from '../components/ui/WhatsAppToast'
 
 // ── Helpers de estado ──────────────────────────────────────────────────────────
 const ESTADO_COLOR: Record<string, string> = {
@@ -49,6 +49,7 @@ export default function MecanicoApp() {
   const [cargando,  setCargando]  = useState(true)
   const [tab,       setTab]       = useState<'activas' | 'completadas'>('activas')
   const [detalle,   setDetalle]   = useState<any>(null)
+  const [waToast,   setWaToast]   = useState<{ url: string; nombre: string } | null>(null)
 
   // ── Carga inicial ────────────────────────────────────────────────────────────
   const cargar = async () => {
@@ -107,18 +108,33 @@ export default function MecanicoApp() {
     </div>
   )
 
+  const mostrarWaToast = (data: { url: string; nombre: string }) => {
+    setWaToast(data)
+    setTimeout(() => setWaToast(null), 20000)
+  }
+
   // ── Detalle de orden ─────────────────────────────────────────────────────────
   if (detalle) return (
-    <DetalleOrden
-      orden={detalle}
-      servicios={servicios}
-      onVolver={() => setDetalle(null)}
-      onRefresh={async () => {
-        const fresca = await getOrdenPorId(detalle.id)
-        setDetalle(fresca)
-        await cargar()
-      }}
-    />
+    <>
+      <DetalleOrden
+        orden={detalle}
+        servicios={servicios}
+        onVolver={() => setDetalle(null)}
+        onRefresh={async () => {
+          const fresca = await getOrdenPorId(detalle.id)
+          setDetalle(fresca)
+          await cargar()
+        }}
+        onWhatsApp={mostrarWaToast}
+      />
+      {waToast && (
+        <WhatsAppToast
+          nombre={waToast.nombre}
+          url={waToast.url}
+          onCerrar={() => setWaToast(null)}
+        />
+      )}
+    </>
   )
 
   // ── Lista de órdenes ─────────────────────────────────────────────────────────
@@ -209,6 +225,13 @@ export default function MecanicoApp() {
           ))
         )}
       </div>
+      {waToast && (
+        <WhatsAppToast
+          nombre={waToast.nombre}
+          url={waToast.url}
+          onCerrar={() => setWaToast(null)}
+        />
+      )}
     </div>
   )
 }
@@ -219,11 +242,13 @@ function DetalleOrden({
   servicios,
   onVolver,
   onRefresh,
+  onWhatsApp,
 }: {
-  orden:     any
-  servicios: any[]
-  onVolver:  () => void
-  onRefresh: () => Promise<void>
+  orden:      any
+  servicios:  any[]
+  onVolver:   () => void
+  onRefresh:  () => Promise<void>
+  onWhatsApp: (data: { url: string; nombre: string }) => void
 }) {
   const [modalServicio, setModalServicio] = useState(false)
   const [form,          setForm]          = useState({ servicioId: '', cantidad: 1, notas: '' })
@@ -237,8 +262,11 @@ function DetalleOrden({
     if (!siguienteEstado) return
     setCambiandoEst(true)
     try {
-      await cambiarEstado(orden.id, siguienteEstado)
+      const { data } = await api.patch(`/ordenes/${orden.id}/estado`, { estado: siguienteEstado })
       await onRefresh()
+      if (data?.whatsapp?.url && data?.orden?.cliente?.nombre) {
+        onWhatsApp({ url: data.whatsapp.url, nombre: data.orden.cliente.nombre })
+      }
     } catch {
       alert('Error al cambiar el estado')
     } finally {

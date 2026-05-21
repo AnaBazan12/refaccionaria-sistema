@@ -7,6 +7,7 @@ import api from '../services/api'
 import OrdenDetalleModal from '../components/ui/OrdenDetalle'
 import Paginacion from '../components/ui/Paginacion'
 import { LIMITE } from '../constants/paginacion'
+import WhatsAppToast from '../components/ui/WhatsAppToast'
 
 const fmt = (n: any) => `$${Number(n ?? 0).toLocaleString('es-MX')}`
 
@@ -26,6 +27,7 @@ export default function Ordenes() {
   const [pagina,           setPagina]            = useState(1)
   const [totalPaginas,     setTotalPaginas]      = useState(1)
   const [total,            setTotal]             = useState(0)
+  const [waToast,          setWaToast]           = useState<{ url: string; nombre: string } | null>(null)
 
   const { usuario } = useAuth()
   const esMecanico = usuario?.rol === 'MECANICO'
@@ -91,8 +93,16 @@ export default function Ordenes() {
   const hayFiltros = busqueda || filtroEstado || filtroMecanico || fechaDesde || fechaHasta
 
   const handleCambiarEstado = async (id: string, nuevoEstado: string) => {
-    try { await cambiarEstado(id, nuevoEstado); cargar(pagina) }
-    catch { alert('No se pudo cambiar el estado') }
+    try {
+      const { data } = await api.patch(`/ordenes/${id}/estado`, { estado: nuevoEstado })
+      cargar(pagina)
+      // Si el backend devuelve un link de WhatsApp (orden pasó a LISTO), mostrar toast
+      if (data?.whatsapp?.url && data?.orden?.cliente?.nombre) {
+        setWaToast({ url: data.whatsapp.url, nombre: data.orden.cliente.nombre })
+        // Auto-cerrar el toast después de 20 segundos
+        setTimeout(() => setWaToast(null), 20000)
+      }
+    } catch { alert('No se pudo cambiar el estado') }
   }
 
   const handlePagar = async (id: string) => {
@@ -421,6 +431,15 @@ export default function Ordenes() {
         onCambiar={p => { setPagina(p); cargar(p) }}
         cargando={cargando}
       />
+
+      {/* ── Toast de WhatsApp ────────────────────────────────── */}
+      {waToast && (
+        <WhatsAppToast
+          nombre={waToast.nombre}
+          url={waToast.url}
+          onCerrar={() => setWaToast(null)}
+        />
+      )}
 
       {/* ── Modales ──────────────────────────────────────────── */}
       {ordenSeleccionada && (
