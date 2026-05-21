@@ -359,6 +359,30 @@ export default function Cotizaciones() {
                   >
                     Ver detalle
                   </button>
+                  {/* Botones rápidos PDF y WhatsApp */}
+                  <div className="flex gap-1.5">
+                    <button
+                      onClick={() => abrirPDF(`/pdf/cotizacion/${c.id}`, `cotizacion-${c.numero}.pdf`)}
+                      title="Descargar PDF"
+                      className="flex-1 text-xs bg-gray-800 hover:bg-gray-700 text-white
+                                 px-2 py-1.5 rounded-lg transition-colors text-center"
+                    >
+                      📄 PDF
+                    </button>
+                    {c.cliente?.telefono && (
+                      <button
+                        onClick={async () => {
+                          const { data } = await api.get(`/pdf/whatsapp/${c.id}?tipo=cotizacion`)
+                          window.open(data.url, '_blank')
+                        }}
+                        title="Enviar por WhatsApp"
+                        className="flex-1 text-xs bg-green-600 hover:bg-green-700 text-white
+                                   px-2 py-1.5 rounded-lg transition-colors text-center"
+                      >
+                        📱 WA
+                      </button>
+                    )}
+                  </div>
                   {c.estado === 'PENDIENTE' && (
                     <>
                       <button
@@ -837,7 +861,7 @@ export default function Cotizaciones() {
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <button
                   onClick={() => abrirPDF(
                     `/pdf/cotizacion/${modalDetalle.id}`,
@@ -847,11 +871,26 @@ export default function Cotizaciones() {
                              bg-gray-800 hover:bg-gray-700 text-white text-sm
                              font-medium py-2.5 rounded-lg transition-colors"
                 >
-                  Imprimir PDF
+                  📄 Descargar PDF
                 </button>
+                {modalDetalle.cliente?.telefono && (
+                  <button
+                    onClick={async () => {
+                      const { data } = await api.get(
+                        `/pdf/whatsapp/${modalDetalle.id}?tipo=cotizacion`
+                      )
+                      window.open(data.url, '_blank')
+                    }}
+                    className="flex-1 flex items-center justify-center gap-2
+                               bg-green-600 hover:bg-green-700 text-white text-sm
+                               font-medium py-2.5 rounded-lg transition-colors"
+                  >
+                    📱 Enviar WhatsApp
+                  </button>
+                )}
                 <button
                   onClick={() => setModalDetalle(null)}
-                  className="flex-1 py-2.5 border border-gray-300 text-gray-600
+                  className="px-4 py-2.5 border border-gray-300 text-gray-600
                              rounded-lg hover:bg-gray-50 text-sm"
                 >
                   Cerrar
