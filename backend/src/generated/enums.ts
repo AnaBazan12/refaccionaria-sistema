@@ -28,6 +28,25 @@ export const TipoPago = {
 export type TipoPago = (typeof TipoPago)[keyof typeof TipoPago]
 
 
+export const MetodoPago = {
+  EFECTIVO: 'EFECTIVO',
+  TARJETA: 'TARJETA',
+  TRANSFERENCIA: 'TRANSFERENCIA'
+} as const
+
+export type MetodoPago = (typeof MetodoPago)[keyof typeof MetodoPago]
+
+
+export const CategoriaGasto = {
+  REFACCIONES: 'REFACCIONES',
+  NOMINA: 'NOMINA',
+  SERVICIOS: 'SERVICIOS',
+  OTROS: 'OTROS'
+} as const
+
+export type CategoriaGasto = (typeof CategoriaGasto)[keyof typeof CategoriaGasto]
+
+
 export const EstadoPago = {
   PAGADO: 'PAGADO',
   PARCIAL: 'PARCIAL',

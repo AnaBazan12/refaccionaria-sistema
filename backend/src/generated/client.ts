@@ -120,6 +120,11 @@ export type Cotizacion = Prisma.CotizacionModel
  */
 export type CotizacionItem = Prisma.CotizacionItemModel
 /**
+ * Model GastoCaja
+ * 
+ */
+export type GastoCaja = Prisma.GastoCajaModel
+/**
  * Model BitacoraOrden
  * 
  */

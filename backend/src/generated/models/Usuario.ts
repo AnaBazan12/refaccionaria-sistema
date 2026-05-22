@@ -211,6 +211,7 @@ export type UsuarioWhereInput = {
   pagos?: Prisma.PagoListRelationFilter
   bitacora?: Prisma.BitacoraOrdenListRelationFilter
   cotizaciones?: Prisma.CotizacionListRelationFilter
+  gastos?: Prisma.GastoCajaListRelationFilter
   ventaRefaccions?: Prisma.VentaRefaccionListRelationFilter
   mecanico?: Prisma.XOR<Prisma.MecanicoNullableScalarRelationFilter, Prisma.MecanicoWhereInput> | null
 }
@@ -229,6 +230,7 @@ export type UsuarioOrderByWithRelationInput = {
   pagos?: Prisma.PagoOrderByRelationAggregateInput
   bitacora?: Prisma.BitacoraOrdenOrderByRelationAggregateInput
   cotizaciones?: Prisma.CotizacionOrderByRelationAggregateInput
+  gastos?: Prisma.GastoCajaOrderByRelationAggregateInput
   ventaRefaccions?: Prisma.VentaRefaccionOrderByRelationAggregateInput
   mecanico?: Prisma.MecanicoOrderByWithRelationInput
 }
@@ -250,6 +252,7 @@ export type UsuarioWhereUniqueInput = Prisma.AtLeast<{
   pagos?: Prisma.PagoListRelationFilter
   bitacora?: Prisma.BitacoraOrdenListRelationFilter
   cotizaciones?: Prisma.CotizacionListRelationFilter
+  gastos?: Prisma.GastoCajaListRelationFilter
   ventaRefaccions?: Prisma.VentaRefaccionListRelationFilter
   mecanico?: Prisma.XOR<Prisma.MecanicoNullableScalarRelationFilter, Prisma.MecanicoWhereInput> | null
 }, "id" | "email">
@@ -296,6 +299,7 @@ export type UsuarioCreateInput = {
   pagos?: Prisma.PagoCreateNestedManyWithoutUsuarioInput
   bitacora?: Prisma.BitacoraOrdenCreateNestedManyWithoutUsuarioInput
   cotizaciones?: Prisma.CotizacionCreateNestedManyWithoutCreadoPorInput
+  gastos?: Prisma.GastoCajaCreateNestedManyWithoutUsuarioInput
   ventaRefaccions?: Prisma.VentaRefaccionCreateNestedManyWithoutUsuarioInput
   mecanico?: Prisma.MecanicoCreateNestedOneWithoutUsuarioInput
 }
@@ -314,6 +318,7 @@ export type UsuarioUncheckedCreateInput = {
   pagos?: Prisma.PagoUncheckedCreateNestedManyWithoutUsuarioInput
   bitacora?: Prisma.BitacoraOrdenUncheckedCreateNestedManyWithoutUsuarioInput
   cotizaciones?: Prisma.CotizacionUncheckedCreateNestedManyWithoutCreadoPorInput
+  gastos?: Prisma.GastoCajaUncheckedCreateNestedManyWithoutUsuarioInput
   ventaRefaccions?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutUsuarioInput
   mecanico?: Prisma.MecanicoUncheckedCreateNestedOneWithoutUsuarioInput
 }
@@ -332,6 +337,7 @@ export type UsuarioUpdateInput = {
   pagos?: Prisma.PagoUpdateManyWithoutUsuarioNestedInput
   bitacora?: Prisma.BitacoraOrdenUpdateManyWithoutUsuarioNestedInput
   cotizaciones?: Prisma.CotizacionUpdateManyWithoutCreadoPorNestedInput
+  gastos?: Prisma.GastoCajaUpdateManyWithoutUsuarioNestedInput
   ventaRefaccions?: Prisma.VentaRefaccionUpdateManyWithoutUsuarioNestedInput
   mecanico?: Prisma.MecanicoUpdateOneWithoutUsuarioNestedInput
 }
@@ -350,6 +356,7 @@ export type UsuarioUncheckedUpdateInput = {
   pagos?: Prisma.PagoUncheckedUpdateManyWithoutUsuarioNestedInput
   bitacora?: Prisma.BitacoraOrdenUncheckedUpdateManyWithoutUsuarioNestedInput
   cotizaciones?: Prisma.CotizacionUncheckedUpdateManyWithoutCreadoPorNestedInput
+  gastos?: Prisma.GastoCajaUncheckedUpdateManyWithoutUsuarioNestedInput
   ventaRefaccions?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutUsuarioNestedInput
   mecanico?: Prisma.MecanicoUncheckedUpdateOneWithoutUsuarioNestedInput
 }
@@ -537,6 +544,22 @@ export type UsuarioUpdateOneWithoutCotizacionesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UsuarioUpdateToOneWithWhereWithoutCotizacionesInput, Prisma.UsuarioUpdateWithoutCotizacionesInput>, Prisma.UsuarioUncheckedUpdateWithoutCotizacionesInput>
 }
 
+export type UsuarioCreateNestedOneWithoutGastosInput = {
+  create?: Prisma.XOR<Prisma.UsuarioCreateWithoutGastosInput, Prisma.UsuarioUncheckedCreateWithoutGastosInput>
+  connectOrCreate?: Prisma.UsuarioCreateOrConnectWithoutGastosInput
+  connect?: Prisma.UsuarioWhereUniqueInput
+}
+
+export type UsuarioUpdateOneWithoutGastosNestedInput = {
+  create?: Prisma.XOR<Prisma.UsuarioCreateWithoutGastosInput, Prisma.UsuarioUncheckedCreateWithoutGastosInput>
+  connectOrCreate?: Prisma.UsuarioCreateOrConnectWithoutGastosInput
+  upsert?: Prisma.UsuarioUpsertWithoutGastosInput
+  disconnect?: Prisma.UsuarioWhereInput | boolean
+  delete?: Prisma.UsuarioWhereInput | boolean
+  connect?: Prisma.UsuarioWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UsuarioUpdateToOneWithWhereWithoutGastosInput, Prisma.UsuarioUpdateWithoutGastosInput>, Prisma.UsuarioUncheckedUpdateWithoutGastosInput>
+}
+
 export type UsuarioCreateNestedOneWithoutBitacoraInput = {
   create?: Prisma.XOR<Prisma.UsuarioCreateWithoutBitacoraInput, Prisma.UsuarioUncheckedCreateWithoutBitacoraInput>
   connectOrCreate?: Prisma.UsuarioCreateOrConnectWithoutBitacoraInput
@@ -567,6 +590,7 @@ export type UsuarioCreateWithoutMecanicoInput = {
   pagos?: Prisma.PagoCreateNestedManyWithoutUsuarioInput
   bitacora?: Prisma.BitacoraOrdenCreateNestedManyWithoutUsuarioInput
   cotizaciones?: Prisma.CotizacionCreateNestedManyWithoutCreadoPorInput
+  gastos?: Prisma.GastoCajaCreateNestedManyWithoutUsuarioInput
   ventaRefaccions?: Prisma.VentaRefaccionCreateNestedManyWithoutUsuarioInput
 }
 
@@ -584,6 +608,7 @@ export type UsuarioUncheckedCreateWithoutMecanicoInput = {
   pagos?: Prisma.PagoUncheckedCreateNestedManyWithoutUsuarioInput
   bitacora?: Prisma.BitacoraOrdenUncheckedCreateNestedManyWithoutUsuarioInput
   cotizaciones?: Prisma.CotizacionUncheckedCreateNestedManyWithoutCreadoPorInput
+  gastos?: Prisma.GastoCajaUncheckedCreateNestedManyWithoutUsuarioInput
   ventaRefaccions?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutUsuarioInput
 }
 
@@ -617,6 +642,7 @@ export type UsuarioUpdateWithoutMecanicoInput = {
   pagos?: Prisma.PagoUpdateManyWithoutUsuarioNestedInput
   bitacora?: Prisma.BitacoraOrdenUpdateManyWithoutUsuarioNestedInput
   cotizaciones?: Prisma.CotizacionUpdateManyWithoutCreadoPorNestedInput
+  gastos?: Prisma.GastoCajaUpdateManyWithoutUsuarioNestedInput
   ventaRefaccions?: Prisma.VentaRefaccionUpdateManyWithoutUsuarioNestedInput
 }
 
@@ -634,6 +660,7 @@ export type UsuarioUncheckedUpdateWithoutMecanicoInput = {
   pagos?: Prisma.PagoUncheckedUpdateManyWithoutUsuarioNestedInput
   bitacora?: Prisma.BitacoraOrdenUncheckedUpdateManyWithoutUsuarioNestedInput
   cotizaciones?: Prisma.CotizacionUncheckedUpdateManyWithoutCreadoPorNestedInput
+  gastos?: Prisma.GastoCajaUncheckedUpdateManyWithoutUsuarioNestedInput
   ventaRefaccions?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutUsuarioNestedInput
 }
 
@@ -650,6 +677,7 @@ export type UsuarioCreateWithoutOrdenesCreadasInput = {
   pagos?: Prisma.PagoCreateNestedManyWithoutUsuarioInput
   bitacora?: Prisma.BitacoraOrdenCreateNestedManyWithoutUsuarioInput
   cotizaciones?: Prisma.CotizacionCreateNestedManyWithoutCreadoPorInput
+  gastos?: Prisma.GastoCajaCreateNestedManyWithoutUsuarioInput
   ventaRefaccions?: Prisma.VentaRefaccionCreateNestedManyWithoutUsuarioInput
   mecanico?: Prisma.MecanicoCreateNestedOneWithoutUsuarioInput
 }
@@ -667,6 +695,7 @@ export type UsuarioUncheckedCreateWithoutOrdenesCreadasInput = {
   pagos?: Prisma.PagoUncheckedCreateNestedManyWithoutUsuarioInput
   bitacora?: Prisma.BitacoraOrdenUncheckedCreateNestedManyWithoutUsuarioInput
   cotizaciones?: Prisma.CotizacionUncheckedCreateNestedManyWithoutCreadoPorInput
+  gastos?: Prisma.GastoCajaUncheckedCreateNestedManyWithoutUsuarioInput
   ventaRefaccions?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutUsuarioInput
   mecanico?: Prisma.MecanicoUncheckedCreateNestedOneWithoutUsuarioInput
 }
@@ -689,6 +718,7 @@ export type UsuarioCreateWithoutOrdenesModificadasInput = {
   pagos?: Prisma.PagoCreateNestedManyWithoutUsuarioInput
   bitacora?: Prisma.BitacoraOrdenCreateNestedManyWithoutUsuarioInput
   cotizaciones?: Prisma.CotizacionCreateNestedManyWithoutCreadoPorInput
+  gastos?: Prisma.GastoCajaCreateNestedManyWithoutUsuarioInput
   ventaRefaccions?: Prisma.VentaRefaccionCreateNestedManyWithoutUsuarioInput
   mecanico?: Prisma.MecanicoCreateNestedOneWithoutUsuarioInput
 }
@@ -706,6 +736,7 @@ export type UsuarioUncheckedCreateWithoutOrdenesModificadasInput = {
   pagos?: Prisma.PagoUncheckedCreateNestedManyWithoutUsuarioInput
   bitacora?: Prisma.BitacoraOrdenUncheckedCreateNestedManyWithoutUsuarioInput
   cotizaciones?: Prisma.CotizacionUncheckedCreateNestedManyWithoutCreadoPorInput
+  gastos?: Prisma.GastoCajaUncheckedCreateNestedManyWithoutUsuarioInput
   ventaRefaccions?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutUsuarioInput
   mecanico?: Prisma.MecanicoUncheckedCreateNestedOneWithoutUsuarioInput
 }
@@ -739,6 +770,7 @@ export type UsuarioUpdateWithoutOrdenesCreadasInput = {
   pagos?: Prisma.PagoUpdateManyWithoutUsuarioNestedInput
   bitacora?: Prisma.BitacoraOrdenUpdateManyWithoutUsuarioNestedInput
   cotizaciones?: Prisma.CotizacionUpdateManyWithoutCreadoPorNestedInput
+  gastos?: Prisma.GastoCajaUpdateManyWithoutUsuarioNestedInput
   ventaRefaccions?: Prisma.VentaRefaccionUpdateManyWithoutUsuarioNestedInput
   mecanico?: Prisma.MecanicoUpdateOneWithoutUsuarioNestedInput
 }
@@ -756,6 +788,7 @@ export type UsuarioUncheckedUpdateWithoutOrdenesCreadasInput = {
   pagos?: Prisma.PagoUncheckedUpdateManyWithoutUsuarioNestedInput
   bitacora?: Prisma.BitacoraOrdenUncheckedUpdateManyWithoutUsuarioNestedInput
   cotizaciones?: Prisma.CotizacionUncheckedUpdateManyWithoutCreadoPorNestedInput
+  gastos?: Prisma.GastoCajaUncheckedUpdateManyWithoutUsuarioNestedInput
   ventaRefaccions?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutUsuarioNestedInput
   mecanico?: Prisma.MecanicoUncheckedUpdateOneWithoutUsuarioNestedInput
 }
@@ -784,6 +817,7 @@ export type UsuarioUpdateWithoutOrdenesModificadasInput = {
   pagos?: Prisma.PagoUpdateManyWithoutUsuarioNestedInput
   bitacora?: Prisma.BitacoraOrdenUpdateManyWithoutUsuarioNestedInput
   cotizaciones?: Prisma.CotizacionUpdateManyWithoutCreadoPorNestedInput
+  gastos?: Prisma.GastoCajaUpdateManyWithoutUsuarioNestedInput
   ventaRefaccions?: Prisma.VentaRefaccionUpdateManyWithoutUsuarioNestedInput
   mecanico?: Prisma.MecanicoUpdateOneWithoutUsuarioNestedInput
 }
@@ -801,6 +835,7 @@ export type UsuarioUncheckedUpdateWithoutOrdenesModificadasInput = {
   pagos?: Prisma.PagoUncheckedUpdateManyWithoutUsuarioNestedInput
   bitacora?: Prisma.BitacoraOrdenUncheckedUpdateManyWithoutUsuarioNestedInput
   cotizaciones?: Prisma.CotizacionUncheckedUpdateManyWithoutCreadoPorNestedInput
+  gastos?: Prisma.GastoCajaUncheckedUpdateManyWithoutUsuarioNestedInput
   ventaRefaccions?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutUsuarioNestedInput
   mecanico?: Prisma.MecanicoUncheckedUpdateOneWithoutUsuarioNestedInput
 }
@@ -819,6 +854,7 @@ export type UsuarioCreateWithoutVentaRefaccionsInput = {
   pagos?: Prisma.PagoCreateNestedManyWithoutUsuarioInput
   bitacora?: Prisma.BitacoraOrdenCreateNestedManyWithoutUsuarioInput
   cotizaciones?: Prisma.CotizacionCreateNestedManyWithoutCreadoPorInput
+  gastos?: Prisma.GastoCajaCreateNestedManyWithoutUsuarioInput
   mecanico?: Prisma.MecanicoCreateNestedOneWithoutUsuarioInput
 }
 
@@ -836,6 +872,7 @@ export type UsuarioUncheckedCreateWithoutVentaRefaccionsInput = {
   pagos?: Prisma.PagoUncheckedCreateNestedManyWithoutUsuarioInput
   bitacora?: Prisma.BitacoraOrdenUncheckedCreateNestedManyWithoutUsuarioInput
   cotizaciones?: Prisma.CotizacionUncheckedCreateNestedManyWithoutCreadoPorInput
+  gastos?: Prisma.GastoCajaUncheckedCreateNestedManyWithoutUsuarioInput
   mecanico?: Prisma.MecanicoUncheckedCreateNestedOneWithoutUsuarioInput
 }
 
@@ -869,6 +906,7 @@ export type UsuarioUpdateWithoutVentaRefaccionsInput = {
   pagos?: Prisma.PagoUpdateManyWithoutUsuarioNestedInput
   bitacora?: Prisma.BitacoraOrdenUpdateManyWithoutUsuarioNestedInput
   cotizaciones?: Prisma.CotizacionUpdateManyWithoutCreadoPorNestedInput
+  gastos?: Prisma.GastoCajaUpdateManyWithoutUsuarioNestedInput
   mecanico?: Prisma.MecanicoUpdateOneWithoutUsuarioNestedInput
 }
 
@@ -886,6 +924,7 @@ export type UsuarioUncheckedUpdateWithoutVentaRefaccionsInput = {
   pagos?: Prisma.PagoUncheckedUpdateManyWithoutUsuarioNestedInput
   bitacora?: Prisma.BitacoraOrdenUncheckedUpdateManyWithoutUsuarioNestedInput
   cotizaciones?: Prisma.CotizacionUncheckedUpdateManyWithoutCreadoPorNestedInput
+  gastos?: Prisma.GastoCajaUncheckedUpdateManyWithoutUsuarioNestedInput
   mecanico?: Prisma.MecanicoUncheckedUpdateOneWithoutUsuarioNestedInput
 }
 
@@ -902,6 +941,7 @@ export type UsuarioCreateWithoutPagosInput = {
   ordenesModificadas?: Prisma.OrdenTrabajoCreateNestedManyWithoutModificadoPorInput
   bitacora?: Prisma.BitacoraOrdenCreateNestedManyWithoutUsuarioInput
   cotizaciones?: Prisma.CotizacionCreateNestedManyWithoutCreadoPorInput
+  gastos?: Prisma.GastoCajaCreateNestedManyWithoutUsuarioInput
   ventaRefaccions?: Prisma.VentaRefaccionCreateNestedManyWithoutUsuarioInput
   mecanico?: Prisma.MecanicoCreateNestedOneWithoutUsuarioInput
 }
@@ -919,6 +959,7 @@ export type UsuarioUncheckedCreateWithoutPagosInput = {
   ordenesModificadas?: Prisma.OrdenTrabajoUncheckedCreateNestedManyWithoutModificadoPorInput
   bitacora?: Prisma.BitacoraOrdenUncheckedCreateNestedManyWithoutUsuarioInput
   cotizaciones?: Prisma.CotizacionUncheckedCreateNestedManyWithoutCreadoPorInput
+  gastos?: Prisma.GastoCajaUncheckedCreateNestedManyWithoutUsuarioInput
   ventaRefaccions?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutUsuarioInput
   mecanico?: Prisma.MecanicoUncheckedCreateNestedOneWithoutUsuarioInput
 }
@@ -952,6 +993,7 @@ export type UsuarioUpdateWithoutPagosInput = {
   ordenesModificadas?: Prisma.OrdenTrabajoUpdateManyWithoutModificadoPorNestedInput
   bitacora?: Prisma.BitacoraOrdenUpdateManyWithoutUsuarioNestedInput
   cotizaciones?: Prisma.CotizacionUpdateManyWithoutCreadoPorNestedInput
+  gastos?: Prisma.GastoCajaUpdateManyWithoutUsuarioNestedInput
   ventaRefaccions?: Prisma.VentaRefaccionUpdateManyWithoutUsuarioNestedInput
   mecanico?: Prisma.MecanicoUpdateOneWithoutUsuarioNestedInput
 }
@@ -969,6 +1011,7 @@ export type UsuarioUncheckedUpdateWithoutPagosInput = {
   ordenesModificadas?: Prisma.OrdenTrabajoUncheckedUpdateManyWithoutModificadoPorNestedInput
   bitacora?: Prisma.BitacoraOrdenUncheckedUpdateManyWithoutUsuarioNestedInput
   cotizaciones?: Prisma.CotizacionUncheckedUpdateManyWithoutCreadoPorNestedInput
+  gastos?: Prisma.GastoCajaUncheckedUpdateManyWithoutUsuarioNestedInput
   ventaRefaccions?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutUsuarioNestedInput
   mecanico?: Prisma.MecanicoUncheckedUpdateOneWithoutUsuarioNestedInput
 }
@@ -986,6 +1029,7 @@ export type UsuarioCreateWithoutCotizacionesInput = {
   ordenesModificadas?: Prisma.OrdenTrabajoCreateNestedManyWithoutModificadoPorInput
   pagos?: Prisma.PagoCreateNestedManyWithoutUsuarioInput
   bitacora?: Prisma.BitacoraOrdenCreateNestedManyWithoutUsuarioInput
+  gastos?: Prisma.GastoCajaCreateNestedManyWithoutUsuarioInput
   ventaRefaccions?: Prisma.VentaRefaccionCreateNestedManyWithoutUsuarioInput
   mecanico?: Prisma.MecanicoCreateNestedOneWithoutUsuarioInput
 }
@@ -1003,6 +1047,7 @@ export type UsuarioUncheckedCreateWithoutCotizacionesInput = {
   ordenesModificadas?: Prisma.OrdenTrabajoUncheckedCreateNestedManyWithoutModificadoPorInput
   pagos?: Prisma.PagoUncheckedCreateNestedManyWithoutUsuarioInput
   bitacora?: Prisma.BitacoraOrdenUncheckedCreateNestedManyWithoutUsuarioInput
+  gastos?: Prisma.GastoCajaUncheckedCreateNestedManyWithoutUsuarioInput
   ventaRefaccions?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutUsuarioInput
   mecanico?: Prisma.MecanicoUncheckedCreateNestedOneWithoutUsuarioInput
 }
@@ -1036,6 +1081,7 @@ export type UsuarioUpdateWithoutCotizacionesInput = {
   ordenesModificadas?: Prisma.OrdenTrabajoUpdateManyWithoutModificadoPorNestedInput
   pagos?: Prisma.PagoUpdateManyWithoutUsuarioNestedInput
   bitacora?: Prisma.BitacoraOrdenUpdateManyWithoutUsuarioNestedInput
+  gastos?: Prisma.GastoCajaUpdateManyWithoutUsuarioNestedInput
   ventaRefaccions?: Prisma.VentaRefaccionUpdateManyWithoutUsuarioNestedInput
   mecanico?: Prisma.MecanicoUpdateOneWithoutUsuarioNestedInput
 }
@@ -1053,6 +1099,95 @@ export type UsuarioUncheckedUpdateWithoutCotizacionesInput = {
   ordenesModificadas?: Prisma.OrdenTrabajoUncheckedUpdateManyWithoutModificadoPorNestedInput
   pagos?: Prisma.PagoUncheckedUpdateManyWithoutUsuarioNestedInput
   bitacora?: Prisma.BitacoraOrdenUncheckedUpdateManyWithoutUsuarioNestedInput
+  gastos?: Prisma.GastoCajaUncheckedUpdateManyWithoutUsuarioNestedInput
+  ventaRefaccions?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutUsuarioNestedInput
+  mecanico?: Prisma.MecanicoUncheckedUpdateOneWithoutUsuarioNestedInput
+}
+
+export type UsuarioCreateWithoutGastosInput = {
+  id?: string
+  nombre: string
+  email: string
+  password: string
+  rol?: $Enums.Rol
+  activo?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ordenesCreadas?: Prisma.OrdenTrabajoCreateNestedManyWithoutCreadoPorInput
+  ordenesModificadas?: Prisma.OrdenTrabajoCreateNestedManyWithoutModificadoPorInput
+  pagos?: Prisma.PagoCreateNestedManyWithoutUsuarioInput
+  bitacora?: Prisma.BitacoraOrdenCreateNestedManyWithoutUsuarioInput
+  cotizaciones?: Prisma.CotizacionCreateNestedManyWithoutCreadoPorInput
+  ventaRefaccions?: Prisma.VentaRefaccionCreateNestedManyWithoutUsuarioInput
+  mecanico?: Prisma.MecanicoCreateNestedOneWithoutUsuarioInput
+}
+
+export type UsuarioUncheckedCreateWithoutGastosInput = {
+  id?: string
+  nombre: string
+  email: string
+  password: string
+  rol?: $Enums.Rol
+  activo?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ordenesCreadas?: Prisma.OrdenTrabajoUncheckedCreateNestedManyWithoutCreadoPorInput
+  ordenesModificadas?: Prisma.OrdenTrabajoUncheckedCreateNestedManyWithoutModificadoPorInput
+  pagos?: Prisma.PagoUncheckedCreateNestedManyWithoutUsuarioInput
+  bitacora?: Prisma.BitacoraOrdenUncheckedCreateNestedManyWithoutUsuarioInput
+  cotizaciones?: Prisma.CotizacionUncheckedCreateNestedManyWithoutCreadoPorInput
+  ventaRefaccions?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutUsuarioInput
+  mecanico?: Prisma.MecanicoUncheckedCreateNestedOneWithoutUsuarioInput
+}
+
+export type UsuarioCreateOrConnectWithoutGastosInput = {
+  where: Prisma.UsuarioWhereUniqueInput
+  create: Prisma.XOR<Prisma.UsuarioCreateWithoutGastosInput, Prisma.UsuarioUncheckedCreateWithoutGastosInput>
+}
+
+export type UsuarioUpsertWithoutGastosInput = {
+  update: Prisma.XOR<Prisma.UsuarioUpdateWithoutGastosInput, Prisma.UsuarioUncheckedUpdateWithoutGastosInput>
+  create: Prisma.XOR<Prisma.UsuarioCreateWithoutGastosInput, Prisma.UsuarioUncheckedCreateWithoutGastosInput>
+  where?: Prisma.UsuarioWhereInput
+}
+
+export type UsuarioUpdateToOneWithWhereWithoutGastosInput = {
+  where?: Prisma.UsuarioWhereInput
+  data: Prisma.XOR<Prisma.UsuarioUpdateWithoutGastosInput, Prisma.UsuarioUncheckedUpdateWithoutGastosInput>
+}
+
+export type UsuarioUpdateWithoutGastosInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nombre?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  rol?: Prisma.EnumRolFieldUpdateOperationsInput | $Enums.Rol
+  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ordenesCreadas?: Prisma.OrdenTrabajoUpdateManyWithoutCreadoPorNestedInput
+  ordenesModificadas?: Prisma.OrdenTrabajoUpdateManyWithoutModificadoPorNestedInput
+  pagos?: Prisma.PagoUpdateManyWithoutUsuarioNestedInput
+  bitacora?: Prisma.BitacoraOrdenUpdateManyWithoutUsuarioNestedInput
+  cotizaciones?: Prisma.CotizacionUpdateManyWithoutCreadoPorNestedInput
+  ventaRefaccions?: Prisma.VentaRefaccionUpdateManyWithoutUsuarioNestedInput
+  mecanico?: Prisma.MecanicoUpdateOneWithoutUsuarioNestedInput
+}
+
+export type UsuarioUncheckedUpdateWithoutGastosInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nombre?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  rol?: Prisma.EnumRolFieldUpdateOperationsInput | $Enums.Rol
+  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ordenesCreadas?: Prisma.OrdenTrabajoUncheckedUpdateManyWithoutCreadoPorNestedInput
+  ordenesModificadas?: Prisma.OrdenTrabajoUncheckedUpdateManyWithoutModificadoPorNestedInput
+  pagos?: Prisma.PagoUncheckedUpdateManyWithoutUsuarioNestedInput
+  bitacora?: Prisma.BitacoraOrdenUncheckedUpdateManyWithoutUsuarioNestedInput
+  cotizaciones?: Prisma.CotizacionUncheckedUpdateManyWithoutCreadoPorNestedInput
   ventaRefaccions?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutUsuarioNestedInput
   mecanico?: Prisma.MecanicoUncheckedUpdateOneWithoutUsuarioNestedInput
 }
@@ -1070,6 +1205,7 @@ export type UsuarioCreateWithoutBitacoraInput = {
   ordenesModificadas?: Prisma.OrdenTrabajoCreateNestedManyWithoutModificadoPorInput
   pagos?: Prisma.PagoCreateNestedManyWithoutUsuarioInput
   cotizaciones?: Prisma.CotizacionCreateNestedManyWithoutCreadoPorInput
+  gastos?: Prisma.GastoCajaCreateNestedManyWithoutUsuarioInput
   ventaRefaccions?: Prisma.VentaRefaccionCreateNestedManyWithoutUsuarioInput
   mecanico?: Prisma.MecanicoCreateNestedOneWithoutUsuarioInput
 }
@@ -1087,6 +1223,7 @@ export type UsuarioUncheckedCreateWithoutBitacoraInput = {
   ordenesModificadas?: Prisma.OrdenTrabajoUncheckedCreateNestedManyWithoutModificadoPorInput
   pagos?: Prisma.PagoUncheckedCreateNestedManyWithoutUsuarioInput
   cotizaciones?: Prisma.CotizacionUncheckedCreateNestedManyWithoutCreadoPorInput
+  gastos?: Prisma.GastoCajaUncheckedCreateNestedManyWithoutUsuarioInput
   ventaRefaccions?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutUsuarioInput
   mecanico?: Prisma.MecanicoUncheckedCreateNestedOneWithoutUsuarioInput
 }
@@ -1120,6 +1257,7 @@ export type UsuarioUpdateWithoutBitacoraInput = {
   ordenesModificadas?: Prisma.OrdenTrabajoUpdateManyWithoutModificadoPorNestedInput
   pagos?: Prisma.PagoUpdateManyWithoutUsuarioNestedInput
   cotizaciones?: Prisma.CotizacionUpdateManyWithoutCreadoPorNestedInput
+  gastos?: Prisma.GastoCajaUpdateManyWithoutUsuarioNestedInput
   ventaRefaccions?: Prisma.VentaRefaccionUpdateManyWithoutUsuarioNestedInput
   mecanico?: Prisma.MecanicoUpdateOneWithoutUsuarioNestedInput
 }
@@ -1137,6 +1275,7 @@ export type UsuarioUncheckedUpdateWithoutBitacoraInput = {
   ordenesModificadas?: Prisma.OrdenTrabajoUncheckedUpdateManyWithoutModificadoPorNestedInput
   pagos?: Prisma.PagoUncheckedUpdateManyWithoutUsuarioNestedInput
   cotizaciones?: Prisma.CotizacionUncheckedUpdateManyWithoutCreadoPorNestedInput
+  gastos?: Prisma.GastoCajaUncheckedUpdateManyWithoutUsuarioNestedInput
   ventaRefaccions?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutUsuarioNestedInput
   mecanico?: Prisma.MecanicoUncheckedUpdateOneWithoutUsuarioNestedInput
 }
@@ -1152,6 +1291,7 @@ export type UsuarioCountOutputType = {
   pagos: number
   bitacora: number
   cotizaciones: number
+  gastos: number
   ventaRefaccions: number
 }
 
@@ -1161,6 +1301,7 @@ export type UsuarioCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   pagos?: boolean | UsuarioCountOutputTypeCountPagosArgs
   bitacora?: boolean | UsuarioCountOutputTypeCountBitacoraArgs
   cotizaciones?: boolean | UsuarioCountOutputTypeCountCotizacionesArgs
+  gastos?: boolean | UsuarioCountOutputTypeCountGastosArgs
   ventaRefaccions?: boolean | UsuarioCountOutputTypeCountVentaRefaccionsArgs
 }
 
@@ -1212,6 +1353,13 @@ export type UsuarioCountOutputTypeCountCotizacionesArgs<ExtArgs extends runtime.
 /**
  * UsuarioCountOutputType without action
  */
+export type UsuarioCountOutputTypeCountGastosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.GastoCajaWhereInput
+}
+
+/**
+ * UsuarioCountOutputType without action
+ */
 export type UsuarioCountOutputTypeCountVentaRefaccionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.VentaRefaccionWhereInput
 }
@@ -1231,6 +1379,7 @@ export type UsuarioSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   pagos?: boolean | Prisma.Usuario$pagosArgs<ExtArgs>
   bitacora?: boolean | Prisma.Usuario$bitacoraArgs<ExtArgs>
   cotizaciones?: boolean | Prisma.Usuario$cotizacionesArgs<ExtArgs>
+  gastos?: boolean | Prisma.Usuario$gastosArgs<ExtArgs>
   ventaRefaccions?: boolean | Prisma.Usuario$ventaRefaccionsArgs<ExtArgs>
   mecanico?: boolean | Prisma.Usuario$mecanicoArgs<ExtArgs>
   _count?: boolean | Prisma.UsuarioCountOutputTypeDefaultArgs<ExtArgs>
@@ -1276,6 +1425,7 @@ export type UsuarioInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   pagos?: boolean | Prisma.Usuario$pagosArgs<ExtArgs>
   bitacora?: boolean | Prisma.Usuario$bitacoraArgs<ExtArgs>
   cotizaciones?: boolean | Prisma.Usuario$cotizacionesArgs<ExtArgs>
+  gastos?: boolean | Prisma.Usuario$gastosArgs<ExtArgs>
   ventaRefaccions?: boolean | Prisma.Usuario$ventaRefaccionsArgs<ExtArgs>
   mecanico?: boolean | Prisma.Usuario$mecanicoArgs<ExtArgs>
   _count?: boolean | Prisma.UsuarioCountOutputTypeDefaultArgs<ExtArgs>
@@ -1291,6 +1441,7 @@ export type $UsuarioPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     pagos: Prisma.$PagoPayload<ExtArgs>[]
     bitacora: Prisma.$BitacoraOrdenPayload<ExtArgs>[]
     cotizaciones: Prisma.$CotizacionPayload<ExtArgs>[]
+    gastos: Prisma.$GastoCajaPayload<ExtArgs>[]
     ventaRefaccions: Prisma.$VentaRefaccionPayload<ExtArgs>[]
     mecanico: Prisma.$MecanicoPayload<ExtArgs> | null
   }
@@ -1702,6 +1853,7 @@ export interface Prisma__UsuarioClient<T, Null = never, ExtArgs extends runtime.
   pagos<T extends Prisma.Usuario$pagosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Usuario$pagosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PagoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   bitacora<T extends Prisma.Usuario$bitacoraArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Usuario$bitacoraArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BitacoraOrdenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   cotizaciones<T extends Prisma.Usuario$cotizacionesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Usuario$cotizacionesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CotizacionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  gastos<T extends Prisma.Usuario$gastosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Usuario$gastosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GastoCajaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ventaRefaccions<T extends Prisma.Usuario$ventaRefaccionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Usuario$ventaRefaccionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VentaRefaccionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   mecanico<T extends Prisma.Usuario$mecanicoArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Usuario$mecanicoArgs<ExtArgs>>): Prisma.Prisma__MecanicoClient<runtime.Types.Result.GetResult<Prisma.$MecanicoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
@@ -2251,6 +2403,30 @@ export type Usuario$cotizacionesArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.CotizacionScalarFieldEnum | Prisma.CotizacionScalarFieldEnum[]
+}
+
+/**
+ * Usuario.gastos
+ */
+export type Usuario$gastosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the GastoCaja
+   */
+  select?: Prisma.GastoCajaSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the GastoCaja
+   */
+  omit?: Prisma.GastoCajaOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.GastoCajaInclude<ExtArgs> | null
+  where?: Prisma.GastoCajaWhereInput
+  orderBy?: Prisma.GastoCajaOrderByWithRelationInput | Prisma.GastoCajaOrderByWithRelationInput[]
+  cursor?: Prisma.GastoCajaWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.GastoCajaScalarFieldEnum | Prisma.GastoCajaScalarFieldEnum[]
 }
 
 /**

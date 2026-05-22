@@ -67,6 +67,7 @@ export const ModelName = {
   Pago: 'Pago',
   Cotizacion: 'Cotizacion',
   CotizacionItem: 'CotizacionItem',
+  GastoCaja: 'GastoCaja',
   BitacoraOrden: 'BitacoraOrden'
 } as const
 
@@ -308,6 +309,7 @@ export type OrdenDetalleScalarFieldEnum = (typeof OrdenDetalleScalarFieldEnum)[k
 export const PagoScalarFieldEnum = {
   id: 'id',
   tipo: 'tipo',
+  metodoPago: 'metodoPago',
   monto: 'monto',
   notas: 'notas',
   fecha: 'fecha',
@@ -348,6 +350,20 @@ export const CotizacionItemScalarFieldEnum = {
 } as const
 
 export type CotizacionItemScalarFieldEnum = (typeof CotizacionItemScalarFieldEnum)[keyof typeof CotizacionItemScalarFieldEnum]
+
+
+export const GastoCajaScalarFieldEnum = {
+  id: 'id',
+  concepto: 'concepto',
+  monto: 'monto',
+  categoria: 'categoria',
+  metodoPago: 'metodoPago',
+  notas: 'notas',
+  fecha: 'fecha',
+  usuarioId: 'usuarioId'
+} as const
+
+export type GastoCajaScalarFieldEnum = (typeof GastoCajaScalarFieldEnum)[keyof typeof GastoCajaScalarFieldEnum]
 
 
 export const BitacoraOrdenScalarFieldEnum = {

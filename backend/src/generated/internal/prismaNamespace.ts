@@ -400,6 +400,7 @@ export const ModelName = {
   Pago: 'Pago',
   Cotizacion: 'Cotizacion',
   CotizacionItem: 'CotizacionItem',
+  GastoCaja: 'GastoCaja',
   BitacoraOrden: 'BitacoraOrden'
 } as const
 
@@ -416,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "usuario" | "cliente" | "vehiculo" | "mecanico" | "tipoServicio" | "ordenTrabajo" | "ordenServicio" | "proveedor" | "refaccion" | "ventaRefaccion" | "movimientoInventario" | "facturaProveedor" | "ordenDetalle" | "pago" | "cotizacion" | "cotizacionItem" | "bitacoraOrden"
+    modelProps: "usuario" | "cliente" | "vehiculo" | "mecanico" | "tipoServicio" | "ordenTrabajo" | "ordenServicio" | "proveedor" | "refaccion" | "ventaRefaccion" | "movimientoInventario" | "facturaProveedor" | "ordenDetalle" | "pago" | "cotizacion" | "cotizacionItem" | "gastoCaja" | "bitacoraOrden"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1604,6 +1605,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    GastoCaja: {
+      payload: Prisma.$GastoCajaPayload<ExtArgs>
+      fields: Prisma.GastoCajaFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GastoCajaFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GastoCajaPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GastoCajaFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GastoCajaPayload>
+        }
+        findFirst: {
+          args: Prisma.GastoCajaFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GastoCajaPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GastoCajaFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GastoCajaPayload>
+        }
+        findMany: {
+          args: Prisma.GastoCajaFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GastoCajaPayload>[]
+        }
+        create: {
+          args: Prisma.GastoCajaCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GastoCajaPayload>
+        }
+        createMany: {
+          args: Prisma.GastoCajaCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GastoCajaCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GastoCajaPayload>[]
+        }
+        delete: {
+          args: Prisma.GastoCajaDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GastoCajaPayload>
+        }
+        update: {
+          args: Prisma.GastoCajaUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GastoCajaPayload>
+        }
+        deleteMany: {
+          args: Prisma.GastoCajaDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GastoCajaUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GastoCajaUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GastoCajaPayload>[]
+        }
+        upsert: {
+          args: Prisma.GastoCajaUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GastoCajaPayload>
+        }
+        aggregate: {
+          args: Prisma.GastoCajaAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGastoCaja>
+        }
+        groupBy: {
+          args: Prisma.GastoCajaGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GastoCajaGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GastoCajaCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GastoCajaCountAggregateOutputType> | number
+        }
+      }
+    }
     BitacoraOrden: {
       payload: Prisma.$BitacoraOrdenPayload<ExtArgs>
       fields: Prisma.BitacoraOrdenFieldRefs
@@ -1939,6 +2014,7 @@ export type OrdenDetalleScalarFieldEnum = (typeof OrdenDetalleScalarFieldEnum)[k
 export const PagoScalarFieldEnum = {
   id: 'id',
   tipo: 'tipo',
+  metodoPago: 'metodoPago',
   monto: 'monto',
   notas: 'notas',
   fecha: 'fecha',
@@ -1979,6 +2055,20 @@ export const CotizacionItemScalarFieldEnum = {
 } as const
 
 export type CotizacionItemScalarFieldEnum = (typeof CotizacionItemScalarFieldEnum)[keyof typeof CotizacionItemScalarFieldEnum]
+
+
+export const GastoCajaScalarFieldEnum = {
+  id: 'id',
+  concepto: 'concepto',
+  monto: 'monto',
+  categoria: 'categoria',
+  metodoPago: 'metodoPago',
+  notas: 'notas',
+  fecha: 'fecha',
+  usuarioId: 'usuarioId'
+} as const
+
+export type GastoCajaScalarFieldEnum = (typeof GastoCajaScalarFieldEnum)[keyof typeof GastoCajaScalarFieldEnum]
 
 
 export const BitacoraOrdenScalarFieldEnum = {
@@ -2158,6 +2248,20 @@ export type ListEnumTipoPagoFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
 
 
 /**
+ * Reference to a field of type 'MetodoPago'
+ */
+export type EnumMetodoPagoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MetodoPago'>
+    
+
+
+/**
+ * Reference to a field of type 'MetodoPago[]'
+ */
+export type ListEnumMetodoPagoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MetodoPago[]'>
+    
+
+
+/**
  * Reference to a field of type 'EstadoCotizacion'
  */
 export type EnumEstadoCotizacionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EstadoCotizacion'>
@@ -2168,6 +2272,20 @@ export type EnumEstadoCotizacionFieldRefInput<$PrismaModel> = FieldRefInputType<
  * Reference to a field of type 'EstadoCotizacion[]'
  */
 export type ListEnumEstadoCotizacionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EstadoCotizacion[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CategoriaGasto'
+ */
+export type EnumCategoriaGastoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CategoriaGasto'>
+    
+
+
+/**
+ * Reference to a field of type 'CategoriaGasto[]'
+ */
+export type ListEnumCategoriaGastoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CategoriaGasto[]'>
     
 
 
@@ -2295,6 +2413,7 @@ export type GlobalOmitConfig = {
   pago?: Prisma.PagoOmit
   cotizacion?: Prisma.CotizacionOmit
   cotizacionItem?: Prisma.CotizacionItemOmit
+  gastoCaja?: Prisma.GastoCajaOmit
   bitacoraOrden?: Prisma.BitacoraOrdenOmit
 }
 

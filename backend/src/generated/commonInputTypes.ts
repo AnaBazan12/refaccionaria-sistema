@@ -331,6 +331,13 @@ export type EnumTipoPagoFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumTipoPagoFilter<$PrismaModel> | $Enums.TipoPago
 }
 
+export type EnumMetodoPagoFilter<$PrismaModel = never> = {
+  equals?: $Enums.MetodoPago | Prisma.EnumMetodoPagoFieldRefInput<$PrismaModel>
+  in?: $Enums.MetodoPago[] | Prisma.ListEnumMetodoPagoFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MetodoPago[] | Prisma.ListEnumMetodoPagoFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMetodoPagoFilter<$PrismaModel> | $Enums.MetodoPago
+}
+
 export type EnumTipoPagoWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.TipoPago | Prisma.EnumTipoPagoFieldRefInput<$PrismaModel>
   in?: $Enums.TipoPago[] | Prisma.ListEnumTipoPagoFieldRefInput<$PrismaModel>
@@ -339,6 +346,16 @@ export type EnumTipoPagoWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumTipoPagoFilter<$PrismaModel>
   _max?: Prisma.NestedEnumTipoPagoFilter<$PrismaModel>
+}
+
+export type EnumMetodoPagoWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MetodoPago | Prisma.EnumMetodoPagoFieldRefInput<$PrismaModel>
+  in?: $Enums.MetodoPago[] | Prisma.ListEnumMetodoPagoFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MetodoPago[] | Prisma.ListEnumMetodoPagoFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMetodoPagoWithAggregatesFilter<$PrismaModel> | $Enums.MetodoPago
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMetodoPagoFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMetodoPagoFilter<$PrismaModel>
 }
 
 export type EnumEstadoCotizacionFilter<$PrismaModel = never> = {
@@ -356,6 +373,23 @@ export type EnumEstadoCotizacionWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumEstadoCotizacionFilter<$PrismaModel>
   _max?: Prisma.NestedEnumEstadoCotizacionFilter<$PrismaModel>
+}
+
+export type EnumCategoriaGastoFilter<$PrismaModel = never> = {
+  equals?: $Enums.CategoriaGasto | Prisma.EnumCategoriaGastoFieldRefInput<$PrismaModel>
+  in?: $Enums.CategoriaGasto[] | Prisma.ListEnumCategoriaGastoFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CategoriaGasto[] | Prisma.ListEnumCategoriaGastoFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCategoriaGastoFilter<$PrismaModel> | $Enums.CategoriaGasto
+}
+
+export type EnumCategoriaGastoWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CategoriaGasto | Prisma.EnumCategoriaGastoFieldRefInput<$PrismaModel>
+  in?: $Enums.CategoriaGasto[] | Prisma.ListEnumCategoriaGastoFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CategoriaGasto[] | Prisma.ListEnumCategoriaGastoFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCategoriaGastoWithAggregatesFilter<$PrismaModel> | $Enums.CategoriaGasto
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCategoriaGastoFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCategoriaGastoFilter<$PrismaModel>
 }
 
 export type NestedStringFilter<$PrismaModel = never> = {
@@ -688,6 +722,13 @@ export type NestedEnumTipoPagoFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumTipoPagoFilter<$PrismaModel> | $Enums.TipoPago
 }
 
+export type NestedEnumMetodoPagoFilter<$PrismaModel = never> = {
+  equals?: $Enums.MetodoPago | Prisma.EnumMetodoPagoFieldRefInput<$PrismaModel>
+  in?: $Enums.MetodoPago[] | Prisma.ListEnumMetodoPagoFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MetodoPago[] | Prisma.ListEnumMetodoPagoFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMetodoPagoFilter<$PrismaModel> | $Enums.MetodoPago
+}
+
 export type NestedEnumTipoPagoWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.TipoPago | Prisma.EnumTipoPagoFieldRefInput<$PrismaModel>
   in?: $Enums.TipoPago[] | Prisma.ListEnumTipoPagoFieldRefInput<$PrismaModel>
@@ -696,6 +737,16 @@ export type NestedEnumTipoPagoWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumTipoPagoFilter<$PrismaModel>
   _max?: Prisma.NestedEnumTipoPagoFilter<$PrismaModel>
+}
+
+export type NestedEnumMetodoPagoWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MetodoPago | Prisma.EnumMetodoPagoFieldRefInput<$PrismaModel>
+  in?: $Enums.MetodoPago[] | Prisma.ListEnumMetodoPagoFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MetodoPago[] | Prisma.ListEnumMetodoPagoFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMetodoPagoWithAggregatesFilter<$PrismaModel> | $Enums.MetodoPago
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMetodoPagoFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMetodoPagoFilter<$PrismaModel>
 }
 
 export type NestedEnumEstadoCotizacionFilter<$PrismaModel = never> = {
@@ -713,6 +764,23 @@ export type NestedEnumEstadoCotizacionWithAggregatesFilter<$PrismaModel = never>
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumEstadoCotizacionFilter<$PrismaModel>
   _max?: Prisma.NestedEnumEstadoCotizacionFilter<$PrismaModel>
+}
+
+export type NestedEnumCategoriaGastoFilter<$PrismaModel = never> = {
+  equals?: $Enums.CategoriaGasto | Prisma.EnumCategoriaGastoFieldRefInput<$PrismaModel>
+  in?: $Enums.CategoriaGasto[] | Prisma.ListEnumCategoriaGastoFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CategoriaGasto[] | Prisma.ListEnumCategoriaGastoFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCategoriaGastoFilter<$PrismaModel> | $Enums.CategoriaGasto
+}
+
+export type NestedEnumCategoriaGastoWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CategoriaGasto | Prisma.EnumCategoriaGastoFieldRefInput<$PrismaModel>
+  in?: $Enums.CategoriaGasto[] | Prisma.ListEnumCategoriaGastoFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CategoriaGasto[] | Prisma.ListEnumCategoriaGastoFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCategoriaGastoWithAggregatesFilter<$PrismaModel> | $Enums.CategoriaGasto
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCategoriaGastoFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCategoriaGastoFilter<$PrismaModel>
 }
 
 
