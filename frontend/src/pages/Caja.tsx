@@ -45,9 +45,7 @@ export default function Caja() {
       const data = await getResumenCaja(f)
       setResumen(data)
     } catch (e: any) {
-      const status  = e?.response?.status
-      const mensaje = e?.response?.data?.mensaje ?? e?.response?.data ?? e?.message ?? 'Sin respuesta del servidor'
-      setErrorMsg(`[${status ?? 'RED'}] ${typeof mensaje === 'string' ? mensaje : JSON.stringify(mensaje)}`)
+      setErrorMsg(e?.response?.data?.mensaje ?? e?.message ?? 'Error al cargar el corte de caja')
     } finally {
       setCargando(false)
     }
