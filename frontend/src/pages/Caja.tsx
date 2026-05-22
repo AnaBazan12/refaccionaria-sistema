@@ -350,16 +350,13 @@ export default function Caja() {
                   Gastos ({r.gastos.length})
                 </button>
               </div>
-              {/* Solo visible si la fecha es hoy */}
-              {r.fecha === fechaHoy() && (
-                <button
-                  onClick={() => { setGastoForm(gastoFormVacio); setGastoError(''); setModalGasto(true) }}
-                  className="mr-4 text-sm text-red-600 font-medium border border-red-200
-                             px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors no-print"
-                >
-                  + Registrar gasto
-                </button>
-              )}
+              <button
+                onClick={() => { setGastoForm(gastoFormVacio); setGastoError(''); setModalGasto(true) }}
+                className="mr-4 text-sm text-red-600 font-medium border border-red-200
+                           px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors no-print"
+              >
+                + Registrar gasto
+              </button>
             </div>
 
             {tab === 'pagos' ? (
@@ -493,14 +490,12 @@ export default function Caja() {
                 <div className="text-center py-12 text-gray-400">
                   <div className="text-4xl mb-2">💸</div>
                   <p>Sin gastos registrados en esta fecha</p>
-                  {r.fecha === fechaHoy() && (
-                    <button
-                      onClick={() => { setGastoForm(gastoFormVacio); setGastoError(''); setModalGasto(true) }}
-                      className="mt-3 text-sm text-red-600 underline"
-                    >
-                      Registrar un gasto
-                    </button>
-                  )}
+                  <button
+                    onClick={() => { setGastoForm(gastoFormVacio); setGastoError(''); setModalGasto(true) }}
+                    className="mt-3 text-sm text-red-600 underline"
+                  >
+                    Registrar un gasto
+                  </button>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
@@ -541,15 +536,13 @@ export default function Caja() {
                           </td>
                           <td className="px-4 py-3 text-xs text-gray-400 no-print">{g.registradoPor}</td>
                           <td className="px-4 py-3 no-print">
-                            {r.fecha === fechaHoy() && (
-                              <button
-                                onClick={() => setConfirmElim(g.id)}
-                                className="text-xs text-gray-400 hover:text-red-600 px-2 py-1
-                                           rounded hover:bg-red-50 transition-colors"
-                              >
-                                ×
-                              </button>
-                            )}
+                            <button
+                              onClick={() => setConfirmElim(g.id)}
+                              className="text-xs text-gray-400 hover:text-red-600 px-2 py-1
+                                         rounded hover:bg-red-50 transition-colors"
+                            >
+                              ×
+                            </button>
                           </td>
                         </tr>
                       ))}
