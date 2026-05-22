@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from 'react'
 import { getResumenCaja, registrarGasto, eliminarGasto, type ResumenCaja } from '../services/caja.service'
 
-const fmt = (n: number) =>
-  n.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const fmt = (n: number | undefined | null) =>
+  (n ?? 0).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 const hora = (iso: string) =>
   new Date(iso).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })

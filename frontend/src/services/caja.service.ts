@@ -65,7 +65,14 @@ export const getResumenCaja = async (fecha?: string): Promise<ResumenCaja> => {
   const { data } = await api.get('/caja/resumen', {
     params: fecha ? { fecha } : {}
   })
-  return data
+  // Normaliza campos que pueden faltar en versiones anteriores del backend
+  return {
+    totalGastos:  0,
+    utilidadNeta: data.totalDia ?? 0,
+    porCategoria: { REFACCIONES: 0, NOMINA: 0, SERVICIOS: 0, OTROS: 0 },
+    gastos:       [],
+    ...data,
+  }
 }
 
 export const registrarGasto = async (gasto: {
