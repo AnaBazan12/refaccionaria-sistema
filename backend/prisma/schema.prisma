@@ -31,6 +31,13 @@ enum MetodoPago {
   TRANSFERENCIA
 }
 
+enum CategoriaGasto {
+  REFACCIONES
+  NOMINA
+  SERVICIOS
+  OTROS
+}
+
 enum EstadoPago {
   PAGADO
   PARCIAL
@@ -58,6 +65,7 @@ model Usuario {
   pagos              Pago[]
   bitacora           BitacoraOrden[]
   cotizaciones       Cotizacion[]
+  gastos             GastoCaja[]
 
   @@map("usuarios")
   ventaRefaccions VentaRefaccion[]
@@ -395,6 +403,21 @@ model CotizacionItem {
 
   @@map("cotizacion_items")
 }
+model GastoCaja {
+  id         String         @id @default(uuid())
+  concepto   String
+  monto      Decimal        @db.Decimal(10, 2)
+  categoria  CategoriaGasto @default(OTROS)
+  metodoPago MetodoPago     @default(EFECTIVO)
+  notas      String?
+  fecha      DateTime       @default(now())
+
+  usuarioId  String?
+  usuario    Usuario?       @relation(fields: [usuarioId], references: [id])
+
+  @@map("gastos_caja")
+}
+
 model BitacoraOrden {
   id          String   @id @default(uuid())
   estadoAntes String

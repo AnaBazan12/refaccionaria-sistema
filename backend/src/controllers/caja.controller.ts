@@ -15,8 +15,11 @@ export const resumenCaja = async (req: RequestConUsuario, res: Response) => {
     const inicio = new Date(`${fechaParam}T00:00:00-06:00`)
     const fin    = new Date(`${fechaParam}T23:59:59.999-06:00`)
 
+    // ── Pagos, ventas y gastos del día (paralelo) ─────────
+    const [pagos, ventas, gastos] = await Promise.all([
+
     // ── Pagos de órdenes del día ───────────────────────────
-    const pagos = await prisma.pago.findMany({
+    prisma.pago.findMany({
       where: { fecha: { gte: inicio, lte: fin } },
       include: {
         orden: {
@@ -32,17 +35,26 @@ export const resumenCaja = async (req: RequestConUsuario, res: Response) => {
     })
 
     // ── Ventas mostrador del día ──────────────────────────
-    const ventas = await prisma.ventaRefaccion.findMany({
+    prisma.ventaRefaccion.findMany({
       where: {
         fecha: { gte: inicio, lte: fin },
         tipoVenta: 'MOSTRADOR',
-        ordenId:   null,          // solo ventas directas, no de órdenes
+        ordenId:   null,
       },
       include: {
         refaccion: { select: { nombre: true, codigo: true } }
       },
       orderBy: { fecha: 'asc' }
-    })
+    }),
+
+    // ── Gastos del día ────────────────────────────────────
+    prisma.gastoCaja.findMany({
+      where: { fecha: { gte: inicio, lte: fin } },
+      include: { usuario: { select: { nombre: true } } },
+      orderBy: { fecha: 'asc' }
+    }),
+
+    ])
 
     // ── Agrupar pagos por método ──────────────────────────
     const porMetodo = { EFECTIVO: 0, TARJETA: 0, TRANSFERENCIA: 0 }
@@ -58,10 +70,19 @@ export const resumenCaja = async (req: RequestConUsuario, res: Response) => {
       porTipo[t] = (porTipo[t] ?? 0) + Number(p.monto)
     }
 
-    // ── Totales ventas mostrador ──────────────────────────
+    // ── Totales ───────────────────────────────────────────
     const totalVentasMostrador = ventas.reduce((s, v) => s + Number(v.subtotal), 0)
     const totalPagosOrdenes    = pagos.reduce((s, p) => s + Number(p.monto), 0)
-    const totalDia             = totalPagosOrdenes + totalVentasMostrador
+    const totalIngresos        = totalPagosOrdenes + totalVentasMostrador
+    const totalGastos          = gastos.reduce((s, g) => s + Number(g.monto), 0)
+    const utilidadNeta         = totalIngresos - totalGastos
+
+    // ── Gastos por categoría ──────────────────────────────
+    const porCategoria = { REFACCIONES: 0, NOMINA: 0, SERVICIOS: 0, OTROS: 0 }
+    for (const g of gastos) {
+      const c = g.categoria as keyof typeof porCategoria
+      porCategoria[c] = (porCategoria[c] ?? 0) + Number(g.monto)
+    }
 
     // ── Órdenes únicas que recibieron pago hoy ────────────
     const ordenesIds = [...new Set(pagos.map(p => p.ordenId))]
@@ -69,12 +90,15 @@ export const resumenCaja = async (req: RequestConUsuario, res: Response) => {
 
     return res.json({
       fecha:            fechaParam,
-      totalDia,
+      totalDia:         totalIngresos,
       totalPagosOrdenes,
       totalVentasMostrador,
+      totalGastos,
+      utilidadNeta,
       ordenesPagadas,
       porMetodo,
       porTipo,
+      porCategoria,
       pagos:            pagos.map(p => ({
         id:            p.id,
         hora:          p.fecha,
@@ -100,6 +124,16 @@ export const resumenCaja = async (req: RequestConUsuario, res: Response) => {
         precioUnit:    Number(v.precioUnitario),
         subtotal:      Number(v.subtotal),
         ganancia:      Number(v.ganancia),
+      })),
+      gastos: gastos.map(g => ({
+        id:            g.id,
+        hora:          g.fecha,
+        concepto:      g.concepto,
+        categoria:     g.categoria,
+        metodoPago:    g.metodoPago,
+        monto:         Number(g.monto),
+        notas:         g.notas,
+        registradoPor: g.usuario?.nombre ?? '—',
       })),
     })
   } catch (error) {

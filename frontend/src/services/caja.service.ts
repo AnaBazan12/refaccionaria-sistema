@@ -5,6 +5,8 @@ export interface ResumenCaja {
   totalDia:             number
   totalPagosOrdenes:    number
   totalVentasMostrador: number
+  totalGastos:          number
+  utilidadNeta:         number
   ordenesPagadas:       number
   porMetodo: {
     EFECTIVO:      number
@@ -16,6 +18,12 @@ export interface ResumenCaja {
     ANTICIPO: number
     ABONO:    number
     CREDITO:  number
+  }
+  porCategoria: {
+    REFACCIONES: number
+    NOMINA:      number
+    SERVICIOS:   number
+    OTROS:       number
   }
   pagos: {
     id:            string
@@ -41,11 +49,37 @@ export interface ResumenCaja {
     subtotal:   number
     ganancia:   number
   }[]
+  gastos: {
+    id:            string
+    hora:          string
+    concepto:      string
+    categoria:     string
+    metodoPago:    string
+    monto:         number
+    notas:         string | null
+    registradoPor: string
+  }[]
 }
 
 export const getResumenCaja = async (fecha?: string): Promise<ResumenCaja> => {
   const { data } = await api.get('/caja/resumen', {
     params: fecha ? { fecha } : {}
   })
+  return data
+}
+
+export const registrarGasto = async (gasto: {
+  concepto:   string
+  monto:      number
+  categoria:  string
+  metodoPago: string
+  notas?:     string
+}) => {
+  const { data } = await api.post('/caja/gastos', gasto)
+  return data
+}
+
+export const eliminarGasto = async (id: string) => {
+  const { data } = await api.delete(`/caja/gastos/${id}`)
   return data
 }
