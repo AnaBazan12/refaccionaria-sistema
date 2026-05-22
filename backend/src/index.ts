@@ -84,6 +84,8 @@ app.get('/health', (_req, res) => res.json({
   status:    'ok',
   timestamp: new Date().toISOString(),
   env:       process.env.NODE_ENV,
+  version:   'gastos-v2',
+  routes:    ['GET /api/caja/resumen', 'POST /api/caja/gastos', 'DELETE /api/caja/gastos/:id'],
 }))
 
 // ── Rutas ─────────────────────────────────────────────────────
@@ -117,4 +119,6 @@ app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en puerto ${PORT}`)
   console.log(`📦 Ambiente: ${process.env.NODE_ENV || 'development'}`)
   console.log(`🌐 Orígenes CORS permitidos:`, origenesPermitidos)
+  console.log(`✅ Rutas caja: GET /api/caja/resumen | POST /api/caja/gastos | DELETE /api/caja/gastos/:id`)
+  console.log(`🔖 Deploy: ${new Date().toISOString()}`)
 })
