@@ -57,6 +57,7 @@ export type VentaRefaccionMinAggregateOutputType = {
   refaccionId: string | null
   ordenId: string | null
   ticketId: string | null
+  clienteId: string | null
   usuarioId: string | null
 }
 
@@ -73,6 +74,7 @@ export type VentaRefaccionMaxAggregateOutputType = {
   refaccionId: string | null
   ordenId: string | null
   ticketId: string | null
+  clienteId: string | null
   usuarioId: string | null
 }
 
@@ -89,6 +91,7 @@ export type VentaRefaccionCountAggregateOutputType = {
   refaccionId: number
   ordenId: number
   ticketId: number
+  clienteId: number
   usuarioId: number
   _all: number
 }
@@ -125,6 +128,7 @@ export type VentaRefaccionMinAggregateInputType = {
   refaccionId?: true
   ordenId?: true
   ticketId?: true
+  clienteId?: true
   usuarioId?: true
 }
 
@@ -141,6 +145,7 @@ export type VentaRefaccionMaxAggregateInputType = {
   refaccionId?: true
   ordenId?: true
   ticketId?: true
+  clienteId?: true
   usuarioId?: true
 }
 
@@ -157,6 +162,7 @@ export type VentaRefaccionCountAggregateInputType = {
   refaccionId?: true
   ordenId?: true
   ticketId?: true
+  clienteId?: true
   usuarioId?: true
   _all?: true
 }
@@ -260,6 +266,7 @@ export type VentaRefaccionGroupByOutputType = {
   refaccionId: string
   ordenId: string | null
   ticketId: string | null
+  clienteId: string | null
   usuarioId: string | null
   _count: VentaRefaccionCountAggregateOutputType | null
   _avg: VentaRefaccionAvgAggregateOutputType | null
@@ -299,12 +306,13 @@ export type VentaRefaccionWhereInput = {
   refaccionId?: Prisma.StringFilter<"VentaRefaccion"> | string
   ordenId?: Prisma.StringNullableFilter<"VentaRefaccion"> | string | null
   ticketId?: Prisma.StringNullableFilter<"VentaRefaccion"> | string | null
+  clienteId?: Prisma.StringNullableFilter<"VentaRefaccion"> | string | null
   usuarioId?: Prisma.StringNullableFilter<"VentaRefaccion"> | string | null
   refaccion?: Prisma.XOR<Prisma.RefaccionScalarRelationFilter, Prisma.RefaccionWhereInput>
   orden?: Prisma.XOR<Prisma.OrdenTrabajoNullableScalarRelationFilter, Prisma.OrdenTrabajoWhereInput> | null
+  cliente?: Prisma.XOR<Prisma.ClienteNullableScalarRelationFilter, Prisma.ClienteWhereInput> | null
   usuario?: Prisma.XOR<Prisma.UsuarioNullableScalarRelationFilter, Prisma.UsuarioWhereInput> | null
   ordenServicios?: Prisma.OrdenServicioListRelationFilter
-  clientes?: Prisma.ClienteListRelationFilter
 }
 
 export type VentaRefaccionOrderByWithRelationInput = {
@@ -320,12 +328,13 @@ export type VentaRefaccionOrderByWithRelationInput = {
   refaccionId?: Prisma.SortOrder
   ordenId?: Prisma.SortOrderInput | Prisma.SortOrder
   ticketId?: Prisma.SortOrderInput | Prisma.SortOrder
+  clienteId?: Prisma.SortOrderInput | Prisma.SortOrder
   usuarioId?: Prisma.SortOrderInput | Prisma.SortOrder
   refaccion?: Prisma.RefaccionOrderByWithRelationInput
   orden?: Prisma.OrdenTrabajoOrderByWithRelationInput
+  cliente?: Prisma.ClienteOrderByWithRelationInput
   usuario?: Prisma.UsuarioOrderByWithRelationInput
   ordenServicios?: Prisma.OrdenServicioOrderByRelationAggregateInput
-  clientes?: Prisma.ClienteOrderByRelationAggregateInput
 }
 
 export type VentaRefaccionWhereUniqueInput = Prisma.AtLeast<{
@@ -344,12 +353,13 @@ export type VentaRefaccionWhereUniqueInput = Prisma.AtLeast<{
   refaccionId?: Prisma.StringFilter<"VentaRefaccion"> | string
   ordenId?: Prisma.StringNullableFilter<"VentaRefaccion"> | string | null
   ticketId?: Prisma.StringNullableFilter<"VentaRefaccion"> | string | null
+  clienteId?: Prisma.StringNullableFilter<"VentaRefaccion"> | string | null
   usuarioId?: Prisma.StringNullableFilter<"VentaRefaccion"> | string | null
   refaccion?: Prisma.XOR<Prisma.RefaccionScalarRelationFilter, Prisma.RefaccionWhereInput>
   orden?: Prisma.XOR<Prisma.OrdenTrabajoNullableScalarRelationFilter, Prisma.OrdenTrabajoWhereInput> | null
+  cliente?: Prisma.XOR<Prisma.ClienteNullableScalarRelationFilter, Prisma.ClienteWhereInput> | null
   usuario?: Prisma.XOR<Prisma.UsuarioNullableScalarRelationFilter, Prisma.UsuarioWhereInput> | null
   ordenServicios?: Prisma.OrdenServicioListRelationFilter
-  clientes?: Prisma.ClienteListRelationFilter
 }, "id">
 
 export type VentaRefaccionOrderByWithAggregationInput = {
@@ -365,6 +375,7 @@ export type VentaRefaccionOrderByWithAggregationInput = {
   refaccionId?: Prisma.SortOrder
   ordenId?: Prisma.SortOrderInput | Prisma.SortOrder
   ticketId?: Prisma.SortOrderInput | Prisma.SortOrder
+  clienteId?: Prisma.SortOrderInput | Prisma.SortOrder
   usuarioId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.VentaRefaccionCountOrderByAggregateInput
   _avg?: Prisma.VentaRefaccionAvgOrderByAggregateInput
@@ -389,6 +400,7 @@ export type VentaRefaccionScalarWhereWithAggregatesInput = {
   refaccionId?: Prisma.StringWithAggregatesFilter<"VentaRefaccion"> | string
   ordenId?: Prisma.StringNullableWithAggregatesFilter<"VentaRefaccion"> | string | null
   ticketId?: Prisma.StringNullableWithAggregatesFilter<"VentaRefaccion"> | string | null
+  clienteId?: Prisma.StringNullableWithAggregatesFilter<"VentaRefaccion"> | string | null
   usuarioId?: Prisma.StringNullableWithAggregatesFilter<"VentaRefaccion"> | string | null
 }
 
@@ -405,9 +417,9 @@ export type VentaRefaccionCreateInput = {
   ticketId?: string | null
   refaccion: Prisma.RefaccionCreateNestedOneWithoutVentasInput
   orden?: Prisma.OrdenTrabajoCreateNestedOneWithoutVentasRefaccionesInput
+  cliente?: Prisma.ClienteCreateNestedOneWithoutVentasInput
   usuario?: Prisma.UsuarioCreateNestedOneWithoutVentaRefaccionsInput
   ordenServicios?: Prisma.OrdenServicioCreateNestedManyWithoutVentasRefaccionesInput
-  clientes?: Prisma.ClienteCreateNestedManyWithoutVentasInput
 }
 
 export type VentaRefaccionUncheckedCreateInput = {
@@ -423,9 +435,9 @@ export type VentaRefaccionUncheckedCreateInput = {
   refaccionId: string
   ordenId?: string | null
   ticketId?: string | null
+  clienteId?: string | null
   usuarioId?: string | null
   ordenServicios?: Prisma.OrdenServicioUncheckedCreateNestedManyWithoutVentasRefaccionesInput
-  clientes?: Prisma.ClienteUncheckedCreateNestedManyWithoutVentasInput
 }
 
 export type VentaRefaccionUpdateInput = {
@@ -441,9 +453,9 @@ export type VentaRefaccionUpdateInput = {
   ticketId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   refaccion?: Prisma.RefaccionUpdateOneRequiredWithoutVentasNestedInput
   orden?: Prisma.OrdenTrabajoUpdateOneWithoutVentasRefaccionesNestedInput
+  cliente?: Prisma.ClienteUpdateOneWithoutVentasNestedInput
   usuario?: Prisma.UsuarioUpdateOneWithoutVentaRefaccionsNestedInput
   ordenServicios?: Prisma.OrdenServicioUpdateManyWithoutVentasRefaccionesNestedInput
-  clientes?: Prisma.ClienteUpdateManyWithoutVentasNestedInput
 }
 
 export type VentaRefaccionUncheckedUpdateInput = {
@@ -459,9 +471,9 @@ export type VentaRefaccionUncheckedUpdateInput = {
   refaccionId?: Prisma.StringFieldUpdateOperationsInput | string
   ordenId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ticketId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usuarioId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ordenServicios?: Prisma.OrdenServicioUncheckedUpdateManyWithoutVentasRefaccionesNestedInput
-  clientes?: Prisma.ClienteUncheckedUpdateManyWithoutVentasNestedInput
 }
 
 export type VentaRefaccionCreateManyInput = {
@@ -477,6 +489,7 @@ export type VentaRefaccionCreateManyInput = {
   refaccionId: string
   ordenId?: string | null
   ticketId?: string | null
+  clienteId?: string | null
   usuarioId?: string | null
 }
 
@@ -506,6 +519,7 @@ export type VentaRefaccionUncheckedUpdateManyInput = {
   refaccionId?: Prisma.StringFieldUpdateOperationsInput | string
   ordenId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ticketId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usuarioId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -532,6 +546,7 @@ export type VentaRefaccionCountOrderByAggregateInput = {
   refaccionId?: Prisma.SortOrder
   ordenId?: Prisma.SortOrder
   ticketId?: Prisma.SortOrder
+  clienteId?: Prisma.SortOrder
   usuarioId?: Prisma.SortOrder
 }
 
@@ -557,6 +572,7 @@ export type VentaRefaccionMaxOrderByAggregateInput = {
   refaccionId?: Prisma.SortOrder
   ordenId?: Prisma.SortOrder
   ticketId?: Prisma.SortOrder
+  clienteId?: Prisma.SortOrder
   usuarioId?: Prisma.SortOrder
 }
 
@@ -573,6 +589,7 @@ export type VentaRefaccionMinOrderByAggregateInput = {
   refaccionId?: Prisma.SortOrder
   ordenId?: Prisma.SortOrder
   ticketId?: Prisma.SortOrder
+  clienteId?: Prisma.SortOrder
   usuarioId?: Prisma.SortOrder
 }
 
@@ -627,41 +644,45 @@ export type VentaRefaccionUncheckedUpdateManyWithoutUsuarioNestedInput = {
   deleteMany?: Prisma.VentaRefaccionScalarWhereInput | Prisma.VentaRefaccionScalarWhereInput[]
 }
 
-export type VentaRefaccionCreateNestedManyWithoutClientesInput = {
-  create?: Prisma.XOR<Prisma.VentaRefaccionCreateWithoutClientesInput, Prisma.VentaRefaccionUncheckedCreateWithoutClientesInput> | Prisma.VentaRefaccionCreateWithoutClientesInput[] | Prisma.VentaRefaccionUncheckedCreateWithoutClientesInput[]
-  connectOrCreate?: Prisma.VentaRefaccionCreateOrConnectWithoutClientesInput | Prisma.VentaRefaccionCreateOrConnectWithoutClientesInput[]
+export type VentaRefaccionCreateNestedManyWithoutClienteInput = {
+  create?: Prisma.XOR<Prisma.VentaRefaccionCreateWithoutClienteInput, Prisma.VentaRefaccionUncheckedCreateWithoutClienteInput> | Prisma.VentaRefaccionCreateWithoutClienteInput[] | Prisma.VentaRefaccionUncheckedCreateWithoutClienteInput[]
+  connectOrCreate?: Prisma.VentaRefaccionCreateOrConnectWithoutClienteInput | Prisma.VentaRefaccionCreateOrConnectWithoutClienteInput[]
+  createMany?: Prisma.VentaRefaccionCreateManyClienteInputEnvelope
   connect?: Prisma.VentaRefaccionWhereUniqueInput | Prisma.VentaRefaccionWhereUniqueInput[]
 }
 
-export type VentaRefaccionUncheckedCreateNestedManyWithoutClientesInput = {
-  create?: Prisma.XOR<Prisma.VentaRefaccionCreateWithoutClientesInput, Prisma.VentaRefaccionUncheckedCreateWithoutClientesInput> | Prisma.VentaRefaccionCreateWithoutClientesInput[] | Prisma.VentaRefaccionUncheckedCreateWithoutClientesInput[]
-  connectOrCreate?: Prisma.VentaRefaccionCreateOrConnectWithoutClientesInput | Prisma.VentaRefaccionCreateOrConnectWithoutClientesInput[]
+export type VentaRefaccionUncheckedCreateNestedManyWithoutClienteInput = {
+  create?: Prisma.XOR<Prisma.VentaRefaccionCreateWithoutClienteInput, Prisma.VentaRefaccionUncheckedCreateWithoutClienteInput> | Prisma.VentaRefaccionCreateWithoutClienteInput[] | Prisma.VentaRefaccionUncheckedCreateWithoutClienteInput[]
+  connectOrCreate?: Prisma.VentaRefaccionCreateOrConnectWithoutClienteInput | Prisma.VentaRefaccionCreateOrConnectWithoutClienteInput[]
+  createMany?: Prisma.VentaRefaccionCreateManyClienteInputEnvelope
   connect?: Prisma.VentaRefaccionWhereUniqueInput | Prisma.VentaRefaccionWhereUniqueInput[]
 }
 
-export type VentaRefaccionUpdateManyWithoutClientesNestedInput = {
-  create?: Prisma.XOR<Prisma.VentaRefaccionCreateWithoutClientesInput, Prisma.VentaRefaccionUncheckedCreateWithoutClientesInput> | Prisma.VentaRefaccionCreateWithoutClientesInput[] | Prisma.VentaRefaccionUncheckedCreateWithoutClientesInput[]
-  connectOrCreate?: Prisma.VentaRefaccionCreateOrConnectWithoutClientesInput | Prisma.VentaRefaccionCreateOrConnectWithoutClientesInput[]
-  upsert?: Prisma.VentaRefaccionUpsertWithWhereUniqueWithoutClientesInput | Prisma.VentaRefaccionUpsertWithWhereUniqueWithoutClientesInput[]
+export type VentaRefaccionUpdateManyWithoutClienteNestedInput = {
+  create?: Prisma.XOR<Prisma.VentaRefaccionCreateWithoutClienteInput, Prisma.VentaRefaccionUncheckedCreateWithoutClienteInput> | Prisma.VentaRefaccionCreateWithoutClienteInput[] | Prisma.VentaRefaccionUncheckedCreateWithoutClienteInput[]
+  connectOrCreate?: Prisma.VentaRefaccionCreateOrConnectWithoutClienteInput | Prisma.VentaRefaccionCreateOrConnectWithoutClienteInput[]
+  upsert?: Prisma.VentaRefaccionUpsertWithWhereUniqueWithoutClienteInput | Prisma.VentaRefaccionUpsertWithWhereUniqueWithoutClienteInput[]
+  createMany?: Prisma.VentaRefaccionCreateManyClienteInputEnvelope
   set?: Prisma.VentaRefaccionWhereUniqueInput | Prisma.VentaRefaccionWhereUniqueInput[]
   disconnect?: Prisma.VentaRefaccionWhereUniqueInput | Prisma.VentaRefaccionWhereUniqueInput[]
   delete?: Prisma.VentaRefaccionWhereUniqueInput | Prisma.VentaRefaccionWhereUniqueInput[]
   connect?: Prisma.VentaRefaccionWhereUniqueInput | Prisma.VentaRefaccionWhereUniqueInput[]
-  update?: Prisma.VentaRefaccionUpdateWithWhereUniqueWithoutClientesInput | Prisma.VentaRefaccionUpdateWithWhereUniqueWithoutClientesInput[]
-  updateMany?: Prisma.VentaRefaccionUpdateManyWithWhereWithoutClientesInput | Prisma.VentaRefaccionUpdateManyWithWhereWithoutClientesInput[]
+  update?: Prisma.VentaRefaccionUpdateWithWhereUniqueWithoutClienteInput | Prisma.VentaRefaccionUpdateWithWhereUniqueWithoutClienteInput[]
+  updateMany?: Prisma.VentaRefaccionUpdateManyWithWhereWithoutClienteInput | Prisma.VentaRefaccionUpdateManyWithWhereWithoutClienteInput[]
   deleteMany?: Prisma.VentaRefaccionScalarWhereInput | Prisma.VentaRefaccionScalarWhereInput[]
 }
 
-export type VentaRefaccionUncheckedUpdateManyWithoutClientesNestedInput = {
-  create?: Prisma.XOR<Prisma.VentaRefaccionCreateWithoutClientesInput, Prisma.VentaRefaccionUncheckedCreateWithoutClientesInput> | Prisma.VentaRefaccionCreateWithoutClientesInput[] | Prisma.VentaRefaccionUncheckedCreateWithoutClientesInput[]
-  connectOrCreate?: Prisma.VentaRefaccionCreateOrConnectWithoutClientesInput | Prisma.VentaRefaccionCreateOrConnectWithoutClientesInput[]
-  upsert?: Prisma.VentaRefaccionUpsertWithWhereUniqueWithoutClientesInput | Prisma.VentaRefaccionUpsertWithWhereUniqueWithoutClientesInput[]
+export type VentaRefaccionUncheckedUpdateManyWithoutClienteNestedInput = {
+  create?: Prisma.XOR<Prisma.VentaRefaccionCreateWithoutClienteInput, Prisma.VentaRefaccionUncheckedCreateWithoutClienteInput> | Prisma.VentaRefaccionCreateWithoutClienteInput[] | Prisma.VentaRefaccionUncheckedCreateWithoutClienteInput[]
+  connectOrCreate?: Prisma.VentaRefaccionCreateOrConnectWithoutClienteInput | Prisma.VentaRefaccionCreateOrConnectWithoutClienteInput[]
+  upsert?: Prisma.VentaRefaccionUpsertWithWhereUniqueWithoutClienteInput | Prisma.VentaRefaccionUpsertWithWhereUniqueWithoutClienteInput[]
+  createMany?: Prisma.VentaRefaccionCreateManyClienteInputEnvelope
   set?: Prisma.VentaRefaccionWhereUniqueInput | Prisma.VentaRefaccionWhereUniqueInput[]
   disconnect?: Prisma.VentaRefaccionWhereUniqueInput | Prisma.VentaRefaccionWhereUniqueInput[]
   delete?: Prisma.VentaRefaccionWhereUniqueInput | Prisma.VentaRefaccionWhereUniqueInput[]
   connect?: Prisma.VentaRefaccionWhereUniqueInput | Prisma.VentaRefaccionWhereUniqueInput[]
-  update?: Prisma.VentaRefaccionUpdateWithWhereUniqueWithoutClientesInput | Prisma.VentaRefaccionUpdateWithWhereUniqueWithoutClientesInput[]
-  updateMany?: Prisma.VentaRefaccionUpdateManyWithWhereWithoutClientesInput | Prisma.VentaRefaccionUpdateManyWithWhereWithoutClientesInput[]
+  update?: Prisma.VentaRefaccionUpdateWithWhereUniqueWithoutClienteInput | Prisma.VentaRefaccionUpdateWithWhereUniqueWithoutClienteInput[]
+  updateMany?: Prisma.VentaRefaccionUpdateManyWithWhereWithoutClienteInput | Prisma.VentaRefaccionUpdateManyWithWhereWithoutClienteInput[]
   deleteMany?: Prisma.VentaRefaccionScalarWhereInput | Prisma.VentaRefaccionScalarWhereInput[]
 }
 
@@ -804,8 +825,8 @@ export type VentaRefaccionCreateWithoutUsuarioInput = {
   ticketId?: string | null
   refaccion: Prisma.RefaccionCreateNestedOneWithoutVentasInput
   orden?: Prisma.OrdenTrabajoCreateNestedOneWithoutVentasRefaccionesInput
+  cliente?: Prisma.ClienteCreateNestedOneWithoutVentasInput
   ordenServicios?: Prisma.OrdenServicioCreateNestedManyWithoutVentasRefaccionesInput
-  clientes?: Prisma.ClienteCreateNestedManyWithoutVentasInput
 }
 
 export type VentaRefaccionUncheckedCreateWithoutUsuarioInput = {
@@ -821,8 +842,8 @@ export type VentaRefaccionUncheckedCreateWithoutUsuarioInput = {
   refaccionId: string
   ordenId?: string | null
   ticketId?: string | null
+  clienteId?: string | null
   ordenServicios?: Prisma.OrdenServicioUncheckedCreateNestedManyWithoutVentasRefaccionesInput
-  clientes?: Prisma.ClienteUncheckedCreateNestedManyWithoutVentasInput
 }
 
 export type VentaRefaccionCreateOrConnectWithoutUsuarioInput = {
@@ -867,10 +888,11 @@ export type VentaRefaccionScalarWhereInput = {
   refaccionId?: Prisma.StringFilter<"VentaRefaccion"> | string
   ordenId?: Prisma.StringNullableFilter<"VentaRefaccion"> | string | null
   ticketId?: Prisma.StringNullableFilter<"VentaRefaccion"> | string | null
+  clienteId?: Prisma.StringNullableFilter<"VentaRefaccion"> | string | null
   usuarioId?: Prisma.StringNullableFilter<"VentaRefaccion"> | string | null
 }
 
-export type VentaRefaccionCreateWithoutClientesInput = {
+export type VentaRefaccionCreateWithoutClienteInput = {
   id?: string
   tipoVenta?: $Enums.TipoVenta
   cantidad: number
@@ -887,7 +909,7 @@ export type VentaRefaccionCreateWithoutClientesInput = {
   ordenServicios?: Prisma.OrdenServicioCreateNestedManyWithoutVentasRefaccionesInput
 }
 
-export type VentaRefaccionUncheckedCreateWithoutClientesInput = {
+export type VentaRefaccionUncheckedCreateWithoutClienteInput = {
   id?: string
   tipoVenta?: $Enums.TipoVenta
   cantidad: number
@@ -904,25 +926,30 @@ export type VentaRefaccionUncheckedCreateWithoutClientesInput = {
   ordenServicios?: Prisma.OrdenServicioUncheckedCreateNestedManyWithoutVentasRefaccionesInput
 }
 
-export type VentaRefaccionCreateOrConnectWithoutClientesInput = {
+export type VentaRefaccionCreateOrConnectWithoutClienteInput = {
   where: Prisma.VentaRefaccionWhereUniqueInput
-  create: Prisma.XOR<Prisma.VentaRefaccionCreateWithoutClientesInput, Prisma.VentaRefaccionUncheckedCreateWithoutClientesInput>
+  create: Prisma.XOR<Prisma.VentaRefaccionCreateWithoutClienteInput, Prisma.VentaRefaccionUncheckedCreateWithoutClienteInput>
 }
 
-export type VentaRefaccionUpsertWithWhereUniqueWithoutClientesInput = {
-  where: Prisma.VentaRefaccionWhereUniqueInput
-  update: Prisma.XOR<Prisma.VentaRefaccionUpdateWithoutClientesInput, Prisma.VentaRefaccionUncheckedUpdateWithoutClientesInput>
-  create: Prisma.XOR<Prisma.VentaRefaccionCreateWithoutClientesInput, Prisma.VentaRefaccionUncheckedCreateWithoutClientesInput>
+export type VentaRefaccionCreateManyClienteInputEnvelope = {
+  data: Prisma.VentaRefaccionCreateManyClienteInput | Prisma.VentaRefaccionCreateManyClienteInput[]
+  skipDuplicates?: boolean
 }
 
-export type VentaRefaccionUpdateWithWhereUniqueWithoutClientesInput = {
+export type VentaRefaccionUpsertWithWhereUniqueWithoutClienteInput = {
   where: Prisma.VentaRefaccionWhereUniqueInput
-  data: Prisma.XOR<Prisma.VentaRefaccionUpdateWithoutClientesInput, Prisma.VentaRefaccionUncheckedUpdateWithoutClientesInput>
+  update: Prisma.XOR<Prisma.VentaRefaccionUpdateWithoutClienteInput, Prisma.VentaRefaccionUncheckedUpdateWithoutClienteInput>
+  create: Prisma.XOR<Prisma.VentaRefaccionCreateWithoutClienteInput, Prisma.VentaRefaccionUncheckedCreateWithoutClienteInput>
 }
 
-export type VentaRefaccionUpdateManyWithWhereWithoutClientesInput = {
+export type VentaRefaccionUpdateWithWhereUniqueWithoutClienteInput = {
+  where: Prisma.VentaRefaccionWhereUniqueInput
+  data: Prisma.XOR<Prisma.VentaRefaccionUpdateWithoutClienteInput, Prisma.VentaRefaccionUncheckedUpdateWithoutClienteInput>
+}
+
+export type VentaRefaccionUpdateManyWithWhereWithoutClienteInput = {
   where: Prisma.VentaRefaccionScalarWhereInput
-  data: Prisma.XOR<Prisma.VentaRefaccionUpdateManyMutationInput, Prisma.VentaRefaccionUncheckedUpdateManyWithoutClientesInput>
+  data: Prisma.XOR<Prisma.VentaRefaccionUpdateManyMutationInput, Prisma.VentaRefaccionUncheckedUpdateManyWithoutClienteInput>
 }
 
 export type VentaRefaccionCreateWithoutOrdenInput = {
@@ -937,9 +964,9 @@ export type VentaRefaccionCreateWithoutOrdenInput = {
   fecha?: Date | string
   ticketId?: string | null
   refaccion: Prisma.RefaccionCreateNestedOneWithoutVentasInput
+  cliente?: Prisma.ClienteCreateNestedOneWithoutVentasInput
   usuario?: Prisma.UsuarioCreateNestedOneWithoutVentaRefaccionsInput
   ordenServicios?: Prisma.OrdenServicioCreateNestedManyWithoutVentasRefaccionesInput
-  clientes?: Prisma.ClienteCreateNestedManyWithoutVentasInput
 }
 
 export type VentaRefaccionUncheckedCreateWithoutOrdenInput = {
@@ -954,9 +981,9 @@ export type VentaRefaccionUncheckedCreateWithoutOrdenInput = {
   fecha?: Date | string
   refaccionId: string
   ticketId?: string | null
+  clienteId?: string | null
   usuarioId?: string | null
   ordenServicios?: Prisma.OrdenServicioUncheckedCreateNestedManyWithoutVentasRefaccionesInput
-  clientes?: Prisma.ClienteUncheckedCreateNestedManyWithoutVentasInput
 }
 
 export type VentaRefaccionCreateOrConnectWithoutOrdenInput = {
@@ -998,8 +1025,8 @@ export type VentaRefaccionCreateWithoutOrdenServiciosInput = {
   ticketId?: string | null
   refaccion: Prisma.RefaccionCreateNestedOneWithoutVentasInput
   orden?: Prisma.OrdenTrabajoCreateNestedOneWithoutVentasRefaccionesInput
+  cliente?: Prisma.ClienteCreateNestedOneWithoutVentasInput
   usuario?: Prisma.UsuarioCreateNestedOneWithoutVentaRefaccionsInput
-  clientes?: Prisma.ClienteCreateNestedManyWithoutVentasInput
 }
 
 export type VentaRefaccionUncheckedCreateWithoutOrdenServiciosInput = {
@@ -1015,8 +1042,8 @@ export type VentaRefaccionUncheckedCreateWithoutOrdenServiciosInput = {
   refaccionId: string
   ordenId?: string | null
   ticketId?: string | null
+  clienteId?: string | null
   usuarioId?: string | null
-  clientes?: Prisma.ClienteUncheckedCreateNestedManyWithoutVentasInput
 }
 
 export type VentaRefaccionCreateOrConnectWithoutOrdenServiciosInput = {
@@ -1052,9 +1079,9 @@ export type VentaRefaccionCreateWithoutRefaccionInput = {
   fecha?: Date | string
   ticketId?: string | null
   orden?: Prisma.OrdenTrabajoCreateNestedOneWithoutVentasRefaccionesInput
+  cliente?: Prisma.ClienteCreateNestedOneWithoutVentasInput
   usuario?: Prisma.UsuarioCreateNestedOneWithoutVentaRefaccionsInput
   ordenServicios?: Prisma.OrdenServicioCreateNestedManyWithoutVentasRefaccionesInput
-  clientes?: Prisma.ClienteCreateNestedManyWithoutVentasInput
 }
 
 export type VentaRefaccionUncheckedCreateWithoutRefaccionInput = {
@@ -1069,9 +1096,9 @@ export type VentaRefaccionUncheckedCreateWithoutRefaccionInput = {
   fecha?: Date | string
   ordenId?: string | null
   ticketId?: string | null
+  clienteId?: string | null
   usuarioId?: string | null
   ordenServicios?: Prisma.OrdenServicioUncheckedCreateNestedManyWithoutVentasRefaccionesInput
-  clientes?: Prisma.ClienteUncheckedCreateNestedManyWithoutVentasInput
 }
 
 export type VentaRefaccionCreateOrConnectWithoutRefaccionInput = {
@@ -1113,6 +1140,7 @@ export type VentaRefaccionCreateManyUsuarioInput = {
   refaccionId: string
   ordenId?: string | null
   ticketId?: string | null
+  clienteId?: string | null
 }
 
 export type VentaRefaccionUpdateWithoutUsuarioInput = {
@@ -1128,8 +1156,8 @@ export type VentaRefaccionUpdateWithoutUsuarioInput = {
   ticketId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   refaccion?: Prisma.RefaccionUpdateOneRequiredWithoutVentasNestedInput
   orden?: Prisma.OrdenTrabajoUpdateOneWithoutVentasRefaccionesNestedInput
+  cliente?: Prisma.ClienteUpdateOneWithoutVentasNestedInput
   ordenServicios?: Prisma.OrdenServicioUpdateManyWithoutVentasRefaccionesNestedInput
-  clientes?: Prisma.ClienteUpdateManyWithoutVentasNestedInput
 }
 
 export type VentaRefaccionUncheckedUpdateWithoutUsuarioInput = {
@@ -1145,8 +1173,8 @@ export type VentaRefaccionUncheckedUpdateWithoutUsuarioInput = {
   refaccionId?: Prisma.StringFieldUpdateOperationsInput | string
   ordenId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ticketId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ordenServicios?: Prisma.OrdenServicioUncheckedUpdateManyWithoutVentasRefaccionesNestedInput
-  clientes?: Prisma.ClienteUncheckedUpdateManyWithoutVentasNestedInput
 }
 
 export type VentaRefaccionUncheckedUpdateManyWithoutUsuarioInput = {
@@ -1162,9 +1190,26 @@ export type VentaRefaccionUncheckedUpdateManyWithoutUsuarioInput = {
   refaccionId?: Prisma.StringFieldUpdateOperationsInput | string
   ordenId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ticketId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
-export type VentaRefaccionUpdateWithoutClientesInput = {
+export type VentaRefaccionCreateManyClienteInput = {
+  id?: string
+  tipoVenta?: $Enums.TipoVenta
+  cantidad: number
+  precioUnitario: runtime.Decimal | runtime.DecimalJsLike | number | string
+  precioSinIva: runtime.Decimal | runtime.DecimalJsLike | number | string
+  costoCompra: runtime.Decimal | runtime.DecimalJsLike | number | string
+  ganancia: runtime.Decimal | runtime.DecimalJsLike | number | string
+  subtotal: runtime.Decimal | runtime.DecimalJsLike | number | string
+  fecha?: Date | string
+  refaccionId: string
+  ordenId?: string | null
+  ticketId?: string | null
+  usuarioId?: string | null
+}
+
+export type VentaRefaccionUpdateWithoutClienteInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tipoVenta?: Prisma.EnumTipoVentaFieldUpdateOperationsInput | $Enums.TipoVenta
   cantidad?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1181,7 +1226,7 @@ export type VentaRefaccionUpdateWithoutClientesInput = {
   ordenServicios?: Prisma.OrdenServicioUpdateManyWithoutVentasRefaccionesNestedInput
 }
 
-export type VentaRefaccionUncheckedUpdateWithoutClientesInput = {
+export type VentaRefaccionUncheckedUpdateWithoutClienteInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tipoVenta?: Prisma.EnumTipoVentaFieldUpdateOperationsInput | $Enums.TipoVenta
   cantidad?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1198,7 +1243,7 @@ export type VentaRefaccionUncheckedUpdateWithoutClientesInput = {
   ordenServicios?: Prisma.OrdenServicioUncheckedUpdateManyWithoutVentasRefaccionesNestedInput
 }
 
-export type VentaRefaccionUncheckedUpdateManyWithoutClientesInput = {
+export type VentaRefaccionUncheckedUpdateManyWithoutClienteInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tipoVenta?: Prisma.EnumTipoVentaFieldUpdateOperationsInput | $Enums.TipoVenta
   cantidad?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1226,6 +1271,7 @@ export type VentaRefaccionCreateManyOrdenInput = {
   fecha?: Date | string
   refaccionId: string
   ticketId?: string | null
+  clienteId?: string | null
   usuarioId?: string | null
 }
 
@@ -1241,9 +1287,9 @@ export type VentaRefaccionUpdateWithoutOrdenInput = {
   fecha?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ticketId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   refaccion?: Prisma.RefaccionUpdateOneRequiredWithoutVentasNestedInput
+  cliente?: Prisma.ClienteUpdateOneWithoutVentasNestedInput
   usuario?: Prisma.UsuarioUpdateOneWithoutVentaRefaccionsNestedInput
   ordenServicios?: Prisma.OrdenServicioUpdateManyWithoutVentasRefaccionesNestedInput
-  clientes?: Prisma.ClienteUpdateManyWithoutVentasNestedInput
 }
 
 export type VentaRefaccionUncheckedUpdateWithoutOrdenInput = {
@@ -1258,9 +1304,9 @@ export type VentaRefaccionUncheckedUpdateWithoutOrdenInput = {
   fecha?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refaccionId?: Prisma.StringFieldUpdateOperationsInput | string
   ticketId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usuarioId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ordenServicios?: Prisma.OrdenServicioUncheckedUpdateManyWithoutVentasRefaccionesNestedInput
-  clientes?: Prisma.ClienteUncheckedUpdateManyWithoutVentasNestedInput
 }
 
 export type VentaRefaccionUncheckedUpdateManyWithoutOrdenInput = {
@@ -1275,6 +1321,7 @@ export type VentaRefaccionUncheckedUpdateManyWithoutOrdenInput = {
   fecha?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refaccionId?: Prisma.StringFieldUpdateOperationsInput | string
   ticketId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usuarioId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -1291,8 +1338,8 @@ export type VentaRefaccionUpdateWithoutOrdenServiciosInput = {
   ticketId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   refaccion?: Prisma.RefaccionUpdateOneRequiredWithoutVentasNestedInput
   orden?: Prisma.OrdenTrabajoUpdateOneWithoutVentasRefaccionesNestedInput
+  cliente?: Prisma.ClienteUpdateOneWithoutVentasNestedInput
   usuario?: Prisma.UsuarioUpdateOneWithoutVentaRefaccionsNestedInput
-  clientes?: Prisma.ClienteUpdateManyWithoutVentasNestedInput
 }
 
 export type VentaRefaccionUncheckedUpdateWithoutOrdenServiciosInput = {
@@ -1308,8 +1355,8 @@ export type VentaRefaccionUncheckedUpdateWithoutOrdenServiciosInput = {
   refaccionId?: Prisma.StringFieldUpdateOperationsInput | string
   ordenId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ticketId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usuarioId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clientes?: Prisma.ClienteUncheckedUpdateManyWithoutVentasNestedInput
 }
 
 export type VentaRefaccionUncheckedUpdateManyWithoutOrdenServiciosInput = {
@@ -1325,6 +1372,7 @@ export type VentaRefaccionUncheckedUpdateManyWithoutOrdenServiciosInput = {
   refaccionId?: Prisma.StringFieldUpdateOperationsInput | string
   ordenId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ticketId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usuarioId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -1340,6 +1388,7 @@ export type VentaRefaccionCreateManyRefaccionInput = {
   fecha?: Date | string
   ordenId?: string | null
   ticketId?: string | null
+  clienteId?: string | null
   usuarioId?: string | null
 }
 
@@ -1355,9 +1404,9 @@ export type VentaRefaccionUpdateWithoutRefaccionInput = {
   fecha?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ticketId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   orden?: Prisma.OrdenTrabajoUpdateOneWithoutVentasRefaccionesNestedInput
+  cliente?: Prisma.ClienteUpdateOneWithoutVentasNestedInput
   usuario?: Prisma.UsuarioUpdateOneWithoutVentaRefaccionsNestedInput
   ordenServicios?: Prisma.OrdenServicioUpdateManyWithoutVentasRefaccionesNestedInput
-  clientes?: Prisma.ClienteUpdateManyWithoutVentasNestedInput
 }
 
 export type VentaRefaccionUncheckedUpdateWithoutRefaccionInput = {
@@ -1372,9 +1421,9 @@ export type VentaRefaccionUncheckedUpdateWithoutRefaccionInput = {
   fecha?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ordenId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ticketId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usuarioId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ordenServicios?: Prisma.OrdenServicioUncheckedUpdateManyWithoutVentasRefaccionesNestedInput
-  clientes?: Prisma.ClienteUncheckedUpdateManyWithoutVentasNestedInput
 }
 
 export type VentaRefaccionUncheckedUpdateManyWithoutRefaccionInput = {
@@ -1389,6 +1438,7 @@ export type VentaRefaccionUncheckedUpdateManyWithoutRefaccionInput = {
   fecha?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ordenId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ticketId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usuarioId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -1399,12 +1449,10 @@ export type VentaRefaccionUncheckedUpdateManyWithoutRefaccionInput = {
 
 export type VentaRefaccionCountOutputType = {
   ordenServicios: number
-  clientes: number
 }
 
 export type VentaRefaccionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ordenServicios?: boolean | VentaRefaccionCountOutputTypeCountOrdenServiciosArgs
-  clientes?: boolean | VentaRefaccionCountOutputTypeCountClientesArgs
 }
 
 /**
@@ -1424,13 +1472,6 @@ export type VentaRefaccionCountOutputTypeCountOrdenServiciosArgs<ExtArgs extends
   where?: Prisma.OrdenServicioWhereInput
 }
 
-/**
- * VentaRefaccionCountOutputType without action
- */
-export type VentaRefaccionCountOutputTypeCountClientesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ClienteWhereInput
-}
-
 
 export type VentaRefaccionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1445,12 +1486,13 @@ export type VentaRefaccionSelect<ExtArgs extends runtime.Types.Extensions.Intern
   refaccionId?: boolean
   ordenId?: boolean
   ticketId?: boolean
+  clienteId?: boolean
   usuarioId?: boolean
   refaccion?: boolean | Prisma.RefaccionDefaultArgs<ExtArgs>
   orden?: boolean | Prisma.VentaRefaccion$ordenArgs<ExtArgs>
+  cliente?: boolean | Prisma.VentaRefaccion$clienteArgs<ExtArgs>
   usuario?: boolean | Prisma.VentaRefaccion$usuarioArgs<ExtArgs>
   ordenServicios?: boolean | Prisma.VentaRefaccion$ordenServiciosArgs<ExtArgs>
-  clientes?: boolean | Prisma.VentaRefaccion$clientesArgs<ExtArgs>
   _count?: boolean | Prisma.VentaRefaccionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["ventaRefaccion"]>
 
@@ -1467,9 +1509,11 @@ export type VentaRefaccionSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   refaccionId?: boolean
   ordenId?: boolean
   ticketId?: boolean
+  clienteId?: boolean
   usuarioId?: boolean
   refaccion?: boolean | Prisma.RefaccionDefaultArgs<ExtArgs>
   orden?: boolean | Prisma.VentaRefaccion$ordenArgs<ExtArgs>
+  cliente?: boolean | Prisma.VentaRefaccion$clienteArgs<ExtArgs>
   usuario?: boolean | Prisma.VentaRefaccion$usuarioArgs<ExtArgs>
 }, ExtArgs["result"]["ventaRefaccion"]>
 
@@ -1486,9 +1530,11 @@ export type VentaRefaccionSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   refaccionId?: boolean
   ordenId?: boolean
   ticketId?: boolean
+  clienteId?: boolean
   usuarioId?: boolean
   refaccion?: boolean | Prisma.RefaccionDefaultArgs<ExtArgs>
   orden?: boolean | Prisma.VentaRefaccion$ordenArgs<ExtArgs>
+  cliente?: boolean | Prisma.VentaRefaccion$clienteArgs<ExtArgs>
   usuario?: boolean | Prisma.VentaRefaccion$usuarioArgs<ExtArgs>
 }, ExtArgs["result"]["ventaRefaccion"]>
 
@@ -1505,26 +1551,29 @@ export type VentaRefaccionSelectScalar = {
   refaccionId?: boolean
   ordenId?: boolean
   ticketId?: boolean
+  clienteId?: boolean
   usuarioId?: boolean
 }
 
-export type VentaRefaccionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tipoVenta" | "cantidad" | "precioUnitario" | "precioSinIva" | "costoCompra" | "ganancia" | "subtotal" | "fecha" | "refaccionId" | "ordenId" | "ticketId" | "usuarioId", ExtArgs["result"]["ventaRefaccion"]>
+export type VentaRefaccionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tipoVenta" | "cantidad" | "precioUnitario" | "precioSinIva" | "costoCompra" | "ganancia" | "subtotal" | "fecha" | "refaccionId" | "ordenId" | "ticketId" | "clienteId" | "usuarioId", ExtArgs["result"]["ventaRefaccion"]>
 export type VentaRefaccionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   refaccion?: boolean | Prisma.RefaccionDefaultArgs<ExtArgs>
   orden?: boolean | Prisma.VentaRefaccion$ordenArgs<ExtArgs>
+  cliente?: boolean | Prisma.VentaRefaccion$clienteArgs<ExtArgs>
   usuario?: boolean | Prisma.VentaRefaccion$usuarioArgs<ExtArgs>
   ordenServicios?: boolean | Prisma.VentaRefaccion$ordenServiciosArgs<ExtArgs>
-  clientes?: boolean | Prisma.VentaRefaccion$clientesArgs<ExtArgs>
   _count?: boolean | Prisma.VentaRefaccionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type VentaRefaccionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   refaccion?: boolean | Prisma.RefaccionDefaultArgs<ExtArgs>
   orden?: boolean | Prisma.VentaRefaccion$ordenArgs<ExtArgs>
+  cliente?: boolean | Prisma.VentaRefaccion$clienteArgs<ExtArgs>
   usuario?: boolean | Prisma.VentaRefaccion$usuarioArgs<ExtArgs>
 }
 export type VentaRefaccionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   refaccion?: boolean | Prisma.RefaccionDefaultArgs<ExtArgs>
   orden?: boolean | Prisma.VentaRefaccion$ordenArgs<ExtArgs>
+  cliente?: boolean | Prisma.VentaRefaccion$clienteArgs<ExtArgs>
   usuario?: boolean | Prisma.VentaRefaccion$usuarioArgs<ExtArgs>
 }
 
@@ -1533,9 +1582,9 @@ export type $VentaRefaccionPayload<ExtArgs extends runtime.Types.Extensions.Inte
   objects: {
     refaccion: Prisma.$RefaccionPayload<ExtArgs>
     orden: Prisma.$OrdenTrabajoPayload<ExtArgs> | null
+    cliente: Prisma.$ClientePayload<ExtArgs> | null
     usuario: Prisma.$UsuarioPayload<ExtArgs> | null
     ordenServicios: Prisma.$OrdenServicioPayload<ExtArgs>[]
-    clientes: Prisma.$ClientePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1550,6 +1599,7 @@ export type $VentaRefaccionPayload<ExtArgs extends runtime.Types.Extensions.Inte
     refaccionId: string
     ordenId: string | null
     ticketId: string | null
+    clienteId: string | null
     usuarioId: string | null
   }, ExtArgs["result"]["ventaRefaccion"]>
   composites: {}
@@ -1947,9 +1997,9 @@ export interface Prisma__VentaRefaccionClient<T, Null = never, ExtArgs extends r
   readonly [Symbol.toStringTag]: "PrismaPromise"
   refaccion<T extends Prisma.RefaccionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RefaccionDefaultArgs<ExtArgs>>): Prisma.Prisma__RefaccionClient<runtime.Types.Result.GetResult<Prisma.$RefaccionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   orden<T extends Prisma.VentaRefaccion$ordenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VentaRefaccion$ordenArgs<ExtArgs>>): Prisma.Prisma__OrdenTrabajoClient<runtime.Types.Result.GetResult<Prisma.$OrdenTrabajoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  cliente<T extends Prisma.VentaRefaccion$clienteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VentaRefaccion$clienteArgs<ExtArgs>>): Prisma.Prisma__ClienteClient<runtime.Types.Result.GetResult<Prisma.$ClientePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   usuario<T extends Prisma.VentaRefaccion$usuarioArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VentaRefaccion$usuarioArgs<ExtArgs>>): Prisma.Prisma__UsuarioClient<runtime.Types.Result.GetResult<Prisma.$UsuarioPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   ordenServicios<T extends Prisma.VentaRefaccion$ordenServiciosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VentaRefaccion$ordenServiciosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrdenServicioPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  clientes<T extends Prisma.VentaRefaccion$clientesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VentaRefaccion$clientesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ClientePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1991,6 +2041,7 @@ export interface VentaRefaccionFieldRefs {
   readonly refaccionId: Prisma.FieldRef<"VentaRefaccion", 'String'>
   readonly ordenId: Prisma.FieldRef<"VentaRefaccion", 'String'>
   readonly ticketId: Prisma.FieldRef<"VentaRefaccion", 'String'>
+  readonly clienteId: Prisma.FieldRef<"VentaRefaccion", 'String'>
   readonly usuarioId: Prisma.FieldRef<"VentaRefaccion", 'String'>
 }
     
@@ -2412,6 +2463,25 @@ export type VentaRefaccion$ordenArgs<ExtArgs extends runtime.Types.Extensions.In
 }
 
 /**
+ * VentaRefaccion.cliente
+ */
+export type VentaRefaccion$clienteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Cliente
+   */
+  select?: Prisma.ClienteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Cliente
+   */
+  omit?: Prisma.ClienteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ClienteInclude<ExtArgs> | null
+  where?: Prisma.ClienteWhereInput
+}
+
+/**
  * VentaRefaccion.usuario
  */
 export type VentaRefaccion$usuarioArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2452,30 +2522,6 @@ export type VentaRefaccion$ordenServiciosArgs<ExtArgs extends runtime.Types.Exte
   take?: number
   skip?: number
   distinct?: Prisma.OrdenServicioScalarFieldEnum | Prisma.OrdenServicioScalarFieldEnum[]
-}
-
-/**
- * VentaRefaccion.clientes
- */
-export type VentaRefaccion$clientesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Cliente
-   */
-  select?: Prisma.ClienteSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Cliente
-   */
-  omit?: Prisma.ClienteOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ClienteInclude<ExtArgs> | null
-  where?: Prisma.ClienteWhereInput
-  orderBy?: Prisma.ClienteOrderByWithRelationInput | Prisma.ClienteOrderByWithRelationInput[]
-  cursor?: Prisma.ClienteWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ClienteScalarFieldEnum | Prisma.ClienteScalarFieldEnum[]
 }
 
 /**

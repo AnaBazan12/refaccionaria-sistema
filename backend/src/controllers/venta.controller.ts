@@ -9,7 +9,8 @@ export const registrarVenta = async (req: RequestConUsuario, res: Response) => {
   try {
     const {
       refaccionId, cantidad, tipoVenta,
-      ordenId   // opcional, si es venta de taller
+      ordenId,    // opcional, si es venta de taller
+      clienteId   // opcional, cliente de mostrador
     } = req.body
 
     const refaccion = await prisma.refaccion.findUnique({
@@ -50,7 +51,8 @@ export const registrarVenta = async (req: RequestConUsuario, res: Response) => {
           costoCompra,
           ganancia,
           subtotal,
-          ordenId:   ordenId ?? null,
+          ordenId:   ordenId   ?? null,
+          clienteId: clienteId ?? null,
           usuarioId: req.usuario?.id ?? null
         },
         include: {
@@ -91,9 +93,10 @@ export const registrarVenta = async (req: RequestConUsuario, res: Response) => {
 // ── Registrar ticket (venta con múltiples refacciones) ────────
 export const registrarTicket = async (req: RequestConUsuario, res: Response) => {
   try {
-    const { tipoVenta, items } = req.body as {
+    const { tipoVenta, items, clienteId } = req.body as {
       tipoVenta: TipoVenta
-      items: { refaccionId: string; cantidad: number }[]
+      items:     { refaccionId: string; cantidad: number }[]
+      clienteId?: string
     }
 
     if (!items?.length) {
@@ -166,6 +169,7 @@ export const registrarTicket = async (req: RequestConUsuario, res: Response) => 
             ganancia:       ic.ganancia,
             subtotal:       ic.subtotal,
             ticketId,
+            clienteId:      clienteId ?? null,
             usuarioId,
           }
         }),
@@ -212,7 +216,8 @@ export const ventasDelDia = async (req: Request, res: Response) => {
       where: { fecha: { gte: inicio, lte: fin } },
       include: {
         refaccion: { select: { nombre: true, codigo: true } },
-        usuario:   { select: { nombre: true } }
+        usuario:   { select: { nombre: true } },
+        cliente:   { select: { nombre: true } },
       },
       orderBy: { fecha: 'desc' }
     })
@@ -293,6 +298,72 @@ export const reporteMensual = async (req: Request, res: Response) => {
         ? ((totalGanancia / totalVentas) * 100).toFixed(1) + '%'
         : '0%',
       top10Refacciones: top10
+    })
+  } catch (error) {
+    return res.status(500).json({ mensaje: 'Error del servidor', error })
+  }
+}
+
+// ── Historial de compras de un cliente en mostrador ───────────
+export const historialVentasCliente = async (req: Request, res: Response) => {
+  try {
+    const clienteId = req.params.clienteId as string
+    const limit = Math.min(200, Number(req.query.limit) || 50)
+
+    const [cliente, ventas] = await Promise.all([
+      prisma.cliente.findUnique({
+        where:  { id: clienteId },
+        select: { id: true, nombre: true, telefono: true }
+      }),
+      prisma.ventaRefaccion.findMany({
+        where:   { clienteId },
+        include: { refaccion: { select: { nombre: true, codigo: true } } },
+        orderBy: { fecha: 'desc' },
+        take:    limit,
+      })
+    ])
+
+    if (!cliente) return res.status(404).json({ mensaje: 'Cliente no encontrado' })
+
+    // Agrupar por ticketId (un ticket = una visita a mostrador)
+    const ticketsMap: Record<string, {
+      ticketId: string | null
+      fecha:    Date
+      tipoVenta: string
+      items:    typeof ventas
+      total:    number
+      ganancia: number
+    }> = {}
+
+    for (const v of ventas) {
+      const key = v.ticketId ?? v.id          // sueltas usan su propio id
+      if (!ticketsMap[key]) {
+        ticketsMap[key] = {
+          ticketId: v.ticketId,
+          fecha:    v.fecha,
+          tipoVenta: v.tipoVenta,
+          items:    [],
+          total:    0,
+          ganancia: 0,
+        }
+      }
+      ticketsMap[key].items.push(v)
+      ticketsMap[key].total    += Number(v.subtotal)
+      ticketsMap[key].ganancia += Number(v.ganancia)
+    }
+
+    const tickets = Object.values(ticketsMap).sort(
+      (a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime()
+    )
+
+    const totalGastado  = ventas.reduce((s, v) => s + Number(v.subtotal),  0)
+    const totalVisitas  = tickets.length
+    const totalArticulos = ventas.reduce((s, v) => s + v.cantidad, 0)
+
+    return res.json({
+      cliente,
+      resumen: { totalVisitas, totalGastado, totalArticulos },
+      tickets,
     })
   } catch (error) {
     return res.status(500).json({ mensaje: 'Error del servidor', error })

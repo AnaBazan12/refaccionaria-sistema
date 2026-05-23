@@ -284,7 +284,7 @@ export type ClienteCreateInput = {
   updatedAt?: Date | string
   vehiculos?: Prisma.VehiculoCreateNestedManyWithoutClienteInput
   ordenes?: Prisma.OrdenTrabajoCreateNestedManyWithoutClienteInput
-  ventas?: Prisma.VentaRefaccionCreateNestedManyWithoutClientesInput
+  ventas?: Prisma.VentaRefaccionCreateNestedManyWithoutClienteInput
   cotizaciones?: Prisma.CotizacionCreateNestedManyWithoutClienteInput
 }
 
@@ -299,7 +299,7 @@ export type ClienteUncheckedCreateInput = {
   updatedAt?: Date | string
   vehiculos?: Prisma.VehiculoUncheckedCreateNestedManyWithoutClienteInput
   ordenes?: Prisma.OrdenTrabajoUncheckedCreateNestedManyWithoutClienteInput
-  ventas?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutClientesInput
+  ventas?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutClienteInput
   cotizaciones?: Prisma.CotizacionUncheckedCreateNestedManyWithoutClienteInput
 }
 
@@ -314,7 +314,7 @@ export type ClienteUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vehiculos?: Prisma.VehiculoUpdateManyWithoutClienteNestedInput
   ordenes?: Prisma.OrdenTrabajoUpdateManyWithoutClienteNestedInput
-  ventas?: Prisma.VentaRefaccionUpdateManyWithoutClientesNestedInput
+  ventas?: Prisma.VentaRefaccionUpdateManyWithoutClienteNestedInput
   cotizaciones?: Prisma.CotizacionUpdateManyWithoutClienteNestedInput
 }
 
@@ -329,7 +329,7 @@ export type ClienteUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vehiculos?: Prisma.VehiculoUncheckedUpdateManyWithoutClienteNestedInput
   ordenes?: Prisma.OrdenTrabajoUncheckedUpdateManyWithoutClienteNestedInput
-  ventas?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutClientesNestedInput
+  ventas?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutClienteNestedInput
   cotizaciones?: Prisma.CotizacionUncheckedUpdateManyWithoutClienteNestedInput
 }
 
@@ -404,14 +404,9 @@ export type ClienteScalarRelationFilter = {
   isNot?: Prisma.ClienteWhereInput
 }
 
-export type ClienteListRelationFilter = {
-  every?: Prisma.ClienteWhereInput
-  some?: Prisma.ClienteWhereInput
-  none?: Prisma.ClienteWhereInput
-}
-
-export type ClienteOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
+export type ClienteNullableScalarRelationFilter = {
+  is?: Prisma.ClienteWhereInput | null
+  isNot?: Prisma.ClienteWhereInput | null
 }
 
 export type NullableStringFieldUpdateOperationsInput = {
@@ -446,42 +441,20 @@ export type ClienteUpdateOneRequiredWithoutOrdenesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ClienteUpdateToOneWithWhereWithoutOrdenesInput, Prisma.ClienteUpdateWithoutOrdenesInput>, Prisma.ClienteUncheckedUpdateWithoutOrdenesInput>
 }
 
-export type ClienteCreateNestedManyWithoutVentasInput = {
-  create?: Prisma.XOR<Prisma.ClienteCreateWithoutVentasInput, Prisma.ClienteUncheckedCreateWithoutVentasInput> | Prisma.ClienteCreateWithoutVentasInput[] | Prisma.ClienteUncheckedCreateWithoutVentasInput[]
-  connectOrCreate?: Prisma.ClienteCreateOrConnectWithoutVentasInput | Prisma.ClienteCreateOrConnectWithoutVentasInput[]
-  connect?: Prisma.ClienteWhereUniqueInput | Prisma.ClienteWhereUniqueInput[]
+export type ClienteCreateNestedOneWithoutVentasInput = {
+  create?: Prisma.XOR<Prisma.ClienteCreateWithoutVentasInput, Prisma.ClienteUncheckedCreateWithoutVentasInput>
+  connectOrCreate?: Prisma.ClienteCreateOrConnectWithoutVentasInput
+  connect?: Prisma.ClienteWhereUniqueInput
 }
 
-export type ClienteUncheckedCreateNestedManyWithoutVentasInput = {
-  create?: Prisma.XOR<Prisma.ClienteCreateWithoutVentasInput, Prisma.ClienteUncheckedCreateWithoutVentasInput> | Prisma.ClienteCreateWithoutVentasInput[] | Prisma.ClienteUncheckedCreateWithoutVentasInput[]
-  connectOrCreate?: Prisma.ClienteCreateOrConnectWithoutVentasInput | Prisma.ClienteCreateOrConnectWithoutVentasInput[]
-  connect?: Prisma.ClienteWhereUniqueInput | Prisma.ClienteWhereUniqueInput[]
-}
-
-export type ClienteUpdateManyWithoutVentasNestedInput = {
-  create?: Prisma.XOR<Prisma.ClienteCreateWithoutVentasInput, Prisma.ClienteUncheckedCreateWithoutVentasInput> | Prisma.ClienteCreateWithoutVentasInput[] | Prisma.ClienteUncheckedCreateWithoutVentasInput[]
-  connectOrCreate?: Prisma.ClienteCreateOrConnectWithoutVentasInput | Prisma.ClienteCreateOrConnectWithoutVentasInput[]
-  upsert?: Prisma.ClienteUpsertWithWhereUniqueWithoutVentasInput | Prisma.ClienteUpsertWithWhereUniqueWithoutVentasInput[]
-  set?: Prisma.ClienteWhereUniqueInput | Prisma.ClienteWhereUniqueInput[]
-  disconnect?: Prisma.ClienteWhereUniqueInput | Prisma.ClienteWhereUniqueInput[]
-  delete?: Prisma.ClienteWhereUniqueInput | Prisma.ClienteWhereUniqueInput[]
-  connect?: Prisma.ClienteWhereUniqueInput | Prisma.ClienteWhereUniqueInput[]
-  update?: Prisma.ClienteUpdateWithWhereUniqueWithoutVentasInput | Prisma.ClienteUpdateWithWhereUniqueWithoutVentasInput[]
-  updateMany?: Prisma.ClienteUpdateManyWithWhereWithoutVentasInput | Prisma.ClienteUpdateManyWithWhereWithoutVentasInput[]
-  deleteMany?: Prisma.ClienteScalarWhereInput | Prisma.ClienteScalarWhereInput[]
-}
-
-export type ClienteUncheckedUpdateManyWithoutVentasNestedInput = {
-  create?: Prisma.XOR<Prisma.ClienteCreateWithoutVentasInput, Prisma.ClienteUncheckedCreateWithoutVentasInput> | Prisma.ClienteCreateWithoutVentasInput[] | Prisma.ClienteUncheckedCreateWithoutVentasInput[]
-  connectOrCreate?: Prisma.ClienteCreateOrConnectWithoutVentasInput | Prisma.ClienteCreateOrConnectWithoutVentasInput[]
-  upsert?: Prisma.ClienteUpsertWithWhereUniqueWithoutVentasInput | Prisma.ClienteUpsertWithWhereUniqueWithoutVentasInput[]
-  set?: Prisma.ClienteWhereUniqueInput | Prisma.ClienteWhereUniqueInput[]
-  disconnect?: Prisma.ClienteWhereUniqueInput | Prisma.ClienteWhereUniqueInput[]
-  delete?: Prisma.ClienteWhereUniqueInput | Prisma.ClienteWhereUniqueInput[]
-  connect?: Prisma.ClienteWhereUniqueInput | Prisma.ClienteWhereUniqueInput[]
-  update?: Prisma.ClienteUpdateWithWhereUniqueWithoutVentasInput | Prisma.ClienteUpdateWithWhereUniqueWithoutVentasInput[]
-  updateMany?: Prisma.ClienteUpdateManyWithWhereWithoutVentasInput | Prisma.ClienteUpdateManyWithWhereWithoutVentasInput[]
-  deleteMany?: Prisma.ClienteScalarWhereInput | Prisma.ClienteScalarWhereInput[]
+export type ClienteUpdateOneWithoutVentasNestedInput = {
+  create?: Prisma.XOR<Prisma.ClienteCreateWithoutVentasInput, Prisma.ClienteUncheckedCreateWithoutVentasInput>
+  connectOrCreate?: Prisma.ClienteCreateOrConnectWithoutVentasInput
+  upsert?: Prisma.ClienteUpsertWithoutVentasInput
+  disconnect?: Prisma.ClienteWhereInput | boolean
+  delete?: Prisma.ClienteWhereInput | boolean
+  connect?: Prisma.ClienteWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ClienteUpdateToOneWithWhereWithoutVentasInput, Prisma.ClienteUpdateWithoutVentasInput>, Prisma.ClienteUncheckedUpdateWithoutVentasInput>
 }
 
 export type ClienteCreateNestedOneWithoutCotizacionesInput = {
@@ -508,7 +481,7 @@ export type ClienteCreateWithoutVehiculosInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   ordenes?: Prisma.OrdenTrabajoCreateNestedManyWithoutClienteInput
-  ventas?: Prisma.VentaRefaccionCreateNestedManyWithoutClientesInput
+  ventas?: Prisma.VentaRefaccionCreateNestedManyWithoutClienteInput
   cotizaciones?: Prisma.CotizacionCreateNestedManyWithoutClienteInput
 }
 
@@ -522,7 +495,7 @@ export type ClienteUncheckedCreateWithoutVehiculosInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   ordenes?: Prisma.OrdenTrabajoUncheckedCreateNestedManyWithoutClienteInput
-  ventas?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutClientesInput
+  ventas?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutClienteInput
   cotizaciones?: Prisma.CotizacionUncheckedCreateNestedManyWithoutClienteInput
 }
 
@@ -552,7 +525,7 @@ export type ClienteUpdateWithoutVehiculosInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ordenes?: Prisma.OrdenTrabajoUpdateManyWithoutClienteNestedInput
-  ventas?: Prisma.VentaRefaccionUpdateManyWithoutClientesNestedInput
+  ventas?: Prisma.VentaRefaccionUpdateManyWithoutClienteNestedInput
   cotizaciones?: Prisma.CotizacionUpdateManyWithoutClienteNestedInput
 }
 
@@ -566,7 +539,7 @@ export type ClienteUncheckedUpdateWithoutVehiculosInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ordenes?: Prisma.OrdenTrabajoUncheckedUpdateManyWithoutClienteNestedInput
-  ventas?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutClientesNestedInput
+  ventas?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutClienteNestedInput
   cotizaciones?: Prisma.CotizacionUncheckedUpdateManyWithoutClienteNestedInput
 }
 
@@ -580,7 +553,7 @@ export type ClienteCreateWithoutOrdenesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   vehiculos?: Prisma.VehiculoCreateNestedManyWithoutClienteInput
-  ventas?: Prisma.VentaRefaccionCreateNestedManyWithoutClientesInput
+  ventas?: Prisma.VentaRefaccionCreateNestedManyWithoutClienteInput
   cotizaciones?: Prisma.CotizacionCreateNestedManyWithoutClienteInput
 }
 
@@ -594,7 +567,7 @@ export type ClienteUncheckedCreateWithoutOrdenesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   vehiculos?: Prisma.VehiculoUncheckedCreateNestedManyWithoutClienteInput
-  ventas?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutClientesInput
+  ventas?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutClienteInput
   cotizaciones?: Prisma.CotizacionUncheckedCreateNestedManyWithoutClienteInput
 }
 
@@ -624,7 +597,7 @@ export type ClienteUpdateWithoutOrdenesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vehiculos?: Prisma.VehiculoUpdateManyWithoutClienteNestedInput
-  ventas?: Prisma.VentaRefaccionUpdateManyWithoutClientesNestedInput
+  ventas?: Prisma.VentaRefaccionUpdateManyWithoutClienteNestedInput
   cotizaciones?: Prisma.CotizacionUpdateManyWithoutClienteNestedInput
 }
 
@@ -638,7 +611,7 @@ export type ClienteUncheckedUpdateWithoutOrdenesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vehiculos?: Prisma.VehiculoUncheckedUpdateManyWithoutClienteNestedInput
-  ventas?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutClientesNestedInput
+  ventas?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutClienteNestedInput
   cotizaciones?: Prisma.CotizacionUncheckedUpdateManyWithoutClienteNestedInput
 }
 
@@ -675,106 +648,15 @@ export type ClienteCreateOrConnectWithoutVentasInput = {
   create: Prisma.XOR<Prisma.ClienteCreateWithoutVentasInput, Prisma.ClienteUncheckedCreateWithoutVentasInput>
 }
 
-export type ClienteUpsertWithWhereUniqueWithoutVentasInput = {
-  where: Prisma.ClienteWhereUniqueInput
+export type ClienteUpsertWithoutVentasInput = {
   update: Prisma.XOR<Prisma.ClienteUpdateWithoutVentasInput, Prisma.ClienteUncheckedUpdateWithoutVentasInput>
   create: Prisma.XOR<Prisma.ClienteCreateWithoutVentasInput, Prisma.ClienteUncheckedCreateWithoutVentasInput>
+  where?: Prisma.ClienteWhereInput
 }
 
-export type ClienteUpdateWithWhereUniqueWithoutVentasInput = {
-  where: Prisma.ClienteWhereUniqueInput
+export type ClienteUpdateToOneWithWhereWithoutVentasInput = {
+  where?: Prisma.ClienteWhereInput
   data: Prisma.XOR<Prisma.ClienteUpdateWithoutVentasInput, Prisma.ClienteUncheckedUpdateWithoutVentasInput>
-}
-
-export type ClienteUpdateManyWithWhereWithoutVentasInput = {
-  where: Prisma.ClienteScalarWhereInput
-  data: Prisma.XOR<Prisma.ClienteUpdateManyMutationInput, Prisma.ClienteUncheckedUpdateManyWithoutVentasInput>
-}
-
-export type ClienteScalarWhereInput = {
-  AND?: Prisma.ClienteScalarWhereInput | Prisma.ClienteScalarWhereInput[]
-  OR?: Prisma.ClienteScalarWhereInput[]
-  NOT?: Prisma.ClienteScalarWhereInput | Prisma.ClienteScalarWhereInput[]
-  id?: Prisma.StringFilter<"Cliente"> | string
-  nombre?: Prisma.StringFilter<"Cliente"> | string
-  telefono?: Prisma.StringNullableFilter<"Cliente"> | string | null
-  email?: Prisma.StringNullableFilter<"Cliente"> | string | null
-  direccion?: Prisma.StringNullableFilter<"Cliente"> | string | null
-  activo?: Prisma.BoolFilter<"Cliente"> | boolean
-  createdAt?: Prisma.DateTimeFilter<"Cliente"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"Cliente"> | Date | string
-}
-
-export type ClienteCreateWithoutCotizacionesInput = {
-  id?: string
-  nombre: string
-  telefono?: string | null
-  email?: string | null
-  direccion?: string | null
-  activo?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  vehiculos?: Prisma.VehiculoCreateNestedManyWithoutClienteInput
-  ordenes?: Prisma.OrdenTrabajoCreateNestedManyWithoutClienteInput
-  ventas?: Prisma.VentaRefaccionCreateNestedManyWithoutClientesInput
-}
-
-export type ClienteUncheckedCreateWithoutCotizacionesInput = {
-  id?: string
-  nombre: string
-  telefono?: string | null
-  email?: string | null
-  direccion?: string | null
-  activo?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  vehiculos?: Prisma.VehiculoUncheckedCreateNestedManyWithoutClienteInput
-  ordenes?: Prisma.OrdenTrabajoUncheckedCreateNestedManyWithoutClienteInput
-  ventas?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutClientesInput
-}
-
-export type ClienteCreateOrConnectWithoutCotizacionesInput = {
-  where: Prisma.ClienteWhereUniqueInput
-  create: Prisma.XOR<Prisma.ClienteCreateWithoutCotizacionesInput, Prisma.ClienteUncheckedCreateWithoutCotizacionesInput>
-}
-
-export type ClienteUpsertWithoutCotizacionesInput = {
-  update: Prisma.XOR<Prisma.ClienteUpdateWithoutCotizacionesInput, Prisma.ClienteUncheckedUpdateWithoutCotizacionesInput>
-  create: Prisma.XOR<Prisma.ClienteCreateWithoutCotizacionesInput, Prisma.ClienteUncheckedCreateWithoutCotizacionesInput>
-  where?: Prisma.ClienteWhereInput
-}
-
-export type ClienteUpdateToOneWithWhereWithoutCotizacionesInput = {
-  where?: Prisma.ClienteWhereInput
-  data: Prisma.XOR<Prisma.ClienteUpdateWithoutCotizacionesInput, Prisma.ClienteUncheckedUpdateWithoutCotizacionesInput>
-}
-
-export type ClienteUpdateWithoutCotizacionesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  nombre?: Prisma.StringFieldUpdateOperationsInput | string
-  telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  direccion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  vehiculos?: Prisma.VehiculoUpdateManyWithoutClienteNestedInput
-  ordenes?: Prisma.OrdenTrabajoUpdateManyWithoutClienteNestedInput
-  ventas?: Prisma.VentaRefaccionUpdateManyWithoutClientesNestedInput
-}
-
-export type ClienteUncheckedUpdateWithoutCotizacionesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  nombre?: Prisma.StringFieldUpdateOperationsInput | string
-  telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  direccion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  vehiculos?: Prisma.VehiculoUncheckedUpdateManyWithoutClienteNestedInput
-  ordenes?: Prisma.OrdenTrabajoUncheckedUpdateManyWithoutClienteNestedInput
-  ventas?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutClientesNestedInput
 }
 
 export type ClienteUpdateWithoutVentasInput = {
@@ -805,7 +687,51 @@ export type ClienteUncheckedUpdateWithoutVentasInput = {
   cotizaciones?: Prisma.CotizacionUncheckedUpdateManyWithoutClienteNestedInput
 }
 
-export type ClienteUncheckedUpdateManyWithoutVentasInput = {
+export type ClienteCreateWithoutCotizacionesInput = {
+  id?: string
+  nombre: string
+  telefono?: string | null
+  email?: string | null
+  direccion?: string | null
+  activo?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  vehiculos?: Prisma.VehiculoCreateNestedManyWithoutClienteInput
+  ordenes?: Prisma.OrdenTrabajoCreateNestedManyWithoutClienteInput
+  ventas?: Prisma.VentaRefaccionCreateNestedManyWithoutClienteInput
+}
+
+export type ClienteUncheckedCreateWithoutCotizacionesInput = {
+  id?: string
+  nombre: string
+  telefono?: string | null
+  email?: string | null
+  direccion?: string | null
+  activo?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  vehiculos?: Prisma.VehiculoUncheckedCreateNestedManyWithoutClienteInput
+  ordenes?: Prisma.OrdenTrabajoUncheckedCreateNestedManyWithoutClienteInput
+  ventas?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutClienteInput
+}
+
+export type ClienteCreateOrConnectWithoutCotizacionesInput = {
+  where: Prisma.ClienteWhereUniqueInput
+  create: Prisma.XOR<Prisma.ClienteCreateWithoutCotizacionesInput, Prisma.ClienteUncheckedCreateWithoutCotizacionesInput>
+}
+
+export type ClienteUpsertWithoutCotizacionesInput = {
+  update: Prisma.XOR<Prisma.ClienteUpdateWithoutCotizacionesInput, Prisma.ClienteUncheckedUpdateWithoutCotizacionesInput>
+  create: Prisma.XOR<Prisma.ClienteCreateWithoutCotizacionesInput, Prisma.ClienteUncheckedCreateWithoutCotizacionesInput>
+  where?: Prisma.ClienteWhereInput
+}
+
+export type ClienteUpdateToOneWithWhereWithoutCotizacionesInput = {
+  where?: Prisma.ClienteWhereInput
+  data: Prisma.XOR<Prisma.ClienteUpdateWithoutCotizacionesInput, Prisma.ClienteUncheckedUpdateWithoutCotizacionesInput>
+}
+
+export type ClienteUpdateWithoutCotizacionesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   nombre?: Prisma.StringFieldUpdateOperationsInput | string
   telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -814,6 +740,23 @@ export type ClienteUncheckedUpdateManyWithoutVentasInput = {
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  vehiculos?: Prisma.VehiculoUpdateManyWithoutClienteNestedInput
+  ordenes?: Prisma.OrdenTrabajoUpdateManyWithoutClienteNestedInput
+  ventas?: Prisma.VentaRefaccionUpdateManyWithoutClienteNestedInput
+}
+
+export type ClienteUncheckedUpdateWithoutCotizacionesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nombre?: Prisma.StringFieldUpdateOperationsInput | string
+  telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  direccion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  vehiculos?: Prisma.VehiculoUncheckedUpdateManyWithoutClienteNestedInput
+  ordenes?: Prisma.OrdenTrabajoUncheckedUpdateManyWithoutClienteNestedInput
+  ventas?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutClienteNestedInput
 }
 
 

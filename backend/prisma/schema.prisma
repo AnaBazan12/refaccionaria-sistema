@@ -83,9 +83,9 @@ model Cliente {
   updatedAt DateTime   @updatedAt
 
   // Un cliente puede tener muchos vehículos
-  vehiculos Vehiculo[]
-  ordenes   OrdenTrabajo[]
-  ventas VentaRefaccion[]
+  vehiculos    Vehiculo[]
+  ordenes      OrdenTrabajo[]
+  ventas       VentaRefaccion[]
   cotizaciones Cotizacion[]
   @@map("clientes")
 }
@@ -292,13 +292,16 @@ model VentaRefaccion {
   // Agrupa varios items del mismo ticket de venta mostrador
   ticketId         String?
 
+  // Cliente que compró en mostrador (opcional)
+  clienteId        String?
+  cliente          Cliente?   @relation(fields: [clienteId], references: [id])
+
   // Quién vendió
   usuarioId        String?
   usuario          Usuario?   @relation(fields: [usuarioId], references: [id])
 
   @@map("ventas_refacciones")
   ordenServicios OrdenServicio[]
-  clientes Cliente[]
 }
 
 // ─── Movimiento de inventario (entradas/salidas) ─────────────

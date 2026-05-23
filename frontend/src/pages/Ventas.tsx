@@ -1,8 +1,15 @@
 import { useEffect, useState } from 'react'
 import { registrarTicket, getVentasDelDia } from '../services/venta.service'
 import { buscarRefaccion }                  from '../services/inventario.service'
+import { getClientes }                      from '../services/cliente.service'
 
 type TipoVenta = 'MOSTRADOR' | 'TALLER' | 'MAYOREO'
+
+interface ClienteOpc {
+  id:       string
+  nombre:   string
+  telefono?: string
+}
 
 interface Venta {
   id:             string
@@ -14,8 +21,10 @@ interface Venta {
   subtotal:       number
   fecha:          string
   ticketId:       string | null
+  clienteId:      string | null
   refaccion:      { nombre: string; codigo: string }
   usuario?:       { nombre: string }
+  cliente?:       { nombre: string } | null
 }
 
 interface ResumenDia {
@@ -57,6 +66,12 @@ export default function Ventas() {
   const [guardando,   setGuardando]   = useState(false)
   const [error,       setError]       = useState('')
 
+  // Cliente opcional para el ticket
+  const [clienteSel,      setClienteSel]      = useState<ClienteOpc | null>(null)
+  const [busqCliente,     setBusqCliente]     = useState('')
+  const [resClientes,     setResClientes]     = useState<ClienteOpc[]>([])
+  const [buscandoCliente, setBuscandoCliente] = useState(false)
+
   // Vista de tickets expandidos
   const [ticketAbierto, setTicketAbierto] = useState<string | null>(null)
 
@@ -68,7 +83,7 @@ export default function Ventas() {
 
   useEffect(() => { cargar() }, [fechaSel])
 
-  // Búsqueda con debounce
+  // Búsqueda de refacciones con debounce
   useEffect(() => {
     if (!busqueda.trim()) { setResultados([]); return }
     const t = setTimeout(async () => {
@@ -78,6 +93,19 @@ export default function Ventas() {
     }, 300)
     return () => clearTimeout(t)
   }, [busqueda])
+
+  // Búsqueda de clientes con debounce
+  useEffect(() => {
+    if (!busqCliente.trim()) { setResClientes([]); return }
+    const t = setTimeout(async () => {
+      setBuscandoCliente(true)
+      try {
+        const resp = await getClientes({ q: busqCliente, limit: 8 })
+        setResClientes(Array.isArray(resp) ? resp : (resp.data ?? []))
+      } finally { setBuscandoCliente(false) }
+    }, 300)
+    return () => clearTimeout(t)
+  }, [busqCliente])
 
   // ── Carrito helpers ───────────────────────────────────────────
   const agregarAlCarrito = (ref: any) => {
@@ -124,6 +152,9 @@ export default function Ventas() {
     setBusqueda('')
     setResultados([])
     setTipoVenta('MOSTRADOR')
+    setClienteSel(null)
+    setBusqCliente('')
+    setResClientes([])
     setError('')
     setModal(true)
   }
@@ -134,7 +165,8 @@ export default function Ventas() {
     try {
       await registrarTicket({
         tipoVenta,
-        items: carrito.map(i => ({ refaccionId: i.refaccion.id, cantidad: i.cantidad }))
+        items:     carrito.map(i => ({ refaccionId: i.refaccion.id, cantidad: i.cantidad })),
+        clienteId: clienteSel?.id ?? undefined
       })
       setModal(false)
       cargar()
@@ -167,6 +199,7 @@ export default function Ventas() {
       ganancia: items.reduce((s, v) => s + Number(v.ganancia), 0),
       tipoVenta: items[0].tipoVenta,
       vendedor:  items[0].usuario?.nombre ?? '—',
+      cliente:   items[0].cliente?.nombre ?? null,
     }))
     return [...ticketList.map(t => ({ tipo: 'ticket' as const, data: t })),
             ...sueltas.map(v => ({ tipo: 'suelta' as const, data: v }))]
@@ -306,6 +339,11 @@ export default function Ventas() {
                               <span className={`text-xs px-2 py-0.5 rounded-full ${tipoColor(t.tipoVenta)}`}>
                                 {tipoLabel(t.tipoVenta)}
                               </span>
+                              {t.cliente && (
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-purple-50 text-purple-700">
+                                  👤 {t.cliente}
+                                </span>
+                              )}
                             </div>
                             <div className="text-xs text-gray-400 mt-0.5 truncate">
                               {t.items.map(i => i.refaccion.nombre).join(' · ')}
@@ -439,6 +477,71 @@ export default function Ventas() {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* Cliente opcional */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Cliente <span className="text-gray-400 font-normal">(opcional)</span>
+                </label>
+                {clienteSel ? (
+                  <div className="flex items-center gap-2 bg-blue-50 border border-blue-200
+                                  rounded-lg px-3 py-2">
+                    <span className="text-blue-700 font-medium text-sm flex-1">
+                      👤 {clienteSel.nombre}
+                      {clienteSel.telefono && (
+                        <span className="text-blue-400 font-normal ml-1 text-xs">
+                          · {clienteSel.telefono}
+                        </span>
+                      )}
+                    </span>
+                    <button
+                      onClick={() => { setClienteSel(null); setBusqCliente('') }}
+                      className="text-blue-400 hover:text-red-500 text-lg leading-none"
+                    >×</button>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={busqCliente}
+                      onChange={e => setBusqCliente(e.target.value)}
+                      placeholder="Buscar cliente por nombre o teléfono..."
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2.5
+                                 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    {buscandoCliente && (
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2
+                                       text-gray-400 text-xs">Buscando…</span>
+                    )}
+                    {resClientes.length > 0 && (
+                      <div className="absolute z-10 w-full border border-gray-200 rounded-xl
+                                      mt-1 bg-white shadow-lg overflow-hidden max-h-48 overflow-y-auto">
+                        {resClientes.map(c => (
+                          <button
+                            key={c.id}
+                            onClick={() => {
+                              setClienteSel(c)
+                              setBusqCliente('')
+                              setResClientes([])
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-2.5
+                                       hover:bg-blue-50 text-left border-b border-gray-100
+                                       last:border-0 transition-colors"
+                          >
+                            <span className="text-gray-400">👤</span>
+                            <div>
+                              <div className="text-sm font-medium text-gray-800">{c.nombre}</div>
+                              {c.telefono && (
+                                <div className="text-xs text-gray-400">{c.telefono}</div>
+                              )}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Buscador */}
