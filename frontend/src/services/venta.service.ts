@@ -11,9 +11,10 @@ export const registrarVenta = async (venta: {
 }
 
 export const registrarTicket = async (ticket: {
-  tipoVenta:  'MOSTRADOR' | 'TALLER' | 'MAYOREO'
-  items:      { refaccionId: string; cantidad: number }[]
-  clienteId?: string
+  tipoVenta:    'MOSTRADOR' | 'TALLER' | 'MAYOREO'
+  items:        { refaccionId: string; cantidad: number }[]
+  clienteId?:   string
+  descuentoPct?: number
 }) => {
   const { data } = await api.post('/ventas/ticket', ticket)
   return data

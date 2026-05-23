@@ -93,10 +93,11 @@ export const registrarVenta = async (req: RequestConUsuario, res: Response) => {
 // ── Registrar ticket (venta con múltiples refacciones) ────────
 export const registrarTicket = async (req: RequestConUsuario, res: Response) => {
   try {
-    const { tipoVenta, items, clienteId } = req.body as {
-      tipoVenta: TipoVenta
-      items:     { refaccionId: string; cantidad: number }[]
-      clienteId?: string
+    const { tipoVenta, items, clienteId, descuentoPct } = req.body as {
+      tipoVenta:    TipoVenta
+      items:        { refaccionId: string; cantidad: number }[]
+      clienteId?:   string
+      descuentoPct?: number   // 0-100, porcentaje de descuento sobre el total del ticket
     }
 
     if (!items?.length) {
@@ -141,10 +142,11 @@ export const registrarTicket = async (req: RequestConUsuario, res: Response) => 
         : tipoVenta === 'TALLER'                     ? Number(ref.precioTaller)
         :                                              Number(ref.precioMostrador)
 
+      const descFactor   = 1 - (Math.min(Math.max(descuentoPct ?? 0, 0), 100) / 100)
       const precioSinIva = precioUnitario / 1.16
       const costoCompra  = Number(ref.costoCompra)
-      const ganancia     = (precioSinIva - costoCompra) * item.cantidad
-      const subtotal     = precioUnitario * item.cantidad
+      const subtotal     = precioUnitario * item.cantidad * descFactor
+      const ganancia     = ((precioSinIva * descFactor) - costoCompra) * item.cantidad
 
       totalTicket   += subtotal
       gananciaTotal += ganancia
@@ -168,6 +170,7 @@ export const registrarTicket = async (req: RequestConUsuario, res: Response) => 
             costoCompra:    ic.costoCompra,
             ganancia:       ic.ganancia,
             subtotal:       ic.subtotal,
+            descuentoPct:   descuentoPct ?? 0,
             ticketId,
             clienteId:      clienteId ?? null,
             usuarioId,
@@ -189,11 +192,12 @@ export const registrarTicket = async (req: RequestConUsuario, res: Response) => 
     )
 
     return res.status(201).json({
-      mensaje:   'Ticket registrado',
+      mensaje:      'Ticket registrado',
       ticketId,
-      total:     totalTicket.toFixed(2),
-      ganancia:  gananciaTotal.toFixed(2),
-      articulos: items.length,
+      total:        totalTicket.toFixed(2),
+      ganancia:     gananciaTotal.toFixed(2),
+      articulos:    items.length,
+      descuentoPct: descuentoPct ?? 0,
     })
   } catch (error) {
     return res.status(500).json({ mensaje: 'Error del servidor', error })

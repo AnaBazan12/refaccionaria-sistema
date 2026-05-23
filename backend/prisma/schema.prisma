@@ -292,6 +292,9 @@ model VentaRefaccion {
   // Agrupa varios items del mismo ticket de venta mostrador
   ticketId         String?
 
+  // Descuento aplicado al ticket (0-100 %)
+  descuentoPct     Decimal   @default(0) @db.Decimal(5, 2)
+
   // Cliente que compró en mostrador (opcional)
   clienteId        String?
   cliente          Cliente?   @relation(fields: [clienteId], references: [id])

@@ -22,6 +22,7 @@ interface Venta {
   fecha:          string
   ticketId:       string | null
   clienteId:      string | null
+  descuentoPct:   number
   refaccion:      { nombre: string; codigo: string }
   usuario?:       { nombre: string }
   cliente?:       { nombre: string } | null
@@ -71,6 +72,9 @@ export default function Ventas() {
   const [busqCliente,     setBusqCliente]     = useState('')
   const [resClientes,     setResClientes]     = useState<ClienteOpc[]>([])
   const [buscandoCliente, setBuscandoCliente] = useState(false)
+
+  // Descuento del ticket (0–100 %)
+  const [descuentoPct, setDescuentoPct] = useState('')
 
   // Vista de tickets expandidos
   const [ticketAbierto, setTicketAbierto] = useState<string | null>(null)
@@ -141,10 +145,14 @@ export default function Ventas() {
     return Number(ref.precioMostrador)
   }
 
-  const totalCarrito = carrito.reduce((s, i) => s + precioItem(i.refaccion) * i.cantidad, 0)
+  const pctNum         = Math.min(Math.max(Number(descuentoPct) || 0, 0), 100)
+  const descFactor     = 1 - pctNum / 100
+  const subtotalBruto  = carrito.reduce((s, i) => s + precioItem(i.refaccion) * i.cantidad, 0)
+  const montoDescuento = subtotalBruto * (pctNum / 100)
+  const totalCarrito   = subtotalBruto * descFactor
   const gananciaCarrito = carrito.reduce((s, i) => {
     const p = precioItem(i.refaccion)
-    return s + ((p / 1.16) - Number(i.refaccion.costoCompra)) * i.cantidad
+    return s + (((p / 1.16) * descFactor) - Number(i.refaccion.costoCompra)) * i.cantidad
   }, 0)
 
   const abrirModal = () => {
@@ -155,6 +163,7 @@ export default function Ventas() {
     setClienteSel(null)
     setBusqCliente('')
     setResClientes([])
+    setDescuentoPct('')
     setError('')
     setModal(true)
   }
@@ -165,8 +174,9 @@ export default function Ventas() {
     try {
       await registrarTicket({
         tipoVenta,
-        items:     carrito.map(i => ({ refaccionId: i.refaccion.id, cantidad: i.cantidad })),
-        clienteId: clienteSel?.id ?? undefined
+        items:        carrito.map(i => ({ refaccionId: i.refaccion.id, cantidad: i.cantidad })),
+        clienteId:    clienteSel?.id ?? undefined,
+        descuentoPct: pctNum > 0 ? pctNum : undefined,
       })
       setModal(false)
       cargar()
@@ -192,14 +202,15 @@ export default function Ventas() {
     }
     // tickets como array ordenado por fecha del primer item
     const ticketList = Object.entries(tickets).map(([id, items]) => ({
-      ticketId: id,
-      fecha:    items[0].fecha,
+      ticketId:    id,
+      fecha:       items[0].fecha,
       items,
-      total:    items.reduce((s, v) => s + Number(v.subtotal), 0),
-      ganancia: items.reduce((s, v) => s + Number(v.ganancia), 0),
-      tipoVenta: items[0].tipoVenta,
-      vendedor:  items[0].usuario?.nombre ?? '—',
-      cliente:   items[0].cliente?.nombre ?? null,
+      total:       items.reduce((s, v) => s + Number(v.subtotal), 0),
+      ganancia:    items.reduce((s, v) => s + Number(v.ganancia), 0),
+      tipoVenta:   items[0].tipoVenta,
+      vendedor:    items[0].usuario?.nombre ?? '—',
+      cliente:     items[0].cliente?.nombre ?? null,
+      descuentoPct: Number(items[0].descuentoPct ?? 0),
     }))
     return [...ticketList.map(t => ({ tipo: 'ticket' as const, data: t })),
             ...sueltas.map(v => ({ tipo: 'suelta' as const, data: v }))]
@@ -342,6 +353,11 @@ export default function Ventas() {
                               {t.cliente && (
                                 <span className="text-xs px-2 py-0.5 rounded-full bg-purple-50 text-purple-700">
                                   👤 {t.cliente}
+                                </span>
+                              )}
+                              {t.descuentoPct > 0 && (
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">
+                                  🏷️ -{t.descuentoPct}%
                                 </span>
                               )}
                             </div>
@@ -657,16 +673,58 @@ export default function Ventas() {
                       )
                     })}
 
+                    {/* Descuento */}
+                    <div className="border-t border-gray-100 px-4 py-3 bg-amber-50/60">
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs font-medium text-amber-700 shrink-0">
+                          🏷️ Descuento
+                        </label>
+                        <div className="flex items-center gap-1 flex-1">
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="1"
+                            value={descuentoPct}
+                            onChange={e => setDescuentoPct(e.target.value)}
+                            placeholder="0"
+                            className="w-20 border border-amber-300 rounded-lg px-2 py-1.5
+                                       text-sm text-center focus:outline-none
+                                       focus:ring-2 focus:ring-amber-400 bg-white"
+                          />
+                          <span className="text-sm text-amber-700 font-medium">%</span>
+                          {pctNum > 0 && (
+                            <span className="text-xs text-amber-600 ml-1">
+                              — ahorro: ${fmt(montoDescuento)}
+                            </span>
+                          )}
+                        </div>
+                        {pctNum > 0 && (
+                          <button
+                            onClick={() => setDescuentoPct('')}
+                            className="text-amber-400 hover:text-red-500 text-base leading-none"
+                          >×</button>
+                        )}
+                      </div>
+                    </div>
+
                     {/* Total del carrito */}
                     <div className="bg-gray-50 border-t border-gray-200 px-4 py-3
                                     flex items-center justify-between">
                       <div>
-                        <div className="text-xs text-gray-500">Total</div>
+                        <div className="text-xs text-gray-500">
+                          {pctNum > 0 ? (
+                            <>
+                              <span className="line-through text-gray-400">${fmt(subtotalBruto)}</span>
+                              <span className="ml-1 text-amber-600 font-medium">-{pctNum}%</span>
+                            </>
+                          ) : 'Total'}
+                        </div>
                         <div className="text-xs text-green-600">
                           Ganancia estimada: +${fmt(gananciaCarrito)}
                         </div>
                       </div>
-                      <span className="text-xl font-bold text-gray-900">
+                      <span className={`text-xl font-bold ${pctNum > 0 ? 'text-amber-700' : 'text-gray-900'}`}>
                         ${fmt(totalCarrito)}
                       </span>
                     </div>
@@ -705,7 +763,9 @@ export default function Ventas() {
               >
                 {guardando
                   ? 'Registrando…'
-                  : `Registrar venta · $${fmt(totalCarrito)}`}
+                  : pctNum > 0
+                    ? `Registrar · $${fmt(totalCarrito)} (-${pctNum}%)`
+                    : `Registrar venta · $${fmt(totalCarrito)}`}
               </button>
             </div>
           </div>
