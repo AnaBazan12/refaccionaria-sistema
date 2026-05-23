@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams }     from 'react-router-dom'
+import { useStockBajo }        from '../context/StockBajoContext'
 import {
   getRefacciones, buscarRefaccion, crearRefaccion,
   actualizarRefaccion, entradaInventario,
@@ -94,12 +96,16 @@ const MargenBadge = ({ margen }: { margen: number }) => {
 }
 
 export default function Inventario() {
+  const { refrescar: refrescarStockBajo } = useStockBajo()
   const [refacciones,   setRefacciones]   = useState<Refaccion[]>([])
   const [metricas,      setMetricas]      = useState<Metricas | null>(null)
   const [proveedores,   setProveedores]   = useState<any[]>([])
+  const [searchParams]                     = useSearchParams()
   const [cargando,      setCargando]      = useState(true)
   const [busqueda,      setBusqueda]      = useState('')
-  const [soloStockBajo, setSoloStockBajo] = useState(false)
+  const [soloStockBajo, setSoloStockBajo] = useState(
+    () => searchParams.get('stockBajo') === 'true'
+  )
   const [modalAbierto,  setModalAbierto]  = useState(false)
   const [modalEntrada,  setModalEntrada]  = useState<Refaccion | null>(null)
   const [editando,      setEditando]      = useState<Refaccion | null>(null)
@@ -144,6 +150,7 @@ export default function Inventario() {
       await ajustarInventario(modalAjuste!.id, nuevo, motivo)
       setModalAjuste(null)
       cargar()
+      refrescarStockBajo()
     } catch (e: any) {
       setErrorAj(e.response?.data?.mensaje || 'Error al ajustar')
     } finally {
@@ -287,6 +294,7 @@ export default function Inventario() {
     try {
       await entradaInventario(modalEntrada!.id, Number(cantEntrada), motivoEntrada || 'Entrada de mercancía')
       setModalEntrada(null); setCantEntrada(''); setMotivoEntrada(''); cargar()
+      refrescarStockBajo()
     } finally {
       setGuardando(false)
     }

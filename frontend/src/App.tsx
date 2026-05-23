@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { StockBajoProvider }    from './context/StockBajoContext'
 import Sidebar        from './components/ui/Sidebar'
 import RutaProtegida  from './components/ui/RutaProtegida'
 import Login          from './pages/Login'
@@ -45,12 +46,14 @@ const LayoutPrivado = () => {
   if (usuario.rol === 'MECANICO') return <Navigate to="/mecanico" replace />
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <Sidebar />
-      <main className="flex-1 overflow-auto">
-        <Outlet />
-      </main>
-    </div>
+    <StockBajoProvider>
+      <div className="flex min-h-screen bg-gray-100">
+        <Sidebar />
+        <main className="flex-1 overflow-auto">
+          <Outlet />
+        </main>
+      </div>
+    </StockBajoProvider>
   )
 }
 
