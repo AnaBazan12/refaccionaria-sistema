@@ -28,7 +28,12 @@ export const getDashboard = async (_req: Request, res: Response) => {
       pagosUltimos7,
       stockBajoRaw,
       ultimasOrdenes,
+      ventasHoy,
+      ventasMes,
+      ventasUltimos7,
+      comprasMes,
     ] = await Promise.all([
+
       // Órdenes del mes actual
       prisma.ordenTrabajo.findMany({
         where: { createdAt: { gte: inicioMes, lte: finMes }, activo: true },
@@ -59,7 +64,7 @@ export const getDashboard = async (_req: Request, res: Response) => {
         orderBy: { createdAt: 'asc' }
       }),
 
-      // Pagos registrados últimos 7 días (para gráfica de ingresos)
+      // Pagos de taller últimos 7 días (gráfica)
       prisma.pago.findMany({
         where: { fecha: { gte: hace7, lte: finHoy } },
         select: { monto: true, fecha: true }
@@ -85,6 +90,30 @@ export const getDashboard = async (_req: Request, res: Response) => {
         },
         orderBy: { createdAt: 'desc' },
         take: 5
+      }),
+
+      // ── NUEVO: Ventas de refacciones de HOY ─────────────────
+      prisma.ventaRefaccion.findMany({
+        where: { fecha: { gte: hoy, lte: finHoy } },
+        select: { subtotal: true, ganancia: true, tipoVenta: true }
+      }),
+
+      // ── NUEVO: Ventas de refacciones del MES ────────────────
+      prisma.ventaRefaccion.findMany({
+        where: { fecha: { gte: inicioMes, lte: finMes } },
+        select: { subtotal: true, ganancia: true, tipoVenta: true, fecha: true }
+      }),
+
+      // ── NUEVO: Ventas por día últimos 7 (para gráfica doble) ─
+      prisma.ventaRefaccion.findMany({
+        where: { fecha: { gte: hace7, lte: finHoy } },
+        select: { subtotal: true, fecha: true }
+      }),
+
+      // ── NUEVO: Compras del mes ───────────────────────────────
+      prisma.compra.findMany({
+        where: { fecha: { gte: inicioMes, lte: finMes } },
+        select: { total: true }
       }),
     ])
 
@@ -121,36 +150,74 @@ export const getDashboard = async (_req: Request, res: Response) => {
     }
     const mecanicos = Object.values(mecMap).sort((a, b) => b.ordenes - a.ordenes)
 
-    // ── Gráfica últimos 7 días ────────────────────────────────────
-    const ultimos7: { fecha: string; ingresos: number; label: string }[] = []
+    // ── Gráfica últimos 7 días (taller + ventas mostrador) ───────
+    const ultimos7: {
+      fecha: string; ingresos: number; ventas: number; label: string
+    }[] = []
     for (let i = 6; i >= 0; i--) {
       const d = new Date(ahora)
       d.setDate(d.getDate() - i)
       const dStr = d.toISOString().split('T')[0]
+
       const ingresos = pagosUltimos7
         .filter(p => p.fecha.toISOString().split('T')[0] === dStr)
         .reduce((s, p) => s + Number(p.monto), 0)
+
+      const ventas = ventasUltimos7
+        .filter(v => v.fecha.toISOString().split('T')[0] === dStr)
+        .reduce((s, v) => s + Number(v.subtotal), 0)
+
       ultimos7.push({
         fecha:    dStr,
         ingresos: parseFloat(ingresos.toFixed(2)),
+        ventas:   parseFloat(ventas.toFixed(2)),
         label:    d.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric' })
       })
     }
+
+    // ── Ventas HOY ───────────────────────────────────────────────
+    const totalVentasHoy    = ventasHoy.reduce((s, v) => s + Number(v.subtotal), 0)
+    const gananciaVentasHoy = ventasHoy.reduce((s, v) => s + Number(v.ganancia), 0)
+
+    // ── Ventas MES ───────────────────────────────────────────────
+    const totalVentasMes    = ventasMes.reduce((s, v) => s + Number(v.subtotal), 0)
+    const gananciaVentasMes = ventasMes.reduce((s, v) => s + Number(v.ganancia), 0)
+
+    // Ventas mes por tipo
+    const ventasPorTipo: Record<string, { total: number; ganancia: number; cantidad: number }> = {}
+    for (const v of ventasMes) {
+      if (!ventasPorTipo[v.tipoVenta]) {
+        ventasPorTipo[v.tipoVenta] = { total: 0, ganancia: 0, cantidad: 0 }
+      }
+      ventasPorTipo[v.tipoVenta].total    += Number(v.subtotal)
+      ventasPorTipo[v.tipoVenta].ganancia += Number(v.ganancia)
+      ventasPorTipo[v.tipoVenta].cantidad += 1
+    }
+
+    // ── Compras MES ──────────────────────────────────────────────
+    const totalComprasMes = comprasMes.reduce((s, c) => s + Number(c.total), 0)
 
     // ── Stock bajo ───────────────────────────────────────────────
     const stockBajo = stockBajoRaw.filter(r => r.stockActual <= r.stockMinimo)
 
     return res.json({
       hoy: {
-        nuevasOrdenes: ordenesHoy,
-        enTaller:      ordenesActivas.length,
+        nuevasOrdenes:   ordenesHoy,
+        enTaller:        ordenesActivas.length,
+        ventasTotal:     totalVentasHoy.toFixed(2),
+        ventasGanancia:  gananciaVentasHoy.toFixed(2),
+        ventasCount:     ventasHoy.length,
       },
       mes: {
         ingresos:        ingresosMes.toFixed(2),
         ingresosMesAnt:  ingresosMesAnt.toFixed(2),
-        crecimiento,                         // null = sin datos anteriores
+        crecimiento,
         totalOrdenes:    ordenesMes.length,
         entregadas:      entregadasMes.length,
+        ventasTotal:     totalVentasMes.toFixed(2),
+        ventasGanancia:  gananciaVentasMes.toFixed(2),
+        ventasPorTipo,
+        comprasTotal:    totalComprasMes.toFixed(2),
       },
       activas: {
         total:     ordenesActivas.length,

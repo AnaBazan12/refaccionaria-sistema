@@ -1,43 +1,44 @@
 import { useEffect, useState } from 'react'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip,
-  ResponsiveContainer, CartesianGrid
+  ResponsiveContainer, CartesianGrid, Legend
 } from 'recharts'
 import { getDashboardData } from '../services/dashboard.service'
 
 /* ─── tipos ──────────────────────────────────────────────────── */
 interface DashboardData {
   hoy: {
-    nuevasOrdenes: number
-    enTaller: number
+    nuevasOrdenes:  number
+    enTaller:       number
+    ventasTotal:    string
+    ventasGanancia: string
+    ventasCount:    number
   }
   mes: {
-    ingresos: string
+    ingresos:       string
     ingresosMesAnt: string
-    crecimiento: string | null
-    totalOrdenes: number
-    entregadas: number
+    crecimiento:    string | null
+    totalOrdenes:   number
+    entregadas:     number
+    ventasTotal:    string
+    ventasGanancia: string
+    ventasPorTipo:  Record<string, { total: number; ganancia: number; cantidad: number }>
+    comprasTotal:   string
   }
   activas: {
-    total: number
+    total:    number
     porEstado: {
-      RECIBIDO: number
-      EN_PROCESO: number
-      EN_ESPERA_REFACCION: number
-      LISTO: number
+      RECIBIDO: number; EN_PROCESO: number
+      EN_ESPERA_REFACCION: number; LISTO: number
     }
     lista: any[]
   }
-  mecanicos: { nombre: string; ordenes: number; ingresos: number }[]
-  ultimos7: { fecha: string; ingresos: number; label: string }[]
+  mecanicos:     { nombre: string; ordenes: number; ingresos: number }[]
+  ultimos7:      { fecha: string; ingresos: number; ventas: number; label: string }[]
   ultimasOrdenes: any[]
   stockBajo: {
-    id: string
-    nombre: string
-    codigo: string
-    stockActual: number
-    stockMinimo: number
-    proveedor: string
+    id: string; nombre: string; codigo: string
+    stockActual: number; stockMinimo: number; proveedor: string
   }[]
 }
 
@@ -45,11 +46,20 @@ interface DashboardData {
 const fmt = (n: any) =>
   `$${Number(n ?? 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}`
 
+const fmtShort = (n: any) =>
+  `$${Number(n ?? 0).toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+
 const estadoConfig: Record<string, { label: string; color: string; dot: string }> = {
-  RECIBIDO:            { label: 'Recibidos',      color: 'bg-blue-100 text-blue-700',   dot: 'bg-blue-400' },
-  EN_PROCESO:          { label: 'En proceso',     color: 'bg-yellow-100 text-yellow-700', dot: 'bg-yellow-400' },
-  EN_ESPERA_REFACCION: { label: 'Espera refacción', color: 'bg-orange-100 text-orange-700', dot: 'bg-orange-400' },
-  LISTO:               { label: 'Listos',         color: 'bg-green-100 text-green-700', dot: 'bg-green-400' },
+  RECIBIDO:            { label: 'Recibidos',        color: 'bg-blue-100 text-blue-700',    dot: 'bg-blue-400'   },
+  EN_PROCESO:          { label: 'En proceso',       color: 'bg-yellow-100 text-yellow-700',dot: 'bg-yellow-400' },
+  EN_ESPERA_REFACCION: { label: 'Espera refacción', color: 'bg-orange-100 text-orange-700',dot: 'bg-orange-400' },
+  LISTO:               { label: 'Listos',           color: 'bg-green-100 text-green-700',  dot: 'bg-green-400'  },
+}
+
+const tipoConfig: Record<string, { label: string; color: string; bg: string }> = {
+  MOSTRADOR: { label: '🏪 Mostrador', color: 'text-blue-700',   bg: 'bg-blue-50 border-blue-100'   },
+  TALLER:    { label: '🔧 Taller',    color: 'text-purple-700', bg: 'bg-purple-50 border-purple-100' },
+  MAYOREO:   { label: '📦 Mayoreo',   color: 'text-amber-700',  bg: 'bg-amber-50 border-amber-100'  },
 }
 
 /* ─── tarjeta de métrica ─────────────────────────────────────── */
@@ -60,22 +70,26 @@ function MetricCard({
   titulo: string
   valor: string | number
   subtitulo?: string
-  color: 'green' | 'blue' | 'yellow' | 'red' | 'purple'
+  color: 'green' | 'blue' | 'yellow' | 'red' | 'purple' | 'emerald' | 'rose'
   badge?: { texto: string; positivo: boolean } | null
 }) {
   const bg: Record<string, string> = {
-    green:  'bg-green-50  border-green-100',
-    blue:   'bg-blue-50   border-blue-100',
-    yellow: 'bg-amber-50  border-amber-100',
-    red:    'bg-red-50    border-red-100',
-    purple: 'bg-purple-50 border-purple-100',
+    green:   'bg-green-50   border-green-100',
+    blue:    'bg-blue-50    border-blue-100',
+    yellow:  'bg-amber-50   border-amber-100',
+    red:     'bg-red-50     border-red-100',
+    purple:  'bg-purple-50  border-purple-100',
+    emerald: 'bg-emerald-50 border-emerald-100',
+    rose:    'bg-rose-50    border-rose-100',
   }
   const text: Record<string, string> = {
-    green:  'text-green-700',
-    blue:   'text-blue-700',
-    yellow: 'text-amber-700',
-    red:    'text-red-700',
-    purple: 'text-purple-700',
+    green:   'text-green-700',
+    blue:    'text-blue-700',
+    yellow:  'text-amber-700',
+    red:     'text-red-700',
+    purple:  'text-purple-700',
+    emerald: 'text-emerald-700',
+    rose:    'text-rose-700',
   }
   return (
     <div className={`rounded-xl border p-5 ${bg[color]}`}>
@@ -83,9 +97,7 @@ function MetricCard({
         <span className="text-2xl">{icono}</span>
         {badge && (
           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-            badge.positivo
-              ? 'bg-green-100 text-green-700'
-              : 'bg-red-100 text-red-700'
+            badge.positivo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
           }`}>
             {badge.positivo ? '▲' : '▼'} {badge.texto}
           </span>
@@ -98,22 +110,26 @@ function MetricCard({
   )
 }
 
-/* ─── tooltip personalizado para la gráfica ─────────────────── */
+/* ─── tooltip gráfica ────────────────────────────────────────── */
 function TooltipGrafica({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
     <div className="bg-white border border-gray-200 rounded-lg shadow-lg px-3 py-2 text-sm">
       <p className="font-medium text-gray-700 mb-1">{label}</p>
-      <p className="text-blue-600 font-bold">{fmt(payload[0]?.value)}</p>
+      {payload.map((p: any) => (
+        <p key={p.name} style={{ color: p.color }} className="font-bold">
+          {p.name}: {fmt(p.value)}
+        </p>
+      ))}
     </div>
   )
 }
 
 /* ─── página ─────────────────────────────────────────────────── */
 export default function Dashboard() {
-  const [datos, setDatos] = useState<DashboardData | null>(null)
+  const [datos,    setDatos]    = useState<DashboardData | null>(null)
   const [cargando, setCargando] = useState(true)
-  const [error, setError] = useState('')
+  const [error,    setError]    = useState('')
 
   useEffect(() => {
     getDashboardData()
@@ -125,7 +141,6 @@ export default function Dashboard() {
   const hoy = new Date().toLocaleDateString('es-MX', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   })
-
   const mesActual = new Date().toLocaleDateString('es-MX', {
     month: 'long', year: 'numeric'
   })
@@ -153,6 +168,10 @@ export default function Dashboard() {
     ? { texto: `${Math.abs(Number(mes.crecimiento))}% vs mes ant.`, positivo: Number(mes.crecimiento) >= 0 }
     : null
 
+  // ¿Tiene datos de ventas de mostrador?
+  const hayVentas = Number(mes.ventasTotal) > 0 || Number(dHoy.ventasTotal) > 0
+  const hayGrafica = ultimos7.some(d => d.ingresos > 0 || d.ventas > 0)
+
   return (
     <div className="p-6 space-y-6">
 
@@ -162,46 +181,118 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
           <p className="text-gray-500 text-sm capitalize">{hoy}</p>
         </div>
-        <span className="text-xs bg-blue-50 text-blue-600 border border-blue-100 rounded-full px-3 py-1 font-medium capitalize">
+        <span className="text-xs bg-blue-50 text-blue-600 border border-blue-100
+                         rounded-full px-3 py-1 font-medium capitalize">
           📅 {mesActual}
         </span>
       </div>
 
-      {/* ── Tarjetas de métricas ─────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard
-          icono="💰"
-          titulo="Ingresos del mes"
-          valor={fmt(mes.ingresos)}
-          subtitulo={`${mes.entregadas} órdenes entregadas`}
-          color="green"
-          badge={badgeCrecimiento}
-        />
-        <MetricCard
-          icono="🔧"
-          titulo="Autos en taller"
-          valor={activas.total}
-          subtitulo={`${dHoy.nuevasOrdenes} nuevas hoy`}
-          color="blue"
-          badge={null}
-        />
-        <MetricCard
-          icono="📋"
-          titulo="Órdenes del mes"
-          valor={mes.totalOrdenes}
-          subtitulo={`${mes.entregadas} entregadas`}
-          color="purple"
-          badge={null}
-        />
-        <MetricCard
-          icono="⚠️"
-          titulo="Stock bajo"
-          valor={stockBajo.length}
-          subtitulo={stockBajo.length > 0 ? 'Piezas por surtir' : 'Inventario OK'}
-          color={stockBajo.length > 0 ? 'red' : 'green'}
-          badge={null}
-        />
+      {/* ══════════════════════════════════════════════════════
+          SECCIÓN TALLER
+      ══════════════════════════════════════════════════════ */}
+      <div>
+        <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+          🔧 Taller mecánico
+        </h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <MetricCard
+            icono="💰"
+            titulo="Ingresos del mes"
+            valor={fmt(mes.ingresos)}
+            subtitulo={`${mes.entregadas} órdenes entregadas`}
+            color="green"
+            badge={badgeCrecimiento}
+          />
+          <MetricCard
+            icono="🔧"
+            titulo="Autos en taller"
+            valor={activas.total}
+            subtitulo={`${dHoy.nuevasOrdenes} nuevas hoy`}
+            color="blue"
+            badge={null}
+          />
+          <MetricCard
+            icono="📋"
+            titulo="Órdenes del mes"
+            valor={mes.totalOrdenes}
+            subtitulo={`${mes.entregadas} entregadas`}
+            color="purple"
+            badge={null}
+          />
+          <MetricCard
+            icono="⚠️"
+            titulo="Stock bajo"
+            valor={stockBajo.length}
+            subtitulo={stockBajo.length > 0 ? 'Piezas por surtir' : 'Inventario OK'}
+            color={stockBajo.length > 0 ? 'red' : 'green'}
+            badge={null}
+          />
+        </div>
       </div>
+
+      {/* ══════════════════════════════════════════════════════
+          SECCIÓN VENTAS MOSTRADOR
+      ══════════════════════════════════════════════════════ */}
+      <div>
+        <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+          🏪 Ventas mostrador
+        </h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <MetricCard
+            icono="💵"
+            titulo="Ventas de hoy"
+            valor={fmt(dHoy.ventasTotal)}
+            subtitulo={`${dHoy.ventasCount} venta${dHoy.ventasCount !== 1 ? 's' : ''} registrada${dHoy.ventasCount !== 1 ? 's' : ''}`}
+            color="emerald"
+            badge={null}
+          />
+          <MetricCard
+            icono="📈"
+            titulo="Ganancia de hoy"
+            valor={fmt(dHoy.ventasGanancia)}
+            subtitulo="utilidad real mostrador"
+            color="green"
+            badge={null}
+          />
+          <MetricCard
+            icono="🛍️"
+            titulo="Ventas del mes"
+            valor={fmt(mes.ventasTotal)}
+            subtitulo={`Ganancia: ${fmt(mes.ventasGanancia)}`}
+            color="blue"
+            badge={null}
+          />
+          <MetricCard
+            icono="🛒"
+            titulo="Compras del mes"
+            valor={fmt(mes.comprasTotal)}
+            subtitulo="costo total de entradas"
+            color="yellow"
+            badge={null}
+          />
+        </div>
+      </div>
+
+      {/* Ventas del mes por tipo */}
+      {hayVentas && Object.keys(mes.ventasPorTipo).length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {Object.entries(mes.ventasPorTipo).map(([tipo, d]) => {
+            const cfg = tipoConfig[tipo] ?? { label: tipo, color: 'text-gray-700', bg: 'bg-gray-50 border-gray-200' }
+            return (
+              <div key={tipo} className={`rounded-xl border p-4 ${cfg.bg}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className={`text-sm font-semibold ${cfg.color}`}>{cfg.label}</span>
+                  <span className="text-xs text-gray-400">{d.cantidad} ticket{d.cantidad !== 1 ? 's' : ''}</span>
+                </div>
+                <div className="text-xl font-bold text-gray-800">{fmt(d.total)}</div>
+                <div className="text-xs text-gray-500 mt-0.5">
+                  Ganancia: {fmt(d.ganancia)}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
 
       {/* ── Estados de órdenes activas ───────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -218,17 +309,19 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* ── Gráfica + Mecánicos ──────────────────────────────── */}
+      {/* ── Gráfica doble + Mecánicos ────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {/* Gráfica últimos 7 días */}
+        {/* Gráfica últimos 7 días — taller + mostrador */}
         <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-5">
           <h2 className="font-semibold text-gray-700 mb-1">Ingresos — últimos 7 días</h2>
-          <p className="text-xs text-gray-400 mb-4">Pagos registrados por día</p>
-          {ultimos7.every(d => d.ingresos === 0) ? (
+          <p className="text-xs text-gray-400 mb-4">
+            🔵 Taller (pagos) · 🟢 Ventas mostrador
+          </p>
+          {!hayGrafica ? (
             <div className="flex items-center justify-center h-48 text-gray-300 text-sm flex-col gap-2">
               <span className="text-4xl">📊</span>
-              Sin pagos en los últimos 7 días
+              Sin datos en los últimos 7 días
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={200}>
@@ -237,22 +330,31 @@ export default function Dashboard() {
                 <XAxis
                   dataKey="label"
                   tick={{ fontSize: 11, fill: '#9ca3af' }}
-                  axisLine={false}
-                  tickLine={false}
+                  axisLine={false} tickLine={false}
                 />
                 <YAxis
                   tick={{ fontSize: 11, fill: '#9ca3af' }}
-                  axisLine={false}
-                  tickLine={false}
-                  tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+                  axisLine={false} tickLine={false}
+                  tickFormatter={v => `$${(v / 1000).toFixed(0)}k`}
                 />
                 <Tooltip content={<TooltipGrafica />} />
+                <Legend
+                  wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
+                  formatter={(value) => value === 'ingresos' ? 'Taller' : 'Mostrador'}
+                />
                 <Bar
                   dataKey="ingresos"
-                  name="Ingresos"
+                  name="ingresos"
                   fill="#3b82f6"
-                  radius={[6, 6, 0, 0]}
-                  maxBarSize={48}
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={36}
+                />
+                <Bar
+                  dataKey="ventas"
+                  name="ventas"
+                  fill="#10b981"
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={36}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -320,10 +422,8 @@ export default function Dashboard() {
               {activas.lista.map((o: any) => {
                 const cfg = estadoConfig[o.estado]
                 return (
-                  <div
-                    key={o.id}
-                    className="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-2.5"
-                  >
+                  <div key={o.id}
+                    className="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-2.5">
                     <div>
                       <div className="text-sm font-medium text-gray-800">
                         {o.vehiculo?.marca} {o.vehiculo?.modelo}
@@ -332,7 +432,8 @@ export default function Dashboard() {
                       <div className="text-xs text-gray-500">{o.cliente?.nombre}</div>
                     </div>
                     <div className="text-right">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cfg?.color ?? 'bg-gray-100 text-gray-600'}`}>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium
+                        ${cfg?.color ?? 'bg-gray-100 text-gray-600'}`}>
                         {cfg?.label ?? o.estado}
                       </span>
                       <div className="text-xs text-gray-400 mt-0.5">
@@ -359,10 +460,9 @@ export default function Dashboard() {
           ) : (
             <div className="space-y-2">
               {ultimasOrdenes.map((o: any) => (
-                <div
-                  key={o.id}
-                  className="flex items-center justify-between border-b border-gray-50 pb-2 last:border-0 last:pb-0"
-                >
+                <div key={o.id}
+                  className="flex items-center justify-between
+                             border-b border-gray-50 pb-2 last:border-0 last:pb-0">
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-xs text-gray-400 font-bold">
@@ -379,7 +479,8 @@ export default function Dashboard() {
                   </div>
                   <div className="text-right">
                     <div className="text-sm font-bold text-gray-700">{fmt(o.total)}</div>
-                    <div className={`text-xs ${estadoConfig[o.estado]?.color?.split(' ')[1] ?? 'text-gray-400'}`}>
+                    <div className={`text-xs
+                      ${estadoConfig[o.estado]?.color?.split(' ')[1] ?? 'text-gray-400'}`}>
                       {estadoConfig[o.estado]?.label ?? o.estado}
                     </div>
                   </div>
@@ -411,7 +512,7 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {stockBajo.map((r) => (
+                {stockBajo.map(r => (
                   <tr key={r.id} className="text-gray-700">
                     <td className="py-2 font-mono text-xs text-gray-400">{r.codigo}</td>
                     <td className="py-2 font-medium">{r.nombre}</td>
