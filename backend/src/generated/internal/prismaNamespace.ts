@@ -396,6 +396,8 @@ export const ModelName = {
   VentaRefaccion: 'VentaRefaccion',
   MovimientoInventario: 'MovimientoInventario',
   FacturaProveedor: 'FacturaProveedor',
+  Compra: 'Compra',
+  CompraItem: 'CompraItem',
   OrdenDetalle: 'OrdenDetalle',
   Pago: 'Pago',
   Cotizacion: 'Cotizacion',
@@ -417,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "usuario" | "cliente" | "vehiculo" | "mecanico" | "tipoServicio" | "ordenTrabajo" | "ordenServicio" | "proveedor" | "refaccion" | "ventaRefaccion" | "movimientoInventario" | "facturaProveedor" | "ordenDetalle" | "pago" | "cotizacion" | "cotizacionItem" | "gastoCaja" | "bitacoraOrden"
+    modelProps: "usuario" | "cliente" | "vehiculo" | "mecanico" | "tipoServicio" | "ordenTrabajo" | "ordenServicio" | "proveedor" | "refaccion" | "ventaRefaccion" | "movimientoInventario" | "facturaProveedor" | "compra" | "compraItem" | "ordenDetalle" | "pago" | "cotizacion" | "cotizacionItem" | "gastoCaja" | "bitacoraOrden"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1309,6 +1311,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Compra: {
+      payload: Prisma.$CompraPayload<ExtArgs>
+      fields: Prisma.CompraFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CompraFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompraPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CompraFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompraPayload>
+        }
+        findFirst: {
+          args: Prisma.CompraFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompraPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CompraFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompraPayload>
+        }
+        findMany: {
+          args: Prisma.CompraFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompraPayload>[]
+        }
+        create: {
+          args: Prisma.CompraCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompraPayload>
+        }
+        createMany: {
+          args: Prisma.CompraCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CompraCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompraPayload>[]
+        }
+        delete: {
+          args: Prisma.CompraDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompraPayload>
+        }
+        update: {
+          args: Prisma.CompraUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompraPayload>
+        }
+        deleteMany: {
+          args: Prisma.CompraDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CompraUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CompraUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompraPayload>[]
+        }
+        upsert: {
+          args: Prisma.CompraUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompraPayload>
+        }
+        aggregate: {
+          args: Prisma.CompraAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCompra>
+        }
+        groupBy: {
+          args: Prisma.CompraGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompraGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CompraCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompraCountAggregateOutputType> | number
+        }
+      }
+    }
+    CompraItem: {
+      payload: Prisma.$CompraItemPayload<ExtArgs>
+      fields: Prisma.CompraItemFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CompraItemFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompraItemPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CompraItemFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompraItemPayload>
+        }
+        findFirst: {
+          args: Prisma.CompraItemFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompraItemPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CompraItemFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompraItemPayload>
+        }
+        findMany: {
+          args: Prisma.CompraItemFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompraItemPayload>[]
+        }
+        create: {
+          args: Prisma.CompraItemCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompraItemPayload>
+        }
+        createMany: {
+          args: Prisma.CompraItemCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CompraItemCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompraItemPayload>[]
+        }
+        delete: {
+          args: Prisma.CompraItemDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompraItemPayload>
+        }
+        update: {
+          args: Prisma.CompraItemUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompraItemPayload>
+        }
+        deleteMany: {
+          args: Prisma.CompraItemDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CompraItemUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CompraItemUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompraItemPayload>[]
+        }
+        upsert: {
+          args: Prisma.CompraItemUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompraItemPayload>
+        }
+        aggregate: {
+          args: Prisma.CompraItemAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCompraItem>
+        }
+        groupBy: {
+          args: Prisma.CompraItemGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompraItemGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CompraItemCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompraItemCountAggregateOutputType> | number
+        }
+      }
+    }
     OrdenDetalle: {
       payload: Prisma.$OrdenDetallePayload<ExtArgs>
       fields: Prisma.OrdenDetalleFieldRefs
@@ -1997,6 +2147,31 @@ export const FacturaProveedorScalarFieldEnum = {
 export type FacturaProveedorScalarFieldEnum = (typeof FacturaProveedorScalarFieldEnum)[keyof typeof FacturaProveedorScalarFieldEnum]
 
 
+export const CompraScalarFieldEnum = {
+  id: 'id',
+  fecha: 'fecha',
+  facturaNumero: 'facturaNumero',
+  notas: 'notas',
+  total: 'total',
+  proveedorId: 'proveedorId'
+} as const
+
+export type CompraScalarFieldEnum = (typeof CompraScalarFieldEnum)[keyof typeof CompraScalarFieldEnum]
+
+
+export const CompraItemScalarFieldEnum = {
+  id: 'id',
+  cantidad: 'cantidad',
+  costoUnitario: 'costoUnitario',
+  subtotal: 'subtotal',
+  actualizoCosto: 'actualizoCosto',
+  compraId: 'compraId',
+  refaccionId: 'refaccionId'
+} as const
+
+export type CompraItemScalarFieldEnum = (typeof CompraItemScalarFieldEnum)[keyof typeof CompraItemScalarFieldEnum]
+
+
 export const OrdenDetalleScalarFieldEnum = {
   id: 'id',
   cantidad: 'cantidad',
@@ -2410,6 +2585,8 @@ export type GlobalOmitConfig = {
   ventaRefaccion?: Prisma.VentaRefaccionOmit
   movimientoInventario?: Prisma.MovimientoInventarioOmit
   facturaProveedor?: Prisma.FacturaProveedorOmit
+  compra?: Prisma.CompraOmit
+  compraItem?: Prisma.CompraItemOmit
   ordenDetalle?: Prisma.OrdenDetalleOmit
   pago?: Prisma.PagoOmit
   cotizacion?: Prisma.CotizacionOmit

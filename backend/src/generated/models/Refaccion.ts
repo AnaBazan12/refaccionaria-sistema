@@ -341,6 +341,7 @@ export type RefaccionWhereInput = {
   cotizacionItems?: Prisma.CotizacionItemListRelationFilter
   ventas?: Prisma.VentaRefaccionListRelationFilter
   movimientos?: Prisma.MovimientoInventarioListRelationFilter
+  compraItems?: Prisma.CompraItemListRelationFilter
 }
 
 export type RefaccionOrderByWithRelationInput = {
@@ -366,6 +367,7 @@ export type RefaccionOrderByWithRelationInput = {
   cotizacionItems?: Prisma.CotizacionItemOrderByRelationAggregateInput
   ventas?: Prisma.VentaRefaccionOrderByRelationAggregateInput
   movimientos?: Prisma.MovimientoInventarioOrderByRelationAggregateInput
+  compraItems?: Prisma.CompraItemOrderByRelationAggregateInput
 }
 
 export type RefaccionWhereUniqueInput = Prisma.AtLeast<{
@@ -394,6 +396,7 @@ export type RefaccionWhereUniqueInput = Prisma.AtLeast<{
   cotizacionItems?: Prisma.CotizacionItemListRelationFilter
   ventas?: Prisma.VentaRefaccionListRelationFilter
   movimientos?: Prisma.MovimientoInventarioListRelationFilter
+  compraItems?: Prisma.CompraItemListRelationFilter
 }, "id" | "codigo">
 
 export type RefaccionOrderByWithAggregationInput = {
@@ -466,6 +469,7 @@ export type RefaccionCreateInput = {
   cotizacionItems?: Prisma.CotizacionItemCreateNestedManyWithoutRefaccionInput
   ventas?: Prisma.VentaRefaccionCreateNestedManyWithoutRefaccionInput
   movimientos?: Prisma.MovimientoInventarioCreateNestedManyWithoutRefaccionInput
+  compraItems?: Prisma.CompraItemCreateNestedManyWithoutRefaccionInput
 }
 
 export type RefaccionUncheckedCreateInput = {
@@ -490,6 +494,7 @@ export type RefaccionUncheckedCreateInput = {
   cotizacionItems?: Prisma.CotizacionItemUncheckedCreateNestedManyWithoutRefaccionInput
   ventas?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutRefaccionInput
   movimientos?: Prisma.MovimientoInventarioUncheckedCreateNestedManyWithoutRefaccionInput
+  compraItems?: Prisma.CompraItemUncheckedCreateNestedManyWithoutRefaccionInput
 }
 
 export type RefaccionUpdateInput = {
@@ -514,6 +519,7 @@ export type RefaccionUpdateInput = {
   cotizacionItems?: Prisma.CotizacionItemUpdateManyWithoutRefaccionNestedInput
   ventas?: Prisma.VentaRefaccionUpdateManyWithoutRefaccionNestedInput
   movimientos?: Prisma.MovimientoInventarioUpdateManyWithoutRefaccionNestedInput
+  compraItems?: Prisma.CompraItemUpdateManyWithoutRefaccionNestedInput
 }
 
 export type RefaccionUncheckedUpdateInput = {
@@ -538,6 +544,7 @@ export type RefaccionUncheckedUpdateInput = {
   cotizacionItems?: Prisma.CotizacionItemUncheckedUpdateManyWithoutRefaccionNestedInput
   ventas?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutRefaccionNestedInput
   movimientos?: Prisma.MovimientoInventarioUncheckedUpdateManyWithoutRefaccionNestedInput
+  compraItems?: Prisma.CompraItemUncheckedUpdateManyWithoutRefaccionNestedInput
 }
 
 export type RefaccionCreateManyInput = {
@@ -777,6 +784,20 @@ export type RefaccionUpdateOneRequiredWithoutMovimientosNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.RefaccionUpdateToOneWithWhereWithoutMovimientosInput, Prisma.RefaccionUpdateWithoutMovimientosInput>, Prisma.RefaccionUncheckedUpdateWithoutMovimientosInput>
 }
 
+export type RefaccionCreateNestedOneWithoutCompraItemsInput = {
+  create?: Prisma.XOR<Prisma.RefaccionCreateWithoutCompraItemsInput, Prisma.RefaccionUncheckedCreateWithoutCompraItemsInput>
+  connectOrCreate?: Prisma.RefaccionCreateOrConnectWithoutCompraItemsInput
+  connect?: Prisma.RefaccionWhereUniqueInput
+}
+
+export type RefaccionUpdateOneRequiredWithoutCompraItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.RefaccionCreateWithoutCompraItemsInput, Prisma.RefaccionUncheckedCreateWithoutCompraItemsInput>
+  connectOrCreate?: Prisma.RefaccionCreateOrConnectWithoutCompraItemsInput
+  upsert?: Prisma.RefaccionUpsertWithoutCompraItemsInput
+  connect?: Prisma.RefaccionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RefaccionUpdateToOneWithWhereWithoutCompraItemsInput, Prisma.RefaccionUpdateWithoutCompraItemsInput>, Prisma.RefaccionUncheckedUpdateWithoutCompraItemsInput>
+}
+
 export type RefaccionCreateNestedOneWithoutOrdenDetalleInput = {
   create?: Prisma.XOR<Prisma.RefaccionCreateWithoutOrdenDetalleInput, Prisma.RefaccionUncheckedCreateWithoutOrdenDetalleInput>
   connectOrCreate?: Prisma.RefaccionCreateOrConnectWithoutOrdenDetalleInput
@@ -828,6 +849,7 @@ export type RefaccionCreateWithoutProveedorInput = {
   cotizacionItems?: Prisma.CotizacionItemCreateNestedManyWithoutRefaccionInput
   ventas?: Prisma.VentaRefaccionCreateNestedManyWithoutRefaccionInput
   movimientos?: Prisma.MovimientoInventarioCreateNestedManyWithoutRefaccionInput
+  compraItems?: Prisma.CompraItemCreateNestedManyWithoutRefaccionInput
 }
 
 export type RefaccionUncheckedCreateWithoutProveedorInput = {
@@ -851,6 +873,7 @@ export type RefaccionUncheckedCreateWithoutProveedorInput = {
   cotizacionItems?: Prisma.CotizacionItemUncheckedCreateNestedManyWithoutRefaccionInput
   ventas?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutRefaccionInput
   movimientos?: Prisma.MovimientoInventarioUncheckedCreateNestedManyWithoutRefaccionInput
+  compraItems?: Prisma.CompraItemUncheckedCreateNestedManyWithoutRefaccionInput
 }
 
 export type RefaccionCreateOrConnectWithoutProveedorInput = {
@@ -923,6 +946,7 @@ export type RefaccionCreateWithoutVentasInput = {
   ordenDetalle?: Prisma.OrdenDetalleCreateNestedManyWithoutRefaccionInput
   cotizacionItems?: Prisma.CotizacionItemCreateNestedManyWithoutRefaccionInput
   movimientos?: Prisma.MovimientoInventarioCreateNestedManyWithoutRefaccionInput
+  compraItems?: Prisma.CompraItemCreateNestedManyWithoutRefaccionInput
 }
 
 export type RefaccionUncheckedCreateWithoutVentasInput = {
@@ -946,6 +970,7 @@ export type RefaccionUncheckedCreateWithoutVentasInput = {
   ordenDetalle?: Prisma.OrdenDetalleUncheckedCreateNestedManyWithoutRefaccionInput
   cotizacionItems?: Prisma.CotizacionItemUncheckedCreateNestedManyWithoutRefaccionInput
   movimientos?: Prisma.MovimientoInventarioUncheckedCreateNestedManyWithoutRefaccionInput
+  compraItems?: Prisma.CompraItemUncheckedCreateNestedManyWithoutRefaccionInput
 }
 
 export type RefaccionCreateOrConnectWithoutVentasInput = {
@@ -985,6 +1010,7 @@ export type RefaccionUpdateWithoutVentasInput = {
   ordenDetalle?: Prisma.OrdenDetalleUpdateManyWithoutRefaccionNestedInput
   cotizacionItems?: Prisma.CotizacionItemUpdateManyWithoutRefaccionNestedInput
   movimientos?: Prisma.MovimientoInventarioUpdateManyWithoutRefaccionNestedInput
+  compraItems?: Prisma.CompraItemUpdateManyWithoutRefaccionNestedInput
 }
 
 export type RefaccionUncheckedUpdateWithoutVentasInput = {
@@ -1008,6 +1034,7 @@ export type RefaccionUncheckedUpdateWithoutVentasInput = {
   ordenDetalle?: Prisma.OrdenDetalleUncheckedUpdateManyWithoutRefaccionNestedInput
   cotizacionItems?: Prisma.CotizacionItemUncheckedUpdateManyWithoutRefaccionNestedInput
   movimientos?: Prisma.MovimientoInventarioUncheckedUpdateManyWithoutRefaccionNestedInput
+  compraItems?: Prisma.CompraItemUncheckedUpdateManyWithoutRefaccionNestedInput
 }
 
 export type RefaccionCreateWithoutMovimientosInput = {
@@ -1031,6 +1058,7 @@ export type RefaccionCreateWithoutMovimientosInput = {
   ordenDetalle?: Prisma.OrdenDetalleCreateNestedManyWithoutRefaccionInput
   cotizacionItems?: Prisma.CotizacionItemCreateNestedManyWithoutRefaccionInput
   ventas?: Prisma.VentaRefaccionCreateNestedManyWithoutRefaccionInput
+  compraItems?: Prisma.CompraItemCreateNestedManyWithoutRefaccionInput
 }
 
 export type RefaccionUncheckedCreateWithoutMovimientosInput = {
@@ -1054,6 +1082,7 @@ export type RefaccionUncheckedCreateWithoutMovimientosInput = {
   ordenDetalle?: Prisma.OrdenDetalleUncheckedCreateNestedManyWithoutRefaccionInput
   cotizacionItems?: Prisma.CotizacionItemUncheckedCreateNestedManyWithoutRefaccionInput
   ventas?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutRefaccionInput
+  compraItems?: Prisma.CompraItemUncheckedCreateNestedManyWithoutRefaccionInput
 }
 
 export type RefaccionCreateOrConnectWithoutMovimientosInput = {
@@ -1093,6 +1122,7 @@ export type RefaccionUpdateWithoutMovimientosInput = {
   ordenDetalle?: Prisma.OrdenDetalleUpdateManyWithoutRefaccionNestedInput
   cotizacionItems?: Prisma.CotizacionItemUpdateManyWithoutRefaccionNestedInput
   ventas?: Prisma.VentaRefaccionUpdateManyWithoutRefaccionNestedInput
+  compraItems?: Prisma.CompraItemUpdateManyWithoutRefaccionNestedInput
 }
 
 export type RefaccionUncheckedUpdateWithoutMovimientosInput = {
@@ -1116,6 +1146,119 @@ export type RefaccionUncheckedUpdateWithoutMovimientosInput = {
   ordenDetalle?: Prisma.OrdenDetalleUncheckedUpdateManyWithoutRefaccionNestedInput
   cotizacionItems?: Prisma.CotizacionItemUncheckedUpdateManyWithoutRefaccionNestedInput
   ventas?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutRefaccionNestedInput
+  compraItems?: Prisma.CompraItemUncheckedUpdateManyWithoutRefaccionNestedInput
+}
+
+export type RefaccionCreateWithoutCompraItemsInput = {
+  id?: string
+  codigo: string
+  nombre: string
+  descripcion?: string | null
+  marca?: string | null
+  unidad?: string
+  stockActual?: number
+  stockMinimo?: number
+  costoCompra: runtime.Decimal | runtime.DecimalJsLike | number | string
+  margenGanancia?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  precioMostrador: runtime.Decimal | runtime.DecimalJsLike | number | string
+  precioTaller: runtime.Decimal | runtime.DecimalJsLike | number | string
+  precioMayoreo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  activo?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  proveedor?: Prisma.ProveedorCreateNestedOneWithoutRefaccionesInput
+  ordenDetalle?: Prisma.OrdenDetalleCreateNestedManyWithoutRefaccionInput
+  cotizacionItems?: Prisma.CotizacionItemCreateNestedManyWithoutRefaccionInput
+  ventas?: Prisma.VentaRefaccionCreateNestedManyWithoutRefaccionInput
+  movimientos?: Prisma.MovimientoInventarioCreateNestedManyWithoutRefaccionInput
+}
+
+export type RefaccionUncheckedCreateWithoutCompraItemsInput = {
+  id?: string
+  codigo: string
+  nombre: string
+  descripcion?: string | null
+  marca?: string | null
+  unidad?: string
+  stockActual?: number
+  stockMinimo?: number
+  costoCompra: runtime.Decimal | runtime.DecimalJsLike | number | string
+  margenGanancia?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  precioMostrador: runtime.Decimal | runtime.DecimalJsLike | number | string
+  precioTaller: runtime.Decimal | runtime.DecimalJsLike | number | string
+  precioMayoreo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  activo?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  proveedorId?: string | null
+  ordenDetalle?: Prisma.OrdenDetalleUncheckedCreateNestedManyWithoutRefaccionInput
+  cotizacionItems?: Prisma.CotizacionItemUncheckedCreateNestedManyWithoutRefaccionInput
+  ventas?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutRefaccionInput
+  movimientos?: Prisma.MovimientoInventarioUncheckedCreateNestedManyWithoutRefaccionInput
+}
+
+export type RefaccionCreateOrConnectWithoutCompraItemsInput = {
+  where: Prisma.RefaccionWhereUniqueInput
+  create: Prisma.XOR<Prisma.RefaccionCreateWithoutCompraItemsInput, Prisma.RefaccionUncheckedCreateWithoutCompraItemsInput>
+}
+
+export type RefaccionUpsertWithoutCompraItemsInput = {
+  update: Prisma.XOR<Prisma.RefaccionUpdateWithoutCompraItemsInput, Prisma.RefaccionUncheckedUpdateWithoutCompraItemsInput>
+  create: Prisma.XOR<Prisma.RefaccionCreateWithoutCompraItemsInput, Prisma.RefaccionUncheckedCreateWithoutCompraItemsInput>
+  where?: Prisma.RefaccionWhereInput
+}
+
+export type RefaccionUpdateToOneWithWhereWithoutCompraItemsInput = {
+  where?: Prisma.RefaccionWhereInput
+  data: Prisma.XOR<Prisma.RefaccionUpdateWithoutCompraItemsInput, Prisma.RefaccionUncheckedUpdateWithoutCompraItemsInput>
+}
+
+export type RefaccionUpdateWithoutCompraItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  codigo?: Prisma.StringFieldUpdateOperationsInput | string
+  nombre?: Prisma.StringFieldUpdateOperationsInput | string
+  descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marca?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unidad?: Prisma.StringFieldUpdateOperationsInput | string
+  stockActual?: Prisma.IntFieldUpdateOperationsInput | number
+  stockMinimo?: Prisma.IntFieldUpdateOperationsInput | number
+  costoCompra?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  margenGanancia?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  precioMostrador?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  precioTaller?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  precioMayoreo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  proveedor?: Prisma.ProveedorUpdateOneWithoutRefaccionesNestedInput
+  ordenDetalle?: Prisma.OrdenDetalleUpdateManyWithoutRefaccionNestedInput
+  cotizacionItems?: Prisma.CotizacionItemUpdateManyWithoutRefaccionNestedInput
+  ventas?: Prisma.VentaRefaccionUpdateManyWithoutRefaccionNestedInput
+  movimientos?: Prisma.MovimientoInventarioUpdateManyWithoutRefaccionNestedInput
+}
+
+export type RefaccionUncheckedUpdateWithoutCompraItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  codigo?: Prisma.StringFieldUpdateOperationsInput | string
+  nombre?: Prisma.StringFieldUpdateOperationsInput | string
+  descripcion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marca?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unidad?: Prisma.StringFieldUpdateOperationsInput | string
+  stockActual?: Prisma.IntFieldUpdateOperationsInput | number
+  stockMinimo?: Prisma.IntFieldUpdateOperationsInput | number
+  costoCompra?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  margenGanancia?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  precioMostrador?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  precioTaller?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  precioMayoreo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  proveedorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ordenDetalle?: Prisma.OrdenDetalleUncheckedUpdateManyWithoutRefaccionNestedInput
+  cotizacionItems?: Prisma.CotizacionItemUncheckedUpdateManyWithoutRefaccionNestedInput
+  ventas?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutRefaccionNestedInput
+  movimientos?: Prisma.MovimientoInventarioUncheckedUpdateManyWithoutRefaccionNestedInput
 }
 
 export type RefaccionCreateWithoutOrdenDetalleInput = {
@@ -1139,6 +1282,7 @@ export type RefaccionCreateWithoutOrdenDetalleInput = {
   cotizacionItems?: Prisma.CotizacionItemCreateNestedManyWithoutRefaccionInput
   ventas?: Prisma.VentaRefaccionCreateNestedManyWithoutRefaccionInput
   movimientos?: Prisma.MovimientoInventarioCreateNestedManyWithoutRefaccionInput
+  compraItems?: Prisma.CompraItemCreateNestedManyWithoutRefaccionInput
 }
 
 export type RefaccionUncheckedCreateWithoutOrdenDetalleInput = {
@@ -1162,6 +1306,7 @@ export type RefaccionUncheckedCreateWithoutOrdenDetalleInput = {
   cotizacionItems?: Prisma.CotizacionItemUncheckedCreateNestedManyWithoutRefaccionInput
   ventas?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutRefaccionInput
   movimientos?: Prisma.MovimientoInventarioUncheckedCreateNestedManyWithoutRefaccionInput
+  compraItems?: Prisma.CompraItemUncheckedCreateNestedManyWithoutRefaccionInput
 }
 
 export type RefaccionCreateOrConnectWithoutOrdenDetalleInput = {
@@ -1201,6 +1346,7 @@ export type RefaccionUpdateWithoutOrdenDetalleInput = {
   cotizacionItems?: Prisma.CotizacionItemUpdateManyWithoutRefaccionNestedInput
   ventas?: Prisma.VentaRefaccionUpdateManyWithoutRefaccionNestedInput
   movimientos?: Prisma.MovimientoInventarioUpdateManyWithoutRefaccionNestedInput
+  compraItems?: Prisma.CompraItemUpdateManyWithoutRefaccionNestedInput
 }
 
 export type RefaccionUncheckedUpdateWithoutOrdenDetalleInput = {
@@ -1224,6 +1370,7 @@ export type RefaccionUncheckedUpdateWithoutOrdenDetalleInput = {
   cotizacionItems?: Prisma.CotizacionItemUncheckedUpdateManyWithoutRefaccionNestedInput
   ventas?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutRefaccionNestedInput
   movimientos?: Prisma.MovimientoInventarioUncheckedUpdateManyWithoutRefaccionNestedInput
+  compraItems?: Prisma.CompraItemUncheckedUpdateManyWithoutRefaccionNestedInput
 }
 
 export type RefaccionCreateWithoutCotizacionItemsInput = {
@@ -1247,6 +1394,7 @@ export type RefaccionCreateWithoutCotizacionItemsInput = {
   ordenDetalle?: Prisma.OrdenDetalleCreateNestedManyWithoutRefaccionInput
   ventas?: Prisma.VentaRefaccionCreateNestedManyWithoutRefaccionInput
   movimientos?: Prisma.MovimientoInventarioCreateNestedManyWithoutRefaccionInput
+  compraItems?: Prisma.CompraItemCreateNestedManyWithoutRefaccionInput
 }
 
 export type RefaccionUncheckedCreateWithoutCotizacionItemsInput = {
@@ -1270,6 +1418,7 @@ export type RefaccionUncheckedCreateWithoutCotizacionItemsInput = {
   ordenDetalle?: Prisma.OrdenDetalleUncheckedCreateNestedManyWithoutRefaccionInput
   ventas?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutRefaccionInput
   movimientos?: Prisma.MovimientoInventarioUncheckedCreateNestedManyWithoutRefaccionInput
+  compraItems?: Prisma.CompraItemUncheckedCreateNestedManyWithoutRefaccionInput
 }
 
 export type RefaccionCreateOrConnectWithoutCotizacionItemsInput = {
@@ -1309,6 +1458,7 @@ export type RefaccionUpdateWithoutCotizacionItemsInput = {
   ordenDetalle?: Prisma.OrdenDetalleUpdateManyWithoutRefaccionNestedInput
   ventas?: Prisma.VentaRefaccionUpdateManyWithoutRefaccionNestedInput
   movimientos?: Prisma.MovimientoInventarioUpdateManyWithoutRefaccionNestedInput
+  compraItems?: Prisma.CompraItemUpdateManyWithoutRefaccionNestedInput
 }
 
 export type RefaccionUncheckedUpdateWithoutCotizacionItemsInput = {
@@ -1332,6 +1482,7 @@ export type RefaccionUncheckedUpdateWithoutCotizacionItemsInput = {
   ordenDetalle?: Prisma.OrdenDetalleUncheckedUpdateManyWithoutRefaccionNestedInput
   ventas?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutRefaccionNestedInput
   movimientos?: Prisma.MovimientoInventarioUncheckedUpdateManyWithoutRefaccionNestedInput
+  compraItems?: Prisma.CompraItemUncheckedUpdateManyWithoutRefaccionNestedInput
 }
 
 export type RefaccionCreateManyProveedorInput = {
@@ -1374,6 +1525,7 @@ export type RefaccionUpdateWithoutProveedorInput = {
   cotizacionItems?: Prisma.CotizacionItemUpdateManyWithoutRefaccionNestedInput
   ventas?: Prisma.VentaRefaccionUpdateManyWithoutRefaccionNestedInput
   movimientos?: Prisma.MovimientoInventarioUpdateManyWithoutRefaccionNestedInput
+  compraItems?: Prisma.CompraItemUpdateManyWithoutRefaccionNestedInput
 }
 
 export type RefaccionUncheckedUpdateWithoutProveedorInput = {
@@ -1397,6 +1549,7 @@ export type RefaccionUncheckedUpdateWithoutProveedorInput = {
   cotizacionItems?: Prisma.CotizacionItemUncheckedUpdateManyWithoutRefaccionNestedInput
   ventas?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutRefaccionNestedInput
   movimientos?: Prisma.MovimientoInventarioUncheckedUpdateManyWithoutRefaccionNestedInput
+  compraItems?: Prisma.CompraItemUncheckedUpdateManyWithoutRefaccionNestedInput
 }
 
 export type RefaccionUncheckedUpdateManyWithoutProveedorInput = {
@@ -1428,6 +1581,7 @@ export type RefaccionCountOutputType = {
   cotizacionItems: number
   ventas: number
   movimientos: number
+  compraItems: number
 }
 
 export type RefaccionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1435,6 +1589,7 @@ export type RefaccionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensi
   cotizacionItems?: boolean | RefaccionCountOutputTypeCountCotizacionItemsArgs
   ventas?: boolean | RefaccionCountOutputTypeCountVentasArgs
   movimientos?: boolean | RefaccionCountOutputTypeCountMovimientosArgs
+  compraItems?: boolean | RefaccionCountOutputTypeCountCompraItemsArgs
 }
 
 /**
@@ -1475,6 +1630,13 @@ export type RefaccionCountOutputTypeCountMovimientosArgs<ExtArgs extends runtime
   where?: Prisma.MovimientoInventarioWhereInput
 }
 
+/**
+ * RefaccionCountOutputType without action
+ */
+export type RefaccionCountOutputTypeCountCompraItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CompraItemWhereInput
+}
+
 
 export type RefaccionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1499,6 +1661,7 @@ export type RefaccionSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   cotizacionItems?: boolean | Prisma.Refaccion$cotizacionItemsArgs<ExtArgs>
   ventas?: boolean | Prisma.Refaccion$ventasArgs<ExtArgs>
   movimientos?: boolean | Prisma.Refaccion$movimientosArgs<ExtArgs>
+  compraItems?: boolean | Prisma.Refaccion$compraItemsArgs<ExtArgs>
   _count?: boolean | Prisma.RefaccionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["refaccion"]>
 
@@ -1571,6 +1734,7 @@ export type RefaccionInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   cotizacionItems?: boolean | Prisma.Refaccion$cotizacionItemsArgs<ExtArgs>
   ventas?: boolean | Prisma.Refaccion$ventasArgs<ExtArgs>
   movimientos?: boolean | Prisma.Refaccion$movimientosArgs<ExtArgs>
+  compraItems?: boolean | Prisma.Refaccion$compraItemsArgs<ExtArgs>
   _count?: boolean | Prisma.RefaccionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type RefaccionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1588,6 +1752,7 @@ export type $RefaccionPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     cotizacionItems: Prisma.$CotizacionItemPayload<ExtArgs>[]
     ventas: Prisma.$VentaRefaccionPayload<ExtArgs>[]
     movimientos: Prisma.$MovimientoInventarioPayload<ExtArgs>[]
+    compraItems: Prisma.$CompraItemPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2006,6 +2171,7 @@ export interface Prisma__RefaccionClient<T, Null = never, ExtArgs extends runtim
   cotizacionItems<T extends Prisma.Refaccion$cotizacionItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Refaccion$cotizacionItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CotizacionItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ventas<T extends Prisma.Refaccion$ventasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Refaccion$ventasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VentaRefaccionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   movimientos<T extends Prisma.Refaccion$movimientosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Refaccion$movimientosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MovimientoInventarioPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  compraItems<T extends Prisma.Refaccion$compraItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Refaccion$compraItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CompraItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2565,6 +2731,30 @@ export type Refaccion$movimientosArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.MovimientoInventarioScalarFieldEnum | Prisma.MovimientoInventarioScalarFieldEnum[]
+}
+
+/**
+ * Refaccion.compraItems
+ */
+export type Refaccion$compraItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CompraItem
+   */
+  select?: Prisma.CompraItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CompraItem
+   */
+  omit?: Prisma.CompraItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompraItemInclude<ExtArgs> | null
+  where?: Prisma.CompraItemWhereInput
+  orderBy?: Prisma.CompraItemOrderByWithRelationInput | Prisma.CompraItemOrderByWithRelationInput[]
+  cursor?: Prisma.CompraItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CompraItemScalarFieldEnum | Prisma.CompraItemScalarFieldEnum[]
 }
 
 /**

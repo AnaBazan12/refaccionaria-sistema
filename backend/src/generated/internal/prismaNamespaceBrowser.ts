@@ -63,6 +63,8 @@ export const ModelName = {
   VentaRefaccion: 'VentaRefaccion',
   MovimientoInventario: 'MovimientoInventario',
   FacturaProveedor: 'FacturaProveedor',
+  Compra: 'Compra',
+  CompraItem: 'CompraItem',
   OrdenDetalle: 'OrdenDetalle',
   Pago: 'Pago',
   Cotizacion: 'Cotizacion',
@@ -290,6 +292,31 @@ export const FacturaProveedorScalarFieldEnum = {
 } as const
 
 export type FacturaProveedorScalarFieldEnum = (typeof FacturaProveedorScalarFieldEnum)[keyof typeof FacturaProveedorScalarFieldEnum]
+
+
+export const CompraScalarFieldEnum = {
+  id: 'id',
+  fecha: 'fecha',
+  facturaNumero: 'facturaNumero',
+  notas: 'notas',
+  total: 'total',
+  proveedorId: 'proveedorId'
+} as const
+
+export type CompraScalarFieldEnum = (typeof CompraScalarFieldEnum)[keyof typeof CompraScalarFieldEnum]
+
+
+export const CompraItemScalarFieldEnum = {
+  id: 'id',
+  cantidad: 'cantidad',
+  costoUnitario: 'costoUnitario',
+  subtotal: 'subtotal',
+  actualizoCosto: 'actualizoCosto',
+  compraId: 'compraId',
+  refaccionId: 'refaccionId'
+} as const
+
+export type CompraItemScalarFieldEnum = (typeof CompraItemScalarFieldEnum)[keyof typeof CompraItemScalarFieldEnum]
 
 
 export const OrdenDetalleScalarFieldEnum = {

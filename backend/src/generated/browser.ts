@@ -78,6 +78,16 @@ export type MovimientoInventario = Prisma.MovimientoInventarioModel
  */
 export type FacturaProveedor = Prisma.FacturaProveedorModel
 /**
+ * Model Compra
+ * 
+ */
+export type Compra = Prisma.CompraModel
+/**
+ * Model CompraItem
+ * 
+ */
+export type CompraItem = Prisma.CompraItemModel
+/**
  * Model OrdenDetalle
  * 
  */

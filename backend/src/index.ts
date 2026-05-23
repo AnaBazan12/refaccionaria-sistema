@@ -17,6 +17,7 @@ import cotizacionRoutes  from './routes/cotizacion.routes'
 import iaRoutes          from './routes/ia.routes'
 import dashboardRoutes   from './routes/dashboard.routes'
 import cajaRoutes        from './routes/caja.routes'
+import compraRoutes      from './routes/compra.routes'
 
 dotenv.config()
 
@@ -84,8 +85,8 @@ app.get('/health', (_req, res) => res.json({
   status:    'ok',
   timestamp: new Date().toISOString(),
   env:       process.env.NODE_ENV,
-  version:   'gastos-v2',
-  routes:    ['GET /api/caja/resumen', 'POST /api/caja/gastos', 'DELETE /api/caja/gastos/:id'],
+  version:   'compras-v1',
+  routes:    ['POST /api/compras', 'GET /api/compras'],
 }))
 
 // ── Rutas ─────────────────────────────────────────────────────
@@ -104,6 +105,7 @@ app.use('/api/cotizaciones', cotizacionRoutes)
 app.use('/api/ia',          iaRoutes)
 app.use('/api/dashboard',   dashboardRoutes)
 app.use('/api/caja',        cajaRoutes)
+app.use('/api/compras',     compraRoutes)
 
 // ── Manejo de errores global ──────────────────────────────────
 app.use((err: any, _req: express.Request, res: express.Response,

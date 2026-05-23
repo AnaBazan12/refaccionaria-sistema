@@ -235,6 +235,7 @@ model Proveedor {
 
   refacciones      Refaccion[]
   facturas         FacturaProveedor[]
+  compras          Compra[]
 
   @@map("proveedores")
 }
@@ -264,6 +265,7 @@ model Refaccion {
   cotizacionItems CotizacionItem[]
   ventas           VentaRefaccion[]
   movimientos      MovimientoInventario[]
+  compraItems      CompraItem[]
 
   @@map("refacciones")
 }
@@ -332,6 +334,38 @@ model FacturaProveedor {
 
   @@map("facturas_proveedor")
 }
+// ─── Compra / Entrada de inventario ─────────────────────────
+model Compra {
+  id              String     @id @default(uuid())
+  fecha           DateTime   @default(now())
+  facturaNumero   String?                        // # de factura del proveedor
+  notas           String?
+  total           Decimal    @db.Decimal(10, 2)  // suma de subtotales de items
+
+  proveedorId     String?
+  proveedor       Proveedor? @relation(fields: [proveedorId], references: [id])
+
+  items           CompraItem[]
+
+  @@map("compras")
+}
+
+model CompraItem {
+  id              String   @id @default(uuid())
+  cantidad        Int
+  costoUnitario   Decimal  @db.Decimal(10, 2)  // costo por pieza en esta compra
+  subtotal        Decimal  @db.Decimal(10, 2)  // cantidad × costoUnitario
+  actualizoCosto  Boolean  @default(false)      // si se actualizó costoCompra en refaccion
+
+  compraId        String
+  compra          Compra   @relation(fields: [compraId], references: [id], onDelete: Cascade)
+
+  refaccionId     String
+  refaccion       Refaccion @relation(fields: [refaccionId], references: [id])
+
+  @@map("compra_items")
+}
+
 model OrdenDetalle {
   id             String   @id @default(uuid())
   cantidad       Int

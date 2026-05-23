@@ -65,6 +65,12 @@ const menu = [
     roles: ['ADMIN']
   },
   {
+    ruta:  '/compras',
+    icono: '🛒',
+    label: 'Compras',
+    roles: ['ADMIN']
+  },
+  {
     ruta: '/usuarios',
     icono: '⚙️',
     label: 'Usuarios',
