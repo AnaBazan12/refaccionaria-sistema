@@ -207,18 +207,42 @@ export const reporteMensual = async (req: Request, res: Response) => {
       ...new Set(ordenesEntregadas.map(o => o.vehiculoId))
     ].length
 
-    // ── Facturas de proveedores del mes ──────────────────────
+    // ── Facturas de proveedores del mes (modelo legacy) ─────
     const facturas = await prisma.facturaProveedor.findMany({
       where: { fecha: { gte: inicio, lte: fin } },
       include: { proveedor: { select: { nombre: true } } }
     })
 
-    const totalCompras = facturas
-      .reduce((s, f) => s + Number(f.totalPagar), 0)
+    // ── Compras (nuevo modelo) del mes ───────────────────────
+    const compras = await prisma.compra.findMany({
+      where: { fecha: { gte: inicio, lte: fin } },
+      include: {
+        proveedor: { select: { nombre: true } },
+        items: {
+          include: { refaccion: { select: { nombre: true, codigo: true } } }
+        }
+      },
+      orderBy: { fecha: 'desc' }
+    })
+
+    const totalComprasNuevo  = compras.reduce((s, c) => s + Number(c.total), 0)
+    const totalFacturas      = facturas.reduce((s, f) => s + Number(f.totalPagar), 0)
+    const totalCompras       = totalComprasNuevo + totalFacturas
 
     // ── Gran total y utilidad ────────────────────────────────
     const granTotalIngresos = totalTaller + totalVentasRefacciones
     const utilidadNeta      = granTotalIngresos - totalCompras
+
+    // ── Compras por proveedor ────────────────────────────────
+    const comprasPorProveedor: Record<string, { nombre: string; total: number; compras: number }> = {}
+    for (const c of compras) {
+      const key = c.proveedorId ?? '__sin__'
+      if (!comprasPorProveedor[key]) {
+        comprasPorProveedor[key] = { nombre: c.proveedor?.nombre ?? 'Sin proveedor', total: 0, compras: 0 }
+      }
+      comprasPorProveedor[key].total   += Number(c.total)
+      comprasPorProveedor[key].compras += 1
+    }
 
     return res.json({
       periodo: `${mes}/${anio}`,
@@ -253,9 +277,16 @@ export const reporteMensual = async (req: Request, res: Response) => {
         top10
       },
 
+      compras: {
+        totalEntradas:      compras.length,
+        totalGastado:       totalComprasNuevo.toFixed(2),
+        porProveedor:       Object.values(comprasPorProveedor),
+        detalle:            compras
+      },
+
       proveedores: {
         totalFacturas: facturas.length,
-        totalCompras:  totalCompras.toFixed(2),
+        totalCompras:  totalFacturas.toFixed(2),
         detalle:       facturas
       },
 
