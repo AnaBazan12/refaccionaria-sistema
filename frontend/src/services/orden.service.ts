@@ -68,3 +68,20 @@ export const getServicios = async () => {
   const { data } = await api.get('/servicios')
   return data
 }
+
+// Buscar órdenes activas (para TALLER flow en Ventas)
+export const buscarOrdenes = async (q: string) => {
+  const { data } = await api.get('/ordenes', {
+    params: { q, estado: 'EN_PROCESO', limit: 8 }
+  })
+  return data.data as any[]
+}
+
+// Agregar múltiples refacciones a una orden en lote
+export const agregarRefaccionesLote = async (
+  ordenId: string,
+  items: { refaccionId: string; cantidad: number; precioUnitario?: number }[]
+) => {
+  const { data } = await api.post(`/ordenes/${ordenId}/detalle-lote`, { items })
+  return data
+}

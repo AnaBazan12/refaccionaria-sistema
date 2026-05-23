@@ -177,6 +177,104 @@ export const quitarRefaccion = async (
   }
 }
 
+// ── Agregar múltiples refacciones en un solo viaje (lote) ────────
+export const agregarRefaccionesLote = async (
+  req: RequestConUsuario,
+  res: Response
+) => {
+  try {
+    const ordenId = req.params.id as string
+    const { items } = req.body as {
+      items: { refaccionId: string; cantidad: number; precioUnitario?: number }[]
+    }
+
+    if (!items?.length) {
+      return res.status(400).json({ mensaje: 'Debes incluir al menos una refacción' })
+    }
+
+    // Verificar orden activa
+    const orden = await prisma.ordenTrabajo.findUnique({ where: { id: ordenId } })
+    if (!orden) return res.status(404).json({ mensaje: 'Orden no encontrada' })
+    if (['ENTREGADO', 'CANCELADO'].includes(orden.estado)) {
+      return res.status(400).json({ mensaje: 'No se puede modificar una orden entregada o cancelada' })
+    }
+
+    // Verificar stock de todas las piezas antes de tocar nada
+    const refacciones = await prisma.refaccion.findMany({
+      where: { id: { in: items.map(i => i.refaccionId) } }
+    })
+
+    for (const item of items) {
+      const ref = refacciones.find(r => r.id === item.refaccionId)
+      if (!ref) return res.status(404).json({ mensaje: `Refacción no encontrada` })
+      if (ref.stockActual < item.cantidad) {
+        return res.status(400).json({
+          mensaje: `Stock insuficiente para "${ref.nombre}". Disponible: ${ref.stockActual}`
+        })
+      }
+    }
+
+    // Transacción atómica: crear detalles + descontar stock + movimientos
+    await prisma.$transaction(
+      items.flatMap(item => {
+        const ref      = refacciones.find(r => r.id === item.refaccionId)!
+        const precio   = item.precioUnitario ?? Number(ref.precioTaller)
+        const subtotal = precio * item.cantidad
+        return [
+          prisma.ordenDetalle.create({
+            data: {
+              ordenId,
+              refaccionId:    item.refaccionId,
+              cantidad:       item.cantidad,
+              precioUnitario: precio,
+              costoSnapshot:  Number(ref.costoCompra),
+              subtotal,
+            }
+          }),
+          prisma.refaccion.update({
+            where: { id: item.refaccionId },
+            data:  { stockActual: { decrement: item.cantidad } }
+          }),
+          prisma.movimientoInventario.create({
+            data: {
+              refaccionId: item.refaccionId,
+              tipo:        'SALIDA',
+              cantidad:    item.cantidad,
+              motivo:      `Orden de trabajo #${orden.numero}`
+            }
+          }),
+        ]
+      })
+    )
+
+    // Recalcular total de la orden
+    const todosDetalles = await prisma.ordenDetalle.findMany({ where: { ordenId } })
+    const totalRefacciones = todosDetalles.reduce((s, d) => s + Number(d.subtotal), 0)
+
+    const ordenActualizada = await prisma.ordenTrabajo.update({
+      where: { id: ordenId },
+      data:  {
+        totalRefacciones,
+        total:           Number(orden.totalManoObra) + totalRefacciones,
+        saldoPendiente:  Number(orden.totalManoObra) + totalRefacciones - Number(orden.totalPagado),
+        modificadoPorId: req.usuario?.id ?? null,
+      },
+      include: {
+        cliente:  { select: { nombre: true } },
+        vehiculo: { select: { placa: true, marca: true, modelo: true } },
+      }
+    })
+
+    return res.status(201).json({
+      mensaje:        `${items.length} refacción${items.length !== 1 ? 'es' : ''} agregada${items.length !== 1 ? 's' : ''} a la orden`,
+      itemsAgregados: items.length,
+      orden:          ordenActualizada,
+    })
+  } catch (error) {
+    return res.status(500).json({ mensaje: 'Error del servidor', error })
+  }
+}
+
 // ── Obtener detalle de una orden ──────────────────────────────
 export const obtenerDetalle = async (req: Request, res: Response) => {
   try {

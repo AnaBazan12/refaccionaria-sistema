@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react'
-import { registrarTicket, getVentasDelDia } from '../services/venta.service'
-import { buscarRefaccion }                  from '../services/inventario.service'
-import { getClientes }                      from '../services/cliente.service'
+import { useEffect, useState }                            from 'react'
+import { registrarTicket, getVentasDelDia }              from '../services/venta.service'
+import { buscarRefaccion }                               from '../services/inventario.service'
+import { getClientes }                                   from '../services/cliente.service'
+import { buscarOrdenes, agregarRefaccionesLote }         from '../services/orden.service'
+import TicketRecibo, { LineaTicket }                     from '../components/ui/TicketRecibo'
 
 type TipoVenta = 'MOSTRADOR' | 'TALLER' | 'MAYOREO'
 
@@ -37,10 +39,19 @@ interface ResumenDia {
   ventas:          Venta[]
 }
 
-// Item dentro del carrito
 interface CarritoItem {
   refaccion: any
   cantidad:  number
+}
+
+interface TicketExitoData {
+  items:         LineaTicket[]
+  total:         number
+  subtotalBruto: number
+  descuentoPct:  number
+  cliente?:      string
+  tipoVenta:     TipoVenta
+  fecha:         Date
 }
 
 const TIPOS: { valor: TipoVenta; label: string; color: string }[] = [
@@ -48,6 +59,13 @@ const TIPOS: { valor: TipoVenta; label: string; color: string }[] = [
   { valor: 'TALLER',    label: '🔧 Taller',    color: 'bg-purple-100 text-purple-700' },
   { valor: 'MAYOREO',   label: '📦 Mayoreo',   color: 'bg-amber-100 text-amber-700'   },
 ]
+
+const ESTADO_COLOR: Record<string, string> = {
+  EN_PROCESO: 'bg-blue-100 text-blue-700',
+  PENDIENTE:  'bg-yellow-100 text-yellow-700',
+  EN_ESPERA:  'bg-orange-100 text-orange-700',
+  LISTO:      'bg-green-100 text-green-700',
+}
 
 const fmt = (n: number) =>
   n.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -57,37 +75,48 @@ export default function Ventas() {
   const [cargando, setCargando] = useState(true)
   const [fechaSel, setFechaSel] = useState(new Date().toISOString().split('T')[0])
 
-  // Modal carrito
-  const [modal,       setModal]       = useState(false)
-  const [tipoVenta,   setTipoVenta]   = useState<TipoVenta>('MOSTRADOR')
-  const [carrito,     setCarrito]     = useState<CarritoItem[]>([])
-  const [busqueda,    setBusqueda]    = useState('')
-  const [resultados,  setResultados]  = useState<any[]>([])
-  const [buscando,    setBuscando]    = useState(false)
-  const [guardando,   setGuardando]   = useState(false)
-  const [error,       setError]       = useState('')
+  // ── Estado del modal ──────────────────────────────────────────
+  const [modal,     setModal]     = useState(false)
+  const [tipoVenta, setTipoVenta] = useState<TipoVenta>('MOSTRADOR')
+  const [carrito,   setCarrito]   = useState<CarritoItem[]>([])
+  const [guardando, setGuardando] = useState(false)
+  const [error,     setError]     = useState('')
 
-  // Cliente opcional para el ticket
+  // Búsqueda de refacciones
+  const [busqueda,   setBusqueda]   = useState('')
+  const [resultados, setResultados] = useState<any[]>([])
+  const [buscando,   setBuscando]   = useState(false)
+
+  // Cliente opcional (MOSTRADOR / MAYOREO)
   const [clienteSel,      setClienteSel]      = useState<ClienteOpc | null>(null)
   const [busqCliente,     setBusqCliente]     = useState('')
   const [resClientes,     setResClientes]     = useState<ClienteOpc[]>([])
   const [buscandoCliente, setBuscandoCliente] = useState(false)
 
-  // Descuento del ticket (0–100 %)
+  // Descuento (MOSTRADOR / MAYOREO)
   const [descuentoPct, setDescuentoPct] = useState('')
 
-  // Vista de tickets expandidos
+  // Orden de trabajo (TALLER)
+  const [ordenSel,      setOrdenSel]      = useState<any | null>(null)
+  const [ordenBusq,     setOrdenBusq]     = useState('')
+  const [ordenesRes,    setOrdenesRes]    = useState<any[]>([])
+  const [buscandoOrden, setBuscandoOrden] = useState(false)
+
+  // Ticket de éxito para impresión
+  const [ticketExito, setTicketExito] = useState<TicketExitoData | null>(null)
+
+  // Lista — tickets expandidos
   const [ticketAbierto, setTicketAbierto] = useState<string | null>(null)
 
+  // ── Cargar resumen del día ─────────────────────────────────
   const cargar = async () => {
     setCargando(true)
     try { setResumen(await getVentasDelDia(fechaSel)) }
     finally { setCargando(false) }
   }
-
   useEffect(() => { cargar() }, [fechaSel])
 
-  // Búsqueda de refacciones con debounce
+  // ── Búsqueda de refacciones (debounce) ────────────────────
   useEffect(() => {
     if (!busqueda.trim()) { setResultados([]); return }
     const t = setTimeout(async () => {
@@ -98,7 +127,7 @@ export default function Ventas() {
     return () => clearTimeout(t)
   }, [busqueda])
 
-  // Búsqueda de clientes con debounce
+  // ── Búsqueda de clientes (debounce) ──────────────────────
   useEffect(() => {
     if (!busqCliente.trim()) { setResClientes([]); return }
     const t = setTimeout(async () => {
@@ -111,30 +140,55 @@ export default function Ventas() {
     return () => clearTimeout(t)
   }, [busqCliente])
 
-  // ── Carrito helpers ───────────────────────────────────────────
+  // ── Búsqueda de órdenes activas (TALLER, debounce) ────────
+  useEffect(() => {
+    if (tipoVenta !== 'TALLER' || !ordenBusq.trim()) { setOrdenesRes([]); return }
+    const t = setTimeout(async () => {
+      setBuscandoOrden(true)
+      try {
+        const lista = await buscarOrdenes(ordenBusq)
+        // Filtrar solo órdenes no terminadas
+        setOrdenesRes(lista.filter((o: any) =>
+          o.estado !== 'ENTREGADO' && o.estado !== 'CANCELADO'
+        ))
+      } finally { setBuscandoOrden(false) }
+    }, 300)
+    return () => clearTimeout(t)
+  }, [ordenBusq, tipoVenta])
+
+  // ── Cambiar tipo de venta → limpiar estado del tipo anterior
+  const handleTipoVenta = (tipo: TipoVenta) => {
+    setTipoVenta(tipo)
+    if (tipo === 'TALLER') {
+      setClienteSel(null)
+      setBusqCliente('')
+      setResClientes([])
+      setDescuentoPct('')
+    } else {
+      setOrdenSel(null)
+      setOrdenBusq('')
+      setOrdenesRes([])
+    }
+  }
+
+  // ── Carrito helpers ───────────────────────────────────────
   const agregarAlCarrito = (ref: any) => {
     setBusqueda('')
     setResultados([])
     setCarrito(prev => {
       const existe = prev.find(i => i.refaccion.id === ref.id)
-      if (existe) {
-        return prev.map(i =>
-          i.refaccion.id === ref.id
-            ? { ...i, cantidad: i.cantidad + 1 }
-            : i
-        )
-      }
+      if (existe)
+        return prev.map(i => i.refaccion.id === ref.id
+          ? { ...i, cantidad: i.cantidad + 1 } : i)
       return [...prev, { refaccion: ref, cantidad: 1 }]
     })
   }
 
-  const cambiarCantidad = (refId: string, delta: number) => {
+  const cambiarCantidad = (refId: string, delta: number) =>
     setCarrito(prev =>
-      prev
-        .map(i => i.refaccion.id === refId ? { ...i, cantidad: i.cantidad + delta } : i)
-        .filter(i => i.cantidad > 0)
+      prev.map(i => i.refaccion.id === refId ? { ...i, cantidad: i.cantidad + delta } : i)
+          .filter(i => i.cantidad > 0)
     )
-  }
 
   const quitarDelCarrito = (refId: string) =>
     setCarrito(prev => prev.filter(i => i.refaccion.id !== refId))
@@ -146,7 +200,7 @@ export default function Ventas() {
   }
 
   const pctNum         = Math.min(Math.max(Number(descuentoPct) || 0, 0), 100)
-  const descFactor     = 1 - pctNum / 100
+  const descFactor     = tipoVenta === 'TALLER' ? 1 : 1 - pctNum / 100
   const subtotalBruto  = carrito.reduce((s, i) => s + precioItem(i.refaccion) * i.cantidad, 0)
   const montoDescuento = subtotalBruto * (pctNum / 100)
   const totalCarrito   = subtotalBruto * descFactor
@@ -155,6 +209,7 @@ export default function Ventas() {
     return s + (((p / 1.16) * descFactor) - Number(i.refaccion.costoCompra)) * i.cantidad
   }, 0)
 
+  // ── Abrir modal limpio ────────────────────────────────────
   const abrirModal = () => {
     setCarrito([])
     setBusqueda('')
@@ -164,22 +219,70 @@ export default function Ventas() {
     setBusqCliente('')
     setResClientes([])
     setDescuentoPct('')
+    setOrdenSel(null)
+    setOrdenBusq('')
+    setOrdenesRes([])
+    setTicketExito(null)
     setError('')
     setModal(true)
   }
 
+  // ── Registrar venta ───────────────────────────────────────
   const handleRegistrar = async () => {
     if (!carrito.length) { setError('Agrega al menos una refacción'); return }
-    setGuardando(true); setError('')
+    if (tipoVenta === 'TALLER' && !ordenSel) {
+      setError('Selecciona la orden de trabajo destino')
+      return
+    }
+    setGuardando(true)
+    setError('')
     try {
-      await registrarTicket({
-        tipoVenta,
-        items:        carrito.map(i => ({ refaccionId: i.refaccion.id, cantidad: i.cantidad })),
-        clienteId:    clienteSel?.id ?? undefined,
-        descuentoPct: pctNum > 0 ? pctNum : undefined,
-      })
-      setModal(false)
-      cargar()
+      if (tipoVenta === 'TALLER') {
+        // Agregar refacciones directamente a la orden de trabajo
+        await agregarRefaccionesLote(
+          ordenSel.id,
+          carrito.map(i => ({
+            refaccionId: i.refaccion.id,
+            cantidad:    i.cantidad,
+          }))
+        )
+        setModal(false)
+        cargar()
+
+      } else {
+        // Venta al mostrador / mayoreo — guardar datos para ticket de impresión
+        const itemsExito: LineaTicket[] = carrito.map(i => ({
+          nombre:         i.refaccion.nombre,
+          codigo:         i.refaccion.codigo,
+          cantidad:       i.cantidad,
+          precioUnitario: precioItem(i.refaccion),
+          subtotal:       precioItem(i.refaccion) * i.cantidad * descFactor,
+        }))
+
+        await registrarTicket({
+          tipoVenta,
+          items:        carrito.map(i => ({ refaccionId: i.refaccion.id, cantidad: i.cantidad })),
+          clienteId:    clienteSel?.id ?? undefined,
+          descuentoPct: pctNum > 0 ? pctNum : undefined,
+        })
+
+        setTicketExito({
+          items:         itemsExito,
+          total:         totalCarrito,
+          subtotalBruto,
+          descuentoPct:  pctNum,
+          cliente:       clienteSel?.nombre,
+          tipoVenta,
+          fecha:         new Date(),
+        })
+
+        // Limpiar carrito pero mantener modal abierto para mostrar ticket
+        setCarrito([])
+        setBusqueda('')
+        setClienteSel(null)
+        setDescuentoPct('')
+        cargar()
+      }
     } catch (e: any) {
       setError(e.response?.data?.mensaje || 'Error al registrar')
     } finally {
@@ -187,7 +290,7 @@ export default function Ventas() {
     }
   }
 
-  // ── Agrupar ventas del día por ticket ─────────────────────────
+  // ── Agrupar ventas del día por ticket ─────────────────────
   const ventasAgrupadas = (() => {
     if (!resumen?.ventas?.length) return []
     const tickets: Record<string, Venta[]> = {}
@@ -200,33 +303,30 @@ export default function Ventas() {
         sueltas.push(v)
       }
     }
-    // tickets como array ordenado por fecha del primer item
     const ticketList = Object.entries(tickets).map(([id, items]) => ({
-      ticketId:    id,
-      fecha:       items[0].fecha,
+      ticketId:     id,
+      fecha:        items[0].fecha,
       items,
-      total:       items.reduce((s, v) => s + Number(v.subtotal), 0),
-      ganancia:    items.reduce((s, v) => s + Number(v.ganancia), 0),
-      tipoVenta:   items[0].tipoVenta,
-      vendedor:    items[0].usuario?.nombre ?? '—',
-      cliente:     items[0].cliente?.nombre ?? null,
+      total:        items.reduce((s, v) => s + Number(v.subtotal), 0),
+      ganancia:     items.reduce((s, v) => s + Number(v.ganancia), 0),
+      tipoVenta:    items[0].tipoVenta,
+      vendedor:     items[0].usuario?.nombre ?? '—',
+      cliente:      items[0].cliente?.nombre ?? null,
       descuentoPct: Number(items[0].descuentoPct ?? 0),
     }))
-    return [...ticketList.map(t => ({ tipo: 'ticket' as const, data: t })),
-            ...sueltas.map(v => ({ tipo: 'suelta' as const, data: v }))]
-      .sort((a, b) => new Date(
-        a.tipo === 'ticket' ? a.data.fecha : (a.data as Venta).fecha
-      ).getTime() - new Date(
-        b.tipo === 'ticket' ? b.data.fecha : (b.data as Venta).fecha
-      ).getTime())
-      .reverse()
+    return [
+      ...ticketList.map(t => ({ tipo: 'ticket' as const, data: t })),
+      ...sueltas.map(v  => ({ tipo: 'suelta'  as const, data: v })),
+    ].sort((a, b) =>
+      new Date(b.tipo === 'ticket' ? b.data.fecha : (b.data as Venta).fecha).getTime() -
+      new Date(a.tipo === 'ticket' ? a.data.fecha : (a.data as Venta).fecha).getTime()
+    )
   })()
 
-  const tipoColor = (t: TipoVenta) =>
-    TIPOS.find(x => x.valor === t)?.color ?? 'bg-gray-100 text-gray-600'
-  const tipoLabel = (t: TipoVenta) =>
-    TIPOS.find(x => x.valor === t)?.label ?? t
+  const tipoColor = (t: TipoVenta) => TIPOS.find(x => x.valor === t)?.color ?? 'bg-gray-100 text-gray-600'
+  const tipoLabel = (t: TipoVenta) => TIPOS.find(x => x.valor === t)?.label ?? t
 
+  // ─────────────────────────────────────────────────────────────
   return (
     <div className="p-6 space-y-6">
 
@@ -295,7 +395,9 @@ export default function Ventas() {
                       <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${t.color}`}>
                         {t.label}
                       </span>
-                      <span className="text-xs text-gray-400">{d.cantidad} pza{d.cantidad !== 1 ? 's' : ''}</span>
+                      <span className="text-xs text-gray-400">
+                        {d.cantidad} pza{d.cantidad !== 1 ? 's' : ''}
+                      </span>
                     </div>
                     <div className="text-xl font-bold text-gray-800">${fmt(Number(d.total))}</div>
                     <div className="text-xs text-gray-500 mt-0.5">
@@ -324,14 +426,13 @@ export default function Ventas() {
               </div>
             ) : (
               <div className="divide-y divide-gray-100">
-                {ventasAgrupadas.map((row, idx) => {
+                {ventasAgrupadas.map(row => {
 
                   if (row.tipo === 'ticket') {
-                    const t = row.data
+                    const t      = row.data
                     const abierto = ticketAbierto === t.ticketId
                     return (
                       <div key={t.ticketId}>
-                        {/* Fila resumen del ticket */}
                         <button
                           onClick={() => setTicketAbierto(abierto ? null : t.ticketId)}
                           className="w-full flex items-center gap-4 px-5 py-3.5
@@ -374,7 +475,6 @@ export default function Ventas() {
                           </div>
                         </button>
 
-                        {/* Items expandidos */}
                         {abierto && (
                           <div className="bg-blue-50/40 border-t border-blue-100">
                             {t.items.map(v => (
@@ -404,8 +504,8 @@ export default function Ventas() {
                     )
                   }
 
-                  // Venta suelta (sin ticket)
-                  const v = row.data as Venta
+                  // Venta suelta
+                  const v    = row.data as Venta
                   const tipo = TIPOS.find(t => t.valor === v.tipoVenta)
                   return (
                     <div key={v.id}
@@ -436,7 +536,6 @@ export default function Ventas() {
                   )
                 })}
 
-                {/* Totales al pie */}
                 <div className="flex items-center justify-end gap-8 px-5 py-4
                                 bg-gray-50 border-t-2 border-gray-200 text-sm font-semibold">
                   <span className="text-gray-600">Total del día:</span>
@@ -454,7 +553,7 @@ export default function Ventas() {
       )}
 
       {/* ══════════════════════════════════════════════════════
-          Modal: Carrito de venta
+          Modal: Carrito de venta / Ticket de éxito
       ══════════════════════════════════════════════════════ */}
       {modal && (
         <div className="fixed inset-0 bg-black/50 flex items-center
@@ -462,312 +561,413 @@ export default function Ventas() {
           <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh]
                           flex flex-col shadow-2xl">
 
-            {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b border-gray-100">
-              <h2 className="text-lg font-bold text-gray-800">Nueva venta</h2>
-              <button
-                onClick={() => setModal(false)}
-                className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
-              >×</button>
-            </div>
-
-            <div className="overflow-y-auto flex-1 p-5 space-y-5">
-
-              {/* Tipo de venta */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-2">
-                  Tipo de venta
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {TIPOS.map(t => (
-                    <button
-                      key={t.valor}
-                      type="button"
-                      onClick={() => setTipoVenta(t.valor)}
-                      className={`py-2 rounded-lg text-sm font-medium transition-colors
-                        ${tipoVenta === t.valor
-                          ? t.color + ' ring-2 ring-offset-1 ring-blue-400'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                    >
-                      {t.label}
-                    </button>
-                  ))}
+            {/* ── Pantalla de éxito con ticket ── */}
+            {ticketExito ? (
+              <TicketRecibo
+                {...ticketExito}
+                onCerrar={() => { setTicketExito(null); setModal(false) }}
+                onNuevaVenta={() => { setTicketExito(null); abrirModal() }}
+              />
+            ) : (
+              <>
+                {/* Header */}
+                <div className="flex items-center justify-between p-5 border-b border-gray-100">
+                  <h2 className="text-lg font-bold text-gray-800">Nueva venta</h2>
+                  <button
+                    onClick={() => setModal(false)}
+                    className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+                  >×</button>
                 </div>
-              </div>
 
-              {/* Cliente opcional */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Cliente <span className="text-gray-400 font-normal">(opcional)</span>
-                </label>
-                {clienteSel ? (
-                  <div className="flex items-center gap-2 bg-blue-50 border border-blue-200
-                                  rounded-lg px-3 py-2">
-                    <span className="text-blue-700 font-medium text-sm flex-1">
-                      👤 {clienteSel.nombre}
-                      {clienteSel.telefono && (
-                        <span className="text-blue-400 font-normal ml-1 text-xs">
-                          · {clienteSel.telefono}
-                        </span>
-                      )}
-                    </span>
-                    <button
-                      onClick={() => { setClienteSel(null); setBusqCliente('') }}
-                      className="text-blue-400 hover:text-red-500 text-lg leading-none"
-                    >×</button>
+                <div className="overflow-y-auto flex-1 p-5 space-y-5">
+
+                  {/* ── Tipo de venta ── */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-2">
+                      Tipo de venta
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {TIPOS.map(t => (
+                        <button
+                          key={t.valor}
+                          type="button"
+                          onClick={() => handleTipoVenta(t.valor)}
+                          className={`py-2 rounded-lg text-sm font-medium transition-colors
+                            ${tipoVenta === t.valor
+                              ? t.color + ' ring-2 ring-offset-1 ring-blue-400'
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                        >
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                ) : (
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={busqCliente}
-                      onChange={e => setBusqCliente(e.target.value)}
-                      placeholder="Buscar cliente por nombre o teléfono..."
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2.5
-                                 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    {buscandoCliente && (
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2
-                                       text-gray-400 text-xs">Buscando…</span>
-                    )}
-                    {resClientes.length > 0 && (
-                      <div className="absolute z-10 w-full border border-gray-200 rounded-xl
-                                      mt-1 bg-white shadow-lg overflow-hidden max-h-48 overflow-y-auto">
-                        {resClientes.map(c => (
+
+                  {/* ── TALLER: buscar orden de trabajo ── */}
+                  {tipoVenta === 'TALLER' ? (
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        Orden de trabajo destino
+                      </label>
+                      {ordenSel ? (
+                        <div className="flex items-start gap-2 bg-purple-50 border border-purple-200
+                                        rounded-lg px-3 py-2.5">
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-semibold text-purple-800">
+                              #{ordenSel.numero} · {ordenSel.cliente?.nombre ?? '—'}
+                            </div>
+                            <div className="text-xs text-purple-500 mt-0.5">
+                              {[ordenSel.vehiculo?.marca, ordenSel.vehiculo?.modelo,
+                                ordenSel.vehiculo?.placa
+                              ].filter(Boolean).join(' · ')}
+                            </div>
+                          </div>
                           <button
-                            key={c.id}
-                            onClick={() => {
-                              setClienteSel(c)
-                              setBusqCliente('')
-                              setResClientes([])
-                            }}
-                            className="w-full flex items-center gap-3 px-4 py-2.5
-                                       hover:bg-blue-50 text-left border-b border-gray-100
-                                       last:border-0 transition-colors"
+                            onClick={() => { setOrdenSel(null); setOrdenBusq('') }}
+                            className="text-purple-400 hover:text-red-500 text-lg leading-none shrink-0 mt-0.5"
+                          >×</button>
+                        </div>
+                      ) : (
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={ordenBusq}
+                            onChange={e => setOrdenBusq(e.target.value)}
+                            placeholder="# orden, nombre del cliente o placa…"
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2.5
+                                       text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            autoFocus
+                          />
+                          {buscandoOrden && (
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2
+                                             text-gray-400 text-xs">Buscando…</span>
+                          )}
+                          {!buscandoOrden && ordenBusq && ordenesRes.length === 0 && (
+                            <p className="text-xs text-gray-400 mt-1 px-1">
+                              Sin resultados — intenta con el número, cliente o vehículo
+                            </p>
+                          )}
+                          {ordenesRes.length > 0 && (
+                            <div className="absolute z-10 w-full border border-gray-200
+                                            rounded-xl mt-1 bg-white shadow-lg overflow-hidden
+                                            max-h-56 overflow-y-auto">
+                              {ordenesRes.map((o: any) => (
+                                <button
+                                  key={o.id}
+                                  onClick={() => { setOrdenSel(o); setOrdenBusq(''); setOrdenesRes([]) }}
+                                  className="w-full flex items-center gap-3 px-4 py-3
+                                             hover:bg-purple-50 text-left border-b border-gray-100
+                                             last:border-0 transition-colors"
+                                >
+                                  <span className="text-gray-400 shrink-0">🔧</span>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="text-sm font-semibold text-gray-800">
+                                      #{o.numero} · {o.cliente?.nombre ?? '—'}
+                                    </div>
+                                    <div className="text-xs text-gray-500 truncate">
+                                      {[o.vehiculo?.marca, o.vehiculo?.modelo, o.vehiculo?.placa]
+                                        .filter(Boolean).join(' · ')}
+                                    </div>
+                                  </div>
+                                  <span className={`text-xs px-2 py-0.5 rounded-full shrink-0
+                                    ${ESTADO_COLOR[o.estado] ?? 'bg-gray-100 text-gray-600'}`}>
+                                    {o.estado?.replace('_', ' ')}
+                                  </span>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                  ) : (
+                    /* ── MOSTRADOR / MAYOREO: cliente opcional ── */
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        Cliente <span className="text-gray-400 font-normal">(opcional)</span>
+                      </label>
+                      {clienteSel ? (
+                        <div className="flex items-center gap-2 bg-blue-50 border border-blue-200
+                                        rounded-lg px-3 py-2">
+                          <span className="text-blue-700 font-medium text-sm flex-1">
+                            👤 {clienteSel.nombre}
+                            {clienteSel.telefono && (
+                              <span className="text-blue-400 font-normal ml-1 text-xs">
+                                · {clienteSel.telefono}
+                              </span>
+                            )}
+                          </span>
+                          <button
+                            onClick={() => { setClienteSel(null); setBusqCliente('') }}
+                            className="text-blue-400 hover:text-red-500 text-lg leading-none"
+                          >×</button>
+                        </div>
+                      ) : (
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={busqCliente}
+                            onChange={e => setBusqCliente(e.target.value)}
+                            placeholder="Buscar cliente por nombre o teléfono..."
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2.5
+                                       text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                          {buscandoCliente && (
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2
+                                             text-gray-400 text-xs">Buscando…</span>
+                          )}
+                          {resClientes.length > 0 && (
+                            <div className="absolute z-10 w-full border border-gray-200 rounded-xl
+                                            mt-1 bg-white shadow-lg overflow-hidden
+                                            max-h-48 overflow-y-auto">
+                              {resClientes.map(c => (
+                                <button
+                                  key={c.id}
+                                  onClick={() => {
+                                    setClienteSel(c)
+                                    setBusqCliente('')
+                                    setResClientes([])
+                                  }}
+                                  className="w-full flex items-center gap-3 px-4 py-2.5
+                                             hover:bg-blue-50 text-left border-b border-gray-100
+                                             last:border-0 transition-colors"
+                                >
+                                  <span className="text-gray-400">👤</span>
+                                  <div>
+                                    <div className="text-sm font-medium text-gray-800">{c.nombre}</div>
+                                    {c.telefono && (
+                                      <div className="text-xs text-gray-400">{c.telefono}</div>
+                                    )}
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* ── Buscador de refacciones ── */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      {tipoVenta === 'TALLER'
+                        ? 'Refacciones para la orden'
+                        : 'Buscar y agregar refacciones'}
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={busqueda}
+                        onChange={e => setBusqueda(e.target.value)}
+                        placeholder="Nombre o código..."
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2.5
+                                   text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        autoFocus={tipoVenta !== 'TALLER'}
+                      />
+                      {buscando && (
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2
+                                         text-gray-400 text-xs">Buscando…</span>
+                      )}
+                    </div>
+
+                    {resultados.length > 0 && (
+                      <div className="border border-gray-200 rounded-xl mt-1
+                                      overflow-hidden shadow-sm max-h-48 overflow-y-auto">
+                        {resultados.map(r => (
+                          <button
+                            key={r.id}
+                            onClick={() => agregarAlCarrito(r)}
+                            className="w-full flex items-center justify-between
+                                       px-4 py-2.5 hover:bg-blue-50 text-left
+                                       border-b border-gray-100 last:border-0 transition-colors"
                           >
-                            <span className="text-gray-400">👤</span>
                             <div>
-                              <div className="text-sm font-medium text-gray-800">{c.nombre}</div>
-                              {c.telefono && (
-                                <div className="text-xs text-gray-400">{c.telefono}</div>
-                              )}
+                              <div className="text-sm font-medium text-gray-800">{r.nombre}</div>
+                              <div className="text-xs text-gray-400">
+                                {r.codigo}{r.marca ? ` · ${r.marca}` : ''}
+                              </div>
+                            </div>
+                            <div className="text-right ml-4 shrink-0">
+                              <div className="text-sm font-bold text-gray-800">
+                                ${fmt(Number(tipoVenta === 'TALLER' ? r.precioTaller : r.precioMostrador))}
+                              </div>
+                              <div className={`text-xs ${r.stockActual <= r.stockMinimo
+                                ? 'text-red-500' : 'text-gray-400'}`}>
+                                Stock: {r.stockActual}
+                              </div>
                             </div>
                           </button>
                         ))}
                       </div>
                     )}
                   </div>
-                )}
-              </div>
 
-              {/* Buscador */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Buscar y agregar refacciones
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={busqueda}
-                    onChange={e => setBusqueda(e.target.value)}
-                    placeholder="Nombre o código..."
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5
-                               text-sm focus:outline-none focus:ring-2 focus:ring-blue-500
-                               pr-20"
-                    autoFocus
-                  />
-                  {buscando && (
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2
-                                     text-gray-400 text-xs">Buscando…</span>
+                  {/* ── Carrito ── */}
+                  {carrito.length > 0 ? (
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-xs font-medium text-gray-600">
+                          Artículos en esta venta
+                        </label>
+                        <span className="text-xs text-gray-400">
+                          {carrito.length} artículo{carrito.length !== 1 ? 's' : ''}
+                        </span>
+                      </div>
+                      <div className="border border-gray-200 rounded-xl overflow-hidden">
+                        {carrito.map((item, i) => {
+                          const precio   = precioItem(item.refaccion)
+                          const subtotal = precio * item.cantidad
+                          return (
+                            <div key={item.refaccion.id}
+                              className={`flex items-center gap-3 px-4 py-3
+                                ${i > 0 ? 'border-t border-gray-100' : ''}`}>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-medium text-gray-800 truncate">
+                                  {item.refaccion.nombre}
+                                </div>
+                                <div className="text-xs text-gray-400">${fmt(precio)} c/u</div>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  onClick={() => cambiarCantidad(item.refaccion.id, -1)}
+                                  className="w-7 h-7 rounded border border-gray-300
+                                             text-gray-600 hover:bg-gray-50 text-sm font-bold
+                                             flex items-center justify-center"
+                                >−</button>
+                                <span className="w-8 text-center text-sm font-bold text-gray-800">
+                                  {item.cantidad}
+                                </span>
+                                <button
+                                  onClick={() => cambiarCantidad(item.refaccion.id, +1)}
+                                  disabled={item.cantidad >= item.refaccion.stockActual}
+                                  className="w-7 h-7 rounded border border-gray-300
+                                             text-gray-600 hover:bg-gray-50 text-sm font-bold
+                                             flex items-center justify-center disabled:opacity-40"
+                                >+</button>
+                              </div>
+                              <span className="text-sm font-bold text-gray-800 w-20 text-right">
+                                ${fmt(subtotal)}
+                              </span>
+                              <button
+                                onClick={() => quitarDelCarrito(item.refaccion.id)}
+                                className="text-gray-300 hover:text-red-500 text-lg
+                                           transition-colors leading-none"
+                              >×</button>
+                            </div>
+                          )
+                        })}
+
+                        {/* Descuento — solo Mostrador / Mayoreo */}
+                        {tipoVenta !== 'TALLER' && (
+                          <div className="border-t border-gray-100 px-4 py-3 bg-amber-50/60">
+                            <div className="flex items-center gap-2">
+                              <label className="text-xs font-medium text-amber-700 shrink-0">
+                                🏷️ Descuento
+                              </label>
+                              <div className="flex items-center gap-1 flex-1">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  step="1"
+                                  value={descuentoPct}
+                                  onChange={e => setDescuentoPct(e.target.value)}
+                                  placeholder="0"
+                                  className="w-20 border border-amber-300 rounded-lg px-2 py-1.5
+                                             text-sm text-center focus:outline-none
+                                             focus:ring-2 focus:ring-amber-400 bg-white"
+                                />
+                                <span className="text-sm text-amber-700 font-medium">%</span>
+                                {pctNum > 0 && (
+                                  <span className="text-xs text-amber-600 ml-1">
+                                    — ahorro: ${fmt(montoDescuento)}
+                                  </span>
+                                )}
+                              </div>
+                              {pctNum > 0 && (
+                                <button
+                                  onClick={() => setDescuentoPct('')}
+                                  className="text-amber-400 hover:text-red-500 text-base leading-none"
+                                >×</button>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Total del carrito */}
+                        <div className="bg-gray-50 border-t border-gray-200 px-4 py-3
+                                        flex items-center justify-between">
+                          <div>
+                            <div className="text-xs text-gray-500">
+                              {tipoVenta !== 'TALLER' && pctNum > 0 ? (
+                                <>
+                                  <span className="line-through text-gray-400">${fmt(subtotalBruto)}</span>
+                                  <span className="ml-1 text-amber-600 font-medium">-{pctNum}%</span>
+                                </>
+                              ) : 'Total'}
+                            </div>
+                            {tipoVenta !== 'TALLER' && (
+                              <div className="text-xs text-green-600">
+                                Ganancia estimada: +${fmt(gananciaCarrito)}
+                              </div>
+                            )}
+                          </div>
+                          <span className={`text-xl font-bold ${
+                            tipoVenta !== 'TALLER' && pctNum > 0 ? 'text-amber-700' : 'text-gray-900'
+                          }`}>
+                            ${fmt(totalCarrito)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 text-gray-400 text-sm
+                                    border border-dashed border-gray-200 rounded-xl">
+                      {tipoVenta === 'TALLER'
+                        ? '🔧 Busca las refacciones que necesita la orden'
+                        : '🛒 Busca y agrega las refacciones vendidas'}
+                    </div>
+                  )}
+
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 text-red-700
+                                    text-sm rounded-lg px-4 py-2.5">
+                      {error}
+                    </div>
                   )}
                 </div>
 
-                {resultados.length > 0 && (
-                  <div className="border border-gray-200 rounded-xl mt-1
-                                  overflow-hidden shadow-sm max-h-48 overflow-y-auto">
-                    {resultados.map(r => (
-                      <button
-                        key={r.id}
-                        onClick={() => agregarAlCarrito(r)}
-                        className="w-full flex items-center justify-between
-                                   px-4 py-2.5 hover:bg-blue-50 text-left
-                                   border-b border-gray-100 last:border-0 transition-colors"
-                      >
-                        <div>
-                          <div className="text-sm font-medium text-gray-800">{r.nombre}</div>
-                          <div className="text-xs text-gray-400">
-                            {r.codigo}{r.marca ? ` · ${r.marca}` : ''}
-                          </div>
-                        </div>
-                        <div className="text-right ml-4 shrink-0">
-                          <div className="text-sm font-bold text-gray-800">
-                            ${fmt(Number(r.precioMostrador))}
-                          </div>
-                          <div className={`text-xs ${r.stockActual <= r.stockMinimo
-                            ? 'text-red-500' : 'text-gray-400'}`}>
-                            Stock: {r.stockActual}
-                          </div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Carrito */}
-              {carrito.length > 0 ? (
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-xs font-medium text-gray-600">
-                      Artículos en esta venta
-                    </label>
-                    <span className="text-xs text-gray-400">
-                      {carrito.length} artículo{carrito.length !== 1 ? 's' : ''}
-                    </span>
-                  </div>
-                  <div className="border border-gray-200 rounded-xl overflow-hidden">
-                    {carrito.map((item, i) => {
-                      const precio   = precioItem(item.refaccion)
-                      const subtotal = precio * item.cantidad
-                      return (
-                        <div key={item.refaccion.id}
-                          className={`flex items-center gap-3 px-4 py-3
-                            ${i > 0 ? 'border-t border-gray-100' : ''}`}>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium text-gray-800 truncate">
-                              {item.refaccion.nombre}
-                            </div>
-                            <div className="text-xs text-gray-400">
-                              ${fmt(precio)} c/u
-                            </div>
-                          </div>
-                          {/* Controles de cantidad */}
-                          <div className="flex items-center gap-1.5">
-                            <button
-                              onClick={() => cambiarCantidad(item.refaccion.id, -1)}
-                              className="w-7 h-7 rounded border border-gray-300
-                                         text-gray-600 hover:bg-gray-50 text-sm font-bold
-                                         flex items-center justify-center"
-                            >−</button>
-                            <span className="w-8 text-center text-sm font-bold text-gray-800">
-                              {item.cantidad}
-                            </span>
-                            <button
-                              onClick={() => cambiarCantidad(item.refaccion.id, +1)}
-                              disabled={item.cantidad >= item.refaccion.stockActual}
-                              className="w-7 h-7 rounded border border-gray-300
-                                         text-gray-600 hover:bg-gray-50 text-sm font-bold
-                                         flex items-center justify-center
-                                         disabled:opacity-40"
-                            >+</button>
-                          </div>
-                          <span className="text-sm font-bold text-gray-800 w-20 text-right">
-                            ${fmt(subtotal)}
-                          </span>
-                          <button
-                            onClick={() => quitarDelCarrito(item.refaccion.id)}
-                            className="text-gray-300 hover:text-red-500 text-lg
-                                       transition-colors leading-none"
-                          >×</button>
-                        </div>
-                      )
-                    })}
-
-                    {/* Descuento */}
-                    <div className="border-t border-gray-100 px-4 py-3 bg-amber-50/60">
-                      <div className="flex items-center gap-2">
-                        <label className="text-xs font-medium text-amber-700 shrink-0">
-                          🏷️ Descuento
-                        </label>
-                        <div className="flex items-center gap-1 flex-1">
-                          <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            step="1"
-                            value={descuentoPct}
-                            onChange={e => setDescuentoPct(e.target.value)}
-                            placeholder="0"
-                            className="w-20 border border-amber-300 rounded-lg px-2 py-1.5
-                                       text-sm text-center focus:outline-none
-                                       focus:ring-2 focus:ring-amber-400 bg-white"
-                          />
-                          <span className="text-sm text-amber-700 font-medium">%</span>
-                          {pctNum > 0 && (
-                            <span className="text-xs text-amber-600 ml-1">
-                              — ahorro: ${fmt(montoDescuento)}
-                            </span>
-                          )}
-                        </div>
-                        {pctNum > 0 && (
-                          <button
-                            onClick={() => setDescuentoPct('')}
-                            className="text-amber-400 hover:text-red-500 text-base leading-none"
-                          >×</button>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Total del carrito */}
-                    <div className="bg-gray-50 border-t border-gray-200 px-4 py-3
-                                    flex items-center justify-between">
-                      <div>
-                        <div className="text-xs text-gray-500">
-                          {pctNum > 0 ? (
-                            <>
-                              <span className="line-through text-gray-400">${fmt(subtotalBruto)}</span>
-                              <span className="ml-1 text-amber-600 font-medium">-{pctNum}%</span>
-                            </>
-                          ) : 'Total'}
-                        </div>
-                        <div className="text-xs text-green-600">
-                          Ganancia estimada: +${fmt(gananciaCarrito)}
-                        </div>
-                      </div>
-                      <span className={`text-xl font-bold ${pctNum > 0 ? 'text-amber-700' : 'text-gray-900'}`}>
-                        ${fmt(totalCarrito)}
-                      </span>
-                    </div>
-                  </div>
+                {/* Footer */}
+                <div className="flex gap-3 p-5 border-t border-gray-100 shrink-0">
+                  <button
+                    onClick={() => setModal(false)}
+                    className="flex-1 px-4 py-2.5 text-sm border border-gray-300
+                               rounded-lg text-gray-600 hover:bg-gray-50"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleRegistrar}
+                    disabled={guardando || carrito.length === 0}
+                    className={`flex-2 px-8 py-2.5 text-white text-sm font-medium
+                               rounded-lg disabled:opacity-50 transition-colors
+                               ${tipoVenta === 'TALLER'
+                                 ? 'bg-purple-600 hover:bg-purple-700'
+                                 : 'bg-blue-600 hover:bg-blue-700'}`}
+                  >
+                    {guardando
+                      ? 'Registrando…'
+                      : tipoVenta === 'TALLER'
+                        ? `Agregar a OT${ordenSel ? ` #${ordenSel.numero}` : ''} · ${carrito.length} pieza${carrito.length !== 1 ? 's' : ''}`
+                        : pctNum > 0
+                          ? `Registrar · $${fmt(totalCarrito)} (-${pctNum}%)`
+                          : `Registrar venta · $${fmt(totalCarrito)}`}
+                  </button>
                 </div>
-              ) : (
-                <div className="text-center py-6 text-gray-400 text-sm
-                                border border-dashed border-gray-200 rounded-xl">
-                  🛒 Busca y agrega las refacciones vendidas
-                </div>
-              )}
-
-              {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700
-                                text-sm rounded-lg px-4 py-2.5">
-                  {error}
-                </div>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className="flex gap-3 p-5 border-t border-gray-100 shrink-0">
-              <button
-                onClick={() => setModal(false)}
-                className="flex-1 px-4 py-2.5 text-sm border border-gray-300
-                           rounded-lg text-gray-600 hover:bg-gray-50"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleRegistrar}
-                disabled={guardando || carrito.length === 0}
-                className="flex-2 px-8 py-2.5 bg-blue-600 text-white text-sm
-                           font-medium rounded-lg hover:bg-blue-700
-                           disabled:opacity-50 transition-colors"
-              >
-                {guardando
-                  ? 'Registrando…'
-                  : pctNum > 0
-                    ? `Registrar · $${fmt(totalCarrito)} (-${pctNum}%)`
-                    : `Registrar venta · $${fmt(totalCarrito)}`}
-              </button>
-            </div>
+              </>
+            )}
           </div>
         </div>
       )}

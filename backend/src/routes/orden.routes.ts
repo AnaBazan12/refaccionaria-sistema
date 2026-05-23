@@ -7,7 +7,8 @@ import {
   archivarOrden, archivarOrdeneViejas   // ← agregar
 } from '../controllers/orden.controller'
 import {
-  agregarRefaccion, quitarRefaccion, obtenerDetalle
+  agregarRefaccion, quitarRefaccion, obtenerDetalle,
+  agregarRefaccionesLote
 } from '../controllers/ordenDetalle.controller'
 import {
   registrarPago, obtenerPagos, clientesConDeuda
@@ -32,6 +33,7 @@ router.post('/archivar-viejas',    soloRoles('ADMIN'), archivarOrdeneViejas)
 router.get('/:id/detalle',               obtenerDetalle)
 router.post('/:id/detalle',              agregarRefaccion)
 router.delete('/:id/detalle/:detalleId', quitarRefaccion)
+router.post('/:id/detalle-lote',         agregarRefaccionesLote)
 
 // Pagos
 router.get('/:id/pagos',    obtenerPagos)
