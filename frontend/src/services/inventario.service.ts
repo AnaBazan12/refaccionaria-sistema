@@ -56,6 +56,11 @@ export const eliminarRefaccion = async (id: string) => {
   return data
 }
 
+export const getMovimientosRefaccion = async (id: string) => {
+  const { data } = await api.get(`/refacciones/${id}/movimientos`)
+  return data
+}
+
 export const getProveedores = async () => {
   const { data } = await api.get('/proveedores')
   return data

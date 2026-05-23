@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import {
   getRefacciones, buscarRefaccion, crearRefaccion,
   actualizarRefaccion, entradaInventario,
-  eliminarRefaccion, getProveedores, getMetricasInventario
+  eliminarRefaccion, getProveedores, getMetricasInventario,
+  getMovimientosRefaccion
 } from '../services/inventario.service'
 import Paginacion from '../components/ui/Paginacion'
 import { LIMITE } from '../constants/paginacion'
@@ -114,6 +115,23 @@ export default function Inventario() {
   const [total,         setTotal]         = useState(0)
   const [ordenarPor,    setOrdenarPor]    = useState<'nombre' | 'valor' | 'margen' | 'stock'>('nombre')
   const [mostrarTop5,   setMostrarTop5]   = useState(false)
+
+  // Panel historial de movimientos
+  const [panelHistorial,    setPanelHistorial]    = useState<any>(null)  // refaccion seleccionada
+  const [movimientos,       setMovimientos]       = useState<any[]>([])
+  const [cargandoMovs,      setCargandoMovs]      = useState(false)
+
+  const abrirHistorial = async (r: Refaccion) => {
+    setPanelHistorial(r)
+    setMovimientos([])
+    setCargandoMovs(true)
+    try {
+      const resp = await getMovimientosRefaccion(r.id)
+      setMovimientos(resp.movimientos ?? [])
+    } finally {
+      setCargandoMovs(false)
+    }
+  }
 
   const cargar = async (pag = pagina, orden = ordenarPor) => {
     setCargando(true)
@@ -513,6 +531,14 @@ export default function Inventario() {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1 justify-end">
                           <button
+                            onClick={() => abrirHistorial(r)}
+                            className="text-xs text-indigo-600 hover:bg-indigo-50
+                                       px-2.5 py-1.5 rounded-lg transition-colors"
+                            title="Ver historial de movimientos"
+                          >
+                            📋 Historial
+                          </button>
+                          <button
                             onClick={() => setModalEntrada(r)}
                             className="text-xs text-green-600 hover:bg-green-50
                                        px-2.5 py-1.5 rounded-lg transition-colors"
@@ -627,6 +653,13 @@ export default function Inventario() {
                 )}
 
                 <div className="flex gap-2 pt-3 border-t border-gray-100">
+                  <button
+                    onClick={() => abrirHistorial(r)}
+                    className="flex-1 text-xs text-indigo-600 font-medium
+                               py-1.5 rounded-lg hover:bg-indigo-50 transition-colors"
+                  >
+                    📋 Historial
+                  </button>
                   <button
                     onClick={() => setModalEntrada(r)}
                     className="flex-1 text-xs text-green-600 font-medium
@@ -987,6 +1020,169 @@ export default function Inventario() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════
+          Panel lateral — historial de movimientos
+      ══════════════════════════════════════════════════════ */}
+      {panelHistorial && (
+        <>
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 bg-black/30 z-40"
+            onClick={() => setPanelHistorial(null)}
+          />
+          {/* Panel */}
+          <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white
+                          shadow-2xl z-50 flex flex-col">
+
+            {/* Header */}
+            <div className="flex items-start justify-between p-5
+                            border-b border-gray-100 shrink-0">
+              <div>
+                <h2 className="font-bold text-gray-800">{panelHistorial.nombre}</h2>
+                <div className="text-xs text-gray-400 font-mono mt-0.5">
+                  {panelHistorial.codigo}
+                </div>
+                <div className="flex items-center gap-3 mt-2">
+                  <span className={`text-sm font-bold px-2.5 py-1 rounded-lg
+                    ${panelHistorial.stockBajo
+                      ? 'bg-red-100 text-red-700'
+                      : 'bg-green-100 text-green-700'}`}>
+                    Stock: {panelHistorial.stockActual} pzas
+                  </span>
+                  {panelHistorial.stockBajo && (
+                    <span className="text-xs text-red-500 font-medium">
+                      ⚠️ Bajo mínimo ({panelHistorial.stockMinimo})
+                    </span>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={() => setPanelHistorial(null)}
+                className="text-gray-400 hover:text-gray-600 text-2xl leading-none ml-4 mt-1"
+              >×</button>
+            </div>
+
+            {/* Timeline */}
+            <div className="flex-1 overflow-y-auto p-5">
+              {cargandoMovs ? (
+                <div className="flex items-center justify-center h-32 text-gray-400 text-sm">
+                  <div className="w-5 h-5 border-2 border-indigo-400 border-t-transparent
+                                  rounded-full animate-spin mr-2" />
+                  Cargando movimientos...
+                </div>
+              ) : movimientos.length === 0 ? (
+                <div className="text-center py-12 text-gray-400">
+                  <div className="text-3xl mb-2">📭</div>
+                  <div className="text-sm">Sin movimientos registrados</div>
+                </div>
+              ) : (
+                <div className="relative">
+                  {/* Línea vertical de la timeline */}
+                  <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-100" />
+
+                  <div className="space-y-4">
+                    {movimientos.map((m: any, i: number) => {
+                      const esEntrada = m.tipo === 'ENTRADA'
+                      const esSalida  = m.tipo === 'SALIDA'
+                      const dotColor  = esEntrada
+                        ? 'bg-green-500 ring-green-100'
+                        : esSalida
+                        ? 'bg-red-500 ring-red-100'
+                        : 'bg-amber-500 ring-amber-100'
+                      const signo     = esEntrada ? '+' : esSalida ? '−' : '~'
+                      const textColor = esEntrada
+                        ? 'text-green-600'
+                        : esSalida
+                        ? 'text-red-600'
+                        : 'text-amber-600'
+                      const bgColor   = esEntrada
+                        ? 'bg-green-50 border-green-100'
+                        : esSalida
+                        ? 'bg-red-50 border-red-100'
+                        : 'bg-amber-50 border-amber-100'
+
+                      return (
+                        <div key={m.id} className="flex gap-4 relative">
+                          {/* Punto en la línea */}
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center
+                                          shrink-0 ring-4 z-10 ${dotColor}`}>
+                            <span className="text-white text-xs font-bold">{signo}</span>
+                          </div>
+
+                          {/* Tarjeta del movimiento */}
+                          <div className={`flex-1 border rounded-xl px-4 py-3 mb-1 ${bgColor}`}>
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className={`text-sm font-bold ${textColor}`}>
+                                    {signo}{m.cantidad} pza{m.cantidad !== 1 ? 's' : ''}
+                                  </span>
+                                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium
+                                    ${esEntrada ? 'bg-green-100 text-green-700'
+                                      : esSalida ? 'bg-red-100 text-red-700'
+                                      : 'bg-amber-100 text-amber-700'}`}>
+                                    {m.tipo}
+                                  </span>
+                                </div>
+                                {m.motivo && (
+                                  <div className="text-xs text-gray-600 mt-1 truncate">
+                                    {m.motivo}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="text-right shrink-0">
+                                <div className="text-xs text-gray-500 font-medium">
+                                  Stock: {m.balanceDespues}
+                                </div>
+                                <div className="text-xs text-gray-400 mt-0.5">
+                                  {new Date(m.fecha).toLocaleDateString('es-MX', {
+                                    day: '2-digit', month: 'short', year: '2-digit'
+                                  })}
+                                </div>
+                                <div className="text-xs text-gray-400">
+                                  {new Date(m.fecha).toLocaleTimeString('es-MX', {
+                                    hour: '2-digit', minute: '2-digit'
+                                  })}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  <div className="text-center text-xs text-gray-300 mt-6 pt-4 border-t border-gray-100">
+                    {movimientos.length} movimiento{movimientos.length !== 1 ? 's' : ''} registrado{movimientos.length !== 1 ? 's' : ''}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer con acciones rápidas */}
+            <div className="p-4 border-t border-gray-100 shrink-0 flex gap-2">
+              <button
+                onClick={() => {
+                  setPanelHistorial(null)
+                  setModalEntrada(panelHistorial)
+                }}
+                className="flex-1 py-2 text-sm bg-green-600 text-white
+                           rounded-lg hover:bg-green-700 font-medium"
+              >
+                + Registrar entrada
+              </button>
+              <button
+                onClick={() => setPanelHistorial(null)}
+                className="px-4 py-2 text-sm border border-gray-300
+                           rounded-lg text-gray-600 hover:bg-gray-50"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </>
       )}
 
       {/* Confirmar eliminar */}

@@ -186,6 +186,47 @@ export const entradaInventario = async (req: Request, res: Response) => {
   }
 }
 
+// ── Historial de movimientos de una refacción ────────────────
+export const movimientosRefaccion = async (req: Request, res: Response) => {
+  try {
+    const id     = req.params.id as string
+    const limit  = Math.min(200, Number(req.query.limit) || 50)
+
+    const [refaccion, movimientos] = await Promise.all([
+      prisma.refaccion.findUnique({
+        where:  { id },
+        select: { id: true, nombre: true, codigo: true, stockActual: true, stockMinimo: true }
+      }),
+      prisma.movimientoInventario.findMany({
+        where:   { refaccionId: id as string },
+        orderBy: { fecha: 'desc' },
+        take:    limit,
+      })
+    ])
+
+    if (!refaccion) return res.status(404).json({ mensaje: 'Refacción no encontrada' })
+
+    // Calcular balance acumulado (de más reciente a más antiguo)
+    // El stockActual es el balance FINAL; restamos/sumamos hacia atrás
+    let balance = refaccion.stockActual
+    const movimientosConBalance = movimientos.map(m => {
+      const balanceDespues = balance
+      if (m.tipo === 'ENTRADA')  balance -= m.cantidad
+      if (m.tipo === 'SALIDA')   balance += m.cantidad
+      if (m.tipo === 'AJUSTE')   balance  = balance // ajustes: no reconstruimos el antes
+      return { ...m, balanceDespues }
+    })
+
+    return res.json({
+      refaccion,
+      total:       movimientos.length,
+      movimientos: movimientosConBalance
+    })
+  } catch (error) {
+    return res.status(500).json({ mensaje: 'Error del servidor', error })
+  }
+}
+
 export const eliminarRefaccion = async (req: Request, res: Response) => {
   try {
     await prisma.refaccion.update({

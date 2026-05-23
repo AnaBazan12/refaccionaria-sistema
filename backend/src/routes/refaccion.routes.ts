@@ -2,7 +2,7 @@ import { Router } from 'express'
 import {
   obtenerRefacciones, obtenerRefaccionPorId, buscarRefaccion,
   crearRefaccion, actualizarRefaccion, entradaInventario, eliminarRefaccion,
-  metricasInventario
+  metricasInventario, movimientosRefaccion
 } from '../controllers/refaccion.controller'
 import { protegerRuta } from '../middlewares/auth.middleware'
 import { validar, schemaCliente, schemaRefaccion } from '../utils/validaciones'
@@ -15,8 +15,9 @@ router.get('/buscar',         buscarRefaccion)       // ?q=balata
 router.get('/:id',            obtenerRefaccionPorId)
 router.post('/',              crearRefaccion)
 router.put('/:id',            actualizarRefaccion)
-router.post('/:id/entrada',   entradaInventario)
-router.delete('/:id',         eliminarRefaccion)
+router.post('/:id/entrada',      entradaInventario)
+router.get('/:id/movimientos',   movimientosRefaccion)
+router.delete('/:id',            eliminarRefaccion)
 router.post('/',    protegerRuta, validar(schemaRefaccion), crearRefaccion)
 router.put('/:id',  protegerRuta, validar(schemaRefaccion.partial()), actualizarRefaccion)
 
