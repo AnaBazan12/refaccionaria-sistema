@@ -34,6 +34,8 @@ export const resumenCaja = async (req: RequestConUsuario, res: Response) => {
       orderBy: { fecha: 'asc' }
     })
 
+    ,
+
     // ── Ventas mostrador del día ──────────────────────────
     prisma.ventaRefaccion.findMany({
       where: {
