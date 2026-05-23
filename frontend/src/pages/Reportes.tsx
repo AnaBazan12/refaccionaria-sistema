@@ -3,7 +3,11 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid, Legend
 } from 'recharts'
-import { getReporteDiario, getReporteMensual } from '../services/reporte.service'
+import {
+  getReporteDiario, getReporteMensual,
+  descargarPdfDiario, descargarPdfMensual
+} from '../services/reporte.service'
+import * as XLSX from 'xlsx'
 
 type Vista = 'diario' | 'mensual'
 
@@ -84,8 +88,101 @@ export default function Reportes() {
   const [fecha,    setFecha]    = useState(hoy.toISOString().split('T')[0])
   const [mes,      setMes]      = useState(hoy.getMonth() + 1)
   const [anio,     setAnio]     = useState(hoy.getFullYear())
-  const [datos,    setDatos]    = useState<any>(null)
-  const [cargando, setCargando] = useState(true)
+  const [datos,         setDatos]         = useState<any>(null)
+  const [cargando,      setCargando]      = useState(true)
+  const [exportando,    setExportando]    = useState(false)
+
+  // ── Exportar PDF ──────────────────────────────────────────────
+  const handlePdf = async () => {
+    setExportando(true)
+    try {
+      if (vista === 'diario') await descargarPdfDiario(fecha)
+      else                    await descargarPdfMensual(mes, anio)
+    } finally { setExportando(false) }
+  }
+
+  // ── Exportar Excel ────────────────────────────────────────────
+  const handleExcel = () => {
+    if (!datos) return
+    const wb = XLSX.utils.book_new()
+
+    if (vista === 'diario') {
+      // Hoja 1: Ventas de refacciones
+      const refDatos = (datos.refacciones?.detalle ?? []).map((v: any) => ({
+        'Hora':       new Date(v.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }),
+        'Refacción':  v.refaccion?.nombre ?? '',
+        'Código':     v.refaccion?.codigo ?? '',
+        'Tipo':       v.tipoVenta,
+        'Cantidad':   v.cantidad,
+        'Precio':     Number(v.precioUnitario),
+        'Subtotal':   Number(v.subtotal),
+        'Ganancia':   Number(v.ganancia),
+        'Vendedor':   v.usuario?.nombre ?? '',
+      }))
+      if (refDatos.length) {
+        const ws = XLSX.utils.json_to_sheet(refDatos)
+        XLSX.utils.book_append_sheet(wb, ws, 'Ventas Refacciones')
+      }
+
+      // Hoja 2: Órdenes del taller
+      const tallerDatos = (datos.taller?.detalle ?? []).map((o: any) => ({
+        'Cliente':    o.cliente?.nombre ?? '',
+        'Vehículo':   `${o.vehiculo?.marca} ${o.vehiculo?.modelo}`,
+        'Placa':      o.vehiculo?.placa ?? '',
+        'Mecánico':   o.mecanico?.nombre ?? '',
+        'Mano obra':  Number(o.totalManoObra),
+        'Refacciones': Number(o.totalRefacciones),
+        'Total':      Number(o.total),
+      }))
+      if (tallerDatos.length) {
+        const ws = XLSX.utils.json_to_sheet(tallerDatos)
+        XLSX.utils.book_append_sheet(wb, ws, 'Taller')
+      }
+
+      XLSX.writeFile(wb, `reporte-diario-${fecha}.xlsx`)
+    } else {
+      // Hoja 1: Top 10 refacciones
+      const top10 = (datos.refacciones?.top10 ?? []).map((r: any, i: number) => ({
+        '#':          i + 1,
+        'Refacción':  r.nombre,
+        'Código':     r.codigo,
+        'Piezas':     r.cantidad,
+        'Total ventas': Number(r.total),
+        'Ganancia':   Number(r.ganancia),
+      }))
+      if (top10.length) {
+        const ws = XLSX.utils.json_to_sheet(top10)
+        XLSX.utils.book_append_sheet(wb, ws, 'Top Refacciones')
+      }
+
+      // Hoja 2: Mecánicos
+      const mecanicos = (datos.taller?.productividadMecanicos ?? []).map((m: any) => ({
+        'Mecánico':    m.nombre,
+        'Órdenes':     m.ordenes,
+        'Mano de obra': Number(m.totalManoObra),
+      }))
+      if (mecanicos.length) {
+        const ws = XLSX.utils.json_to_sheet(mecanicos)
+        XLSX.utils.book_append_sheet(wb, ws, 'Mecánicos')
+      }
+
+      // Hoja 3: Resumen general
+      const rg = datos.resumenGeneral ?? {}
+      const resumen = [
+        { 'Concepto': 'Ingresos totales',    'Valor': Number(rg.granTotalIngresos)   },
+        { 'Concepto': 'Total taller',        'Valor': Number(rg.totalTaller)         },
+        { 'Concepto': 'Ventas refacciones',  'Valor': Number(rg.totalRefacciones)    },
+        { 'Concepto': 'Ganancia refacciones','Valor': Number(rg.gananciaRefacciones) },
+        { 'Concepto': 'Total compras',       'Valor': Number(rg.totalCompras)        },
+        { 'Concepto': 'Utilidad neta',       'Valor': Number(rg.utilidadNeta)        },
+      ]
+      const ws = XLSX.utils.json_to_sheet(resumen)
+      XLSX.utils.book_append_sheet(wb, ws, 'Resumen')
+
+      const nombreMes = MESES[mes - 1]
+      XLSX.writeFile(wb, `reporte-mensual-${nombreMes}-${anio}.xlsx`)
+    }
+  }
 
   const cargar = async () => {
     setCargando(true)
@@ -115,19 +212,51 @@ export default function Reportes() {
             {vista === 'diario' ? 'Resumen del día' : 'Resumen mensual'}
           </p>
         </div>
-        <div className="flex bg-white border border-gray-300 rounded-lg p-1 shadow-sm">
-          {(['diario', 'mensual'] as Vista[]).map(v => (
-            <button
-              key={v}
-              onClick={() => setVista(v)}
-              className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all
-                ${vista === v
-                  ? 'bg-gray-800 text-white shadow'
-                  : 'text-gray-600 hover:bg-gray-100'}`}
-            >
-              {v === 'diario' ? '📅 Diario' : '📆 Mensual'}
-            </button>
-          ))}
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Toggle diario / mensual */}
+          <div className="flex bg-white border border-gray-300 rounded-lg p-1 shadow-sm">
+            {(['diario', 'mensual'] as Vista[]).map(v => (
+              <button
+                key={v}
+                onClick={() => setVista(v)}
+                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all
+                  ${vista === v
+                    ? 'bg-gray-800 text-white shadow'
+                    : 'text-gray-600 hover:bg-gray-100'}`}
+              >
+                {v === 'diario' ? '📅 Diario' : '📆 Mensual'}
+              </button>
+            ))}
+          </div>
+
+          {/* Botones de exportación */}
+          {!cargando && datos && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handlePdf}
+                disabled={exportando}
+                className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium
+                           bg-red-600 hover:bg-red-700 text-white rounded-lg
+                           disabled:opacity-50 transition-colors"
+              >
+                {exportando ? (
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <span>📄</span>
+                )}
+                PDF
+              </button>
+              <button
+                onClick={handleExcel}
+                className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium
+                           bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg
+                           transition-colors"
+              >
+                <span>📊</span>
+                Excel
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

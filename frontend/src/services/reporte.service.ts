@@ -1,4 +1,11 @@
 import api from './api'
+import { abrirPDF } from '../utils/pdf'
+
+export const descargarPdfDiario = (fecha: string) =>
+  abrirPDF(`/reportes/pdf/diario?fecha=${fecha}`, `reporte-diario-${fecha}.pdf`)
+
+export const descargarPdfMensual = (mes: number, anio: number) =>
+  abrirPDF(`/reportes/pdf/mensual?mes=${mes}&anio=${anio}`, `reporte-mensual-${anio}-${String(mes).padStart(2,'0')}.pdf`)
 
 export const getReporteDiario = async (fecha?: string) => {
   const { data } = await api.get('/reportes/diario', {
