@@ -1,4 +1,5 @@
 import { Request, Response } from 'express'
+import { randomUUID } from 'crypto'
 import {prisma} from '../utils/prisma'
 import { TipoVenta } from '../generated/client'
 import { RequestConUsuario } from '../middlewares/auth.middleware'
@@ -81,6 +82,114 @@ export const registrarVenta = async (req: RequestConUsuario, res: Response) => {
         subtotal:      subtotal.toFixed(2)
       },
       venta
+    })
+  } catch (error) {
+    return res.status(500).json({ mensaje: 'Error del servidor', error })
+  }
+}
+
+// ── Registrar ticket (venta con múltiples refacciones) ────────
+export const registrarTicket = async (req: RequestConUsuario, res: Response) => {
+  try {
+    const { tipoVenta, items } = req.body as {
+      tipoVenta: TipoVenta
+      items: { refaccionId: string; cantidad: number }[]
+    }
+
+    if (!items?.length) {
+      return res.status(400).json({ mensaje: 'El ticket debe tener al menos un artículo' })
+    }
+
+    // 1. Cargar todas las refacciones en una consulta
+    const refacciones = await prisma.refaccion.findMany({
+      where: { id: { in: items.map(i => i.refaccionId) } }
+    })
+
+    // 2. Calcular precios y validar stock ANTES de la transacción
+    const ticketId   = randomUUID()
+    const usuarioId  = req.usuario?.id ?? null
+    let   totalTicket   = 0
+    let   gananciaTotal = 0
+
+    type ItemCalculado = {
+      refaccionId:    string
+      cantidad:       number
+      precioUnitario: number
+      precioSinIva:   number
+      costoCompra:    number
+      ganancia:       number
+      subtotal:       number
+    }
+    const itemsCalculados: ItemCalculado[] = []
+
+    for (const item of items) {
+      const ref = refacciones.find(r => r.id === item.refaccionId)
+      if (!ref) {
+        return res.status(404).json({ mensaje: `Refacción no encontrada` })
+      }
+      if (ref.stockActual < item.cantidad) {
+        return res.status(400).json({
+          mensaje: `Stock insuficiente para "${ref.nombre}". Disponible: ${ref.stockActual}`
+        })
+      }
+
+      const precioUnitario =
+        tipoVenta === 'MAYOREO' && ref.precioMayoreo ? Number(ref.precioMayoreo)
+        : tipoVenta === 'TALLER'                     ? Number(ref.precioTaller)
+        :                                              Number(ref.precioMostrador)
+
+      const precioSinIva = precioUnitario / 1.16
+      const costoCompra  = Number(ref.costoCompra)
+      const ganancia     = (precioSinIva - costoCompra) * item.cantidad
+      const subtotal     = precioUnitario * item.cantidad
+
+      totalTicket   += subtotal
+      gananciaTotal += ganancia
+      itemsCalculados.push({
+        refaccionId: item.refaccionId,
+        cantidad: item.cantidad,
+        precioUnitario, precioSinIva, costoCompra, ganancia, subtotal
+      })
+    }
+
+    // 3. Ejecutar todo en una transacción atómica
+    await prisma.$transaction(
+      itemsCalculados.flatMap(ic => [
+        prisma.ventaRefaccion.create({
+          data: {
+            refaccionId:    ic.refaccionId,
+            cantidad:       ic.cantidad,
+            tipoVenta,
+            precioUnitario: ic.precioUnitario,
+            precioSinIva:   ic.precioSinIva,
+            costoCompra:    ic.costoCompra,
+            ganancia:       ic.ganancia,
+            subtotal:       ic.subtotal,
+            ticketId,
+            usuarioId,
+          }
+        }),
+        prisma.refaccion.update({
+          where: { id: ic.refaccionId },
+          data:  { stockActual: { decrement: ic.cantidad } }
+        }),
+        prisma.movimientoInventario.create({
+          data: {
+            refaccionId: ic.refaccionId,
+            tipo:        'SALIDA',
+            cantidad:    ic.cantidad,
+            motivo:      `Ticket venta ${tipoVenta}`
+          }
+        }),
+      ])
+    )
+
+    return res.status(201).json({
+      mensaje:   'Ticket registrado',
+      ticketId,
+      total:     totalTicket.toFixed(2),
+      ganancia:  gananciaTotal.toFixed(2),
+      articulos: items.length,
     })
   } catch (error) {
     return res.status(500).json({ mensaje: 'Error del servidor', error })

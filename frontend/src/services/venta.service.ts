@@ -10,6 +10,14 @@ export const registrarVenta = async (venta: {
   return data
 }
 
+export const registrarTicket = async (ticket: {
+  tipoVenta: 'MOSTRADOR' | 'TALLER' | 'MAYOREO'
+  items: { refaccionId: string; cantidad: number }[]
+}) => {
+  const { data } = await api.post('/ventas/ticket', ticket)
+  return data
+}
+
 export const getVentasDelDia = async (fecha?: string) => {
   const { data } = await api.get('/ventas/dia', {
     params: fecha ? { fecha } : {}

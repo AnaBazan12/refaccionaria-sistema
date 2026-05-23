@@ -1960,6 +1960,7 @@ export const VentaRefaccionScalarFieldEnum = {
   fecha: 'fecha',
   refaccionId: 'refaccionId',
   ordenId: 'ordenId',
+  ticketId: 'ticketId',
   usuarioId: 'usuarioId'
 } as const
 

@@ -287,6 +287,9 @@ model VentaRefaccion {
   ordenId          String?
   orden            OrdenTrabajo? @relation(fields: [ordenId], references: [id])
 
+  // Agrupa varios items del mismo ticket de venta mostrador
+  ticketId         String?
+
   // Quién vendió
   usuarioId        String?
   usuario          Usuario?   @relation(fields: [usuarioId], references: [id])
