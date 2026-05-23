@@ -61,6 +61,11 @@ export const getMovimientosRefaccion = async (id: string) => {
   return data
 }
 
+export const ajustarInventario = async (id: string, stockNuevo: number, motivo: string) => {
+  const { data } = await api.post(`/refacciones/${id}/ajuste`, { stockNuevo, motivo })
+  return data
+}
+
 export const getProveedores = async () => {
   const { data } = await api.get('/proveedores')
   return data

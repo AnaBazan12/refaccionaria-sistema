@@ -3,7 +3,7 @@ import {
   getRefacciones, buscarRefaccion, crearRefaccion,
   actualizarRefaccion, entradaInventario,
   eliminarRefaccion, getProveedores, getMetricasInventario,
-  getMovimientosRefaccion
+  getMovimientosRefaccion, ajustarInventario
 } from '../services/inventario.service'
 import Paginacion from '../components/ui/Paginacion'
 import { LIMITE } from '../constants/paginacion'
@@ -115,6 +115,41 @@ export default function Inventario() {
   const [total,         setTotal]         = useState(0)
   const [ordenarPor,    setOrdenarPor]    = useState<'nombre' | 'valor' | 'margen' | 'stock'>('nombre')
   const [mostrarTop5,   setMostrarTop5]   = useState(false)
+
+  // Modal ajuste de inventario
+  const [modalAjuste,   setModalAjuste]   = useState<Refaccion | null>(null)
+  const [stockNuevo,    setStockNuevo]    = useState('')
+  const [motivoAjuste,  setMotivoAjuste]  = useState('')
+  const [otroMotivo,    setOtroMotivo]    = useState('')
+  const [guardandoAj,   setGuardandoAj]   = useState(false)
+  const [errorAj,       setErrorAj]       = useState('')
+
+  const MOTIVOS_AJUSTE = ['Merma', 'Robo', 'Error de conteo', 'Inventario físico', 'Otro']
+
+  const abrirAjuste = (r: Refaccion) => {
+    setModalAjuste(r)
+    setStockNuevo(r.stockActual.toString())
+    setMotivoAjuste('')
+    setOtroMotivo('')
+    setErrorAj('')
+  }
+
+  const handleAjuste = async () => {
+    const nuevo = parseInt(stockNuevo)
+    if (isNaN(nuevo) || nuevo < 0) { setErrorAj('Ingresa un número válido ≥ 0'); return }
+    const motivo = motivoAjuste === 'Otro' ? otroMotivo.trim() : motivoAjuste
+    if (!motivo) { setErrorAj('Selecciona o escribe un motivo'); return }
+    setGuardandoAj(true); setErrorAj('')
+    try {
+      await ajustarInventario(modalAjuste!.id, nuevo, motivo)
+      setModalAjuste(null)
+      cargar()
+    } catch (e: any) {
+      setErrorAj(e.response?.data?.mensaje || 'Error al ajustar')
+    } finally {
+      setGuardandoAj(false)
+    }
+  }
 
   // Panel historial de movimientos
   const [panelHistorial,    setPanelHistorial]    = useState<any>(null)  // refaccion seleccionada
@@ -546,6 +581,14 @@ export default function Inventario() {
                             + Stock
                           </button>
                           <button
+                            onClick={() => abrirAjuste(r)}
+                            className="text-xs text-amber-600 hover:bg-amber-50
+                                       px-2.5 py-1.5 rounded-lg transition-colors"
+                            title="Ajustar stock manualmente"
+                          >
+                            ✎ Ajuste
+                          </button>
+                          <button
                             onClick={() => abrirEditar(r)}
                             className="text-xs text-gray-500 hover:text-blue-600
                                        px-2.5 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
@@ -652,34 +695,34 @@ export default function Inventario() {
                   <div className="text-xs text-gray-400 mb-3">📦 {r.proveedor.nombre}</div>
                 )}
 
-                <div className="flex gap-2 pt-3 border-t border-gray-100">
+                <div className="grid grid-cols-2 gap-2 pt-3 border-t border-gray-100">
                   <button
                     onClick={() => abrirHistorial(r)}
-                    className="flex-1 text-xs text-indigo-600 font-medium
+                    className="text-xs text-indigo-600 font-medium
                                py-1.5 rounded-lg hover:bg-indigo-50 transition-colors"
                   >
                     📋 Historial
                   </button>
                   <button
                     onClick={() => setModalEntrada(r)}
-                    className="flex-1 text-xs text-green-600 font-medium
+                    className="text-xs text-green-600 font-medium
                                py-1.5 rounded-lg hover:bg-green-50 transition-colors"
                   >
                     + Entrada
                   </button>
                   <button
+                    onClick={() => abrirAjuste(r)}
+                    className="text-xs text-amber-600 font-medium
+                               py-1.5 rounded-lg hover:bg-amber-50 transition-colors"
+                  >
+                    ✎ Ajuste stock
+                  </button>
+                  <button
                     onClick={() => abrirEditar(r)}
-                    className="flex-1 text-xs text-gray-600 py-1.5 rounded-lg
+                    className="text-xs text-gray-600 py-1.5 rounded-lg
                                hover:bg-blue-50 hover:text-blue-600 transition-colors"
                   >
                     Editar
-                  </button>
-                  <button
-                    onClick={() => setConfirmElim(r.id)}
-                    className="flex-1 text-xs text-gray-600 py-1.5 rounded-lg
-                               hover:bg-red-50 hover:text-red-600 transition-colors"
-                  >
-                    Eliminar
                   </button>
                 </div>
               </div>
@@ -1183,6 +1226,129 @@ export default function Inventario() {
             </div>
           </div>
         </>
+      )}
+
+      {/* ── Modal ajuste de inventario ──────────────────── */}
+      {modalAjuste && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl">
+
+            <div className="flex items-center justify-between p-5 border-b border-gray-100">
+              <h2 className="text-lg font-bold text-gray-800">Ajuste de inventario</h2>
+              <button onClick={() => setModalAjuste(null)}
+                className="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
+            </div>
+
+            <div className="p-5 space-y-4">
+
+              {/* Info pieza */}
+              <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
+                <div className="font-semibold text-amber-900 text-sm">{modalAjuste.nombre}</div>
+                <div className="text-xs text-amber-600 font-mono mt-0.5">{modalAjuste.codigo}</div>
+                <div className="flex items-center gap-3 mt-2 text-xs text-amber-700">
+                  <span>Stock actual: <strong>{modalAjuste.stockActual} pzas</strong></span>
+                  <span className="text-amber-400">·</span>
+                  <span>Mínimo: {modalAjuste.stockMinimo}</span>
+                </div>
+              </div>
+
+              {/* Nuevo stock */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Stock correcto (resultado final)
+                </label>
+                <input
+                  type="number" min="0" value={stockNuevo}
+                  onChange={e => setStockNuevo(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5
+                             text-sm focus:outline-none focus:ring-2 focus:ring-amber-400
+                             text-center text-lg font-bold"
+                  autoFocus
+                />
+                {stockNuevo !== '' && !isNaN(parseInt(stockNuevo)) && (
+                  <div className={`mt-2 text-sm text-center font-medium rounded-lg py-2
+                    ${parseInt(stockNuevo) > modalAjuste.stockActual
+                      ? 'bg-green-50 text-green-700'
+                      : parseInt(stockNuevo) < modalAjuste.stockActual
+                      ? 'bg-red-50 text-red-700'
+                      : 'bg-gray-50 text-gray-500'}`}>
+                    {parseInt(stockNuevo) === modalAjuste.stockActual
+                      ? 'Sin cambio'
+                      : parseInt(stockNuevo) > modalAjuste.stockActual
+                      ? `▲ +${parseInt(stockNuevo) - modalAjuste.stockActual} pzas`
+                      : `▼ ${parseInt(stockNuevo) - modalAjuste.stockActual} pzas`}
+                    {' '}· Nuevo stock: <strong>{stockNuevo} pzas</strong>
+                  </div>
+                )}
+              </div>
+
+              {/* Motivo */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Motivo del ajuste <span className="text-red-500">*</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {MOTIVOS_AJUSTE.map(m => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => { setMotivoAjuste(m); setOtroMotivo('') }}
+                      className={`py-2 px-3 rounded-lg text-sm font-medium text-left
+                        transition-colors border
+                        ${motivoAjuste === m
+                          ? 'bg-amber-100 border-amber-400 text-amber-800'
+                          : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-amber-50'}`}
+                    >
+                      {m === 'Merma'           ? '📉 Merma'
+                       : m === 'Robo'          ? '🔓 Robo'
+                       : m === 'Error de conteo' ? '🔢 Error conteo'
+                       : m === 'Inventario físico' ? '📋 Inv. físico'
+                       : '✏️ Otro'}
+                    </button>
+                  ))}
+                </div>
+                {motivoAjuste === 'Otro' && (
+                  <input
+                    type="text"
+                    value={otroMotivo}
+                    onChange={e => setOtroMotivo(e.target.value)}
+                    placeholder="Describe el motivo..."
+                    className="mt-2 w-full border border-gray-300 rounded-lg px-3 py-2
+                               text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+                    autoFocus
+                  />
+                )}
+              </div>
+
+              {errorAj && (
+                <div className="bg-red-50 border border-red-200 text-red-700
+                                text-sm rounded-lg px-4 py-2.5">
+                  {errorAj}
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-1">
+                <button
+                  onClick={() => setModalAjuste(null)}
+                  className="flex-1 px-4 py-2.5 text-sm border border-gray-300
+                             rounded-lg text-gray-600 hover:bg-gray-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleAjuste}
+                  disabled={guardandoAj || !stockNuevo || !motivoAjuste ||
+                    (motivoAjuste === 'Otro' && !otroMotivo.trim())}
+                  className="flex-1 px-4 py-2.5 text-sm bg-amber-500 text-white
+                             font-medium rounded-lg hover:bg-amber-600
+                             disabled:opacity-50 transition-colors"
+                >
+                  {guardandoAj ? 'Guardando...' : 'Aplicar ajuste'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Confirmar eliminar */}

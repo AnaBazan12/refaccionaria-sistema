@@ -2,7 +2,7 @@ import { Router } from 'express'
 import {
   obtenerRefacciones, obtenerRefaccionPorId, buscarRefaccion,
   crearRefaccion, actualizarRefaccion, entradaInventario, eliminarRefaccion,
-  metricasInventario, movimientosRefaccion
+  metricasInventario, movimientosRefaccion, ajustarInventario
 } from '../controllers/refaccion.controller'
 import { protegerRuta } from '../middlewares/auth.middleware'
 import { validar, schemaCliente, schemaRefaccion } from '../utils/validaciones'
@@ -16,6 +16,7 @@ router.get('/:id',            obtenerRefaccionPorId)
 router.post('/',              crearRefaccion)
 router.put('/:id',            actualizarRefaccion)
 router.post('/:id/entrada',      entradaInventario)
+router.post('/:id/ajuste',       ajustarInventario)
 router.get('/:id/movimientos',   movimientosRefaccion)
 router.delete('/:id',            eliminarRefaccion)
 router.post('/',    protegerRuta, validar(schemaRefaccion), crearRefaccion)

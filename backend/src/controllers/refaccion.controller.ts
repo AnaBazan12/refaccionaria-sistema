@@ -186,6 +186,57 @@ export const entradaInventario = async (req: Request, res: Response) => {
   }
 }
 
+// ── Ajuste manual de stock ────────────────────────────────────
+export const ajustarInventario = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string
+    const { stockNuevo, motivo } = req.body as {
+      stockNuevo: number
+      motivo:     string
+    }
+
+    if (stockNuevo === undefined || stockNuevo === null || stockNuevo < 0) {
+      return res.status(400).json({ mensaje: 'El stock nuevo debe ser un número mayor o igual a 0' })
+    }
+    if (!motivo?.trim()) {
+      return res.status(400).json({ mensaje: 'El motivo es obligatorio' })
+    }
+
+    const refaccion = await prisma.refaccion.findUnique({
+      where: { id },
+      select: { id: true, nombre: true, stockActual: true }
+    })
+    if (!refaccion) return res.status(404).json({ mensaje: 'Refacción no encontrada' })
+
+    const diferencia = stockNuevo - refaccion.stockActual
+
+    const [refActualizada] = await prisma.$transaction([
+      prisma.refaccion.update({
+        where: { id },
+        data:  { stockActual: stockNuevo }
+      }),
+      prisma.movimientoInventario.create({
+        data: {
+          refaccionId: id,
+          tipo:        'AJUSTE',
+          cantidad:    Math.abs(diferencia),
+          motivo:      `${motivo} (${diferencia >= 0 ? '+' : ''}${diferencia} pzas, de ${refaccion.stockActual} → ${stockNuevo})`
+        }
+      })
+    ])
+
+    return res.json({
+      mensaje:       'Ajuste registrado',
+      stockAnterior: refaccion.stockActual,
+      stockNuevo,
+      diferencia,
+      refaccion:     refActualizada
+    })
+  } catch (error) {
+    return res.status(500).json({ mensaje: 'Error del servidor', error })
+  }
+}
+
 // ── Historial de movimientos de una refacción ────────────────
 export const movimientosRefaccion = async (req: Request, res: Response) => {
   try {
