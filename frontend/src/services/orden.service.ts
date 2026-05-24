@@ -69,10 +69,11 @@ export const getServicios = async () => {
   return data
 }
 
-// Buscar órdenes activas (para TALLER flow en Ventas)
+// Buscar órdenes activas (para TALLER flow en Ventas) — sin filtro de estado
+// para que aparezcan RECIBIDO, EN_PROCESO, EN_ESPERA_REFACCION, LISTO
 export const buscarOrdenes = async (q: string) => {
   const { data } = await api.get('/ordenes', {
-    params: { q, estado: 'EN_PROCESO', limit: 8 }
+    params: { q, limit: 10 }
   })
   return data.data as any[]
 }

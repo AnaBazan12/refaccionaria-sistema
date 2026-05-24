@@ -87,12 +87,13 @@ export const agregarRefaccion = async (
       (s, d) => s + Number(d.subtotal), 0
     )
 
+    const nuevoTotal = Number(orden.totalManoObra) + totalRefacciones
     const ordenActualizada = await prisma.ordenTrabajo.update({
       where: { id: ordenId as string},
       data: {
         totalRefacciones,
-        total:          Number(orden.totalManoObra) + totalRefacciones,
-        saldoPendiente: Number(orden.total) - Number(orden.totalPagado),
+        total:          nuevoTotal,
+        saldoPendiente: nuevoTotal - Number(orden.totalPagado),
         modificadoPorId: req.usuario?.id ?? null
       },
       include: {
@@ -163,11 +164,13 @@ export const quitarRefaccion = async (
       (s, d) => s + Number(d.subtotal), 0
     )
 
+    const nuevoTotal = Number(detalle.orden.totalManoObra) + totalRefacciones
     await prisma.ordenTrabajo.update({
       where: { id: detalle.ordenId },
       data: {
         totalRefacciones,
-        total: Number(detalle.orden.totalManoObra) + totalRefacciones
+        total:          nuevoTotal,
+        saldoPendiente: nuevoTotal - Number(detalle.orden.totalPagado)
       }
     })
 

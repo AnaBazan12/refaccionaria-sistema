@@ -29,6 +29,16 @@ export default function OrdenDetalleModal({
   const [bitacora, setBitacora] = useState<any[]>([])
   const [cargando, setCargando] = useState(false)
 
+  // Datos frescos de la orden (totales, estado) — se re-fetcha al abrir
+  const [ordenActual, setOrdenActual] = useState(orden)
+
+  // Fetch fresco de la orden al abrir el modal (para que los totales sean actuales)
+  useEffect(() => {
+    api.get(`/ordenes/${orden.id}`)
+       .then(({ data }) => setOrdenActual(data))
+       .catch(() => {}) // silencioso — usamos prop como fallback
+  }, [orden.id])
+
   // Form agregar refacción
   const [busqueda, setBusqueda] = useState('')
   const [resultados, setResultados] = useState<any[]>([])
@@ -78,6 +88,14 @@ export default function OrdenDetalleModal({
     }
   }
 
+  // Re-fetch de totales de la orden (se llama tras agregar refacción/pago)
+  const refrescarOrden = () => {
+    api.get(`/ordenes/${orden.id}`)
+       .then(({ data }) => setOrdenActual(data))
+       .catch(() => {})
+    onActualizar()
+  }
+
   const handleAgregarRefaccion = async () => {
     if (!refSelec) { setErrorRef('Selecciona una refacción'); return }
     setGuardandoRef(true)
@@ -93,7 +111,7 @@ export default function OrdenDetalleModal({
       setCantRef(1)
       setPrecioRef('')
       cargarTab('refacciones')
-      onActualizar()
+      refrescarOrden()
     } catch (err: any) {
       setErrorRef(err.response?.data?.mensaje || 'Error al agregar')
     } finally {
@@ -106,7 +124,7 @@ export default function OrdenDetalleModal({
     try {
       await api.delete(`/ordenes/${orden.id}/detalle/${detalleId}`)
       cargarTab('refacciones')
-      onActualizar()
+      refrescarOrden()
     } catch (err: any) {
       alert(err.response?.data?.mensaje || 'Error al quitar')
     }
@@ -129,7 +147,7 @@ export default function OrdenDetalleModal({
       setMontoPago('')
       setNotasPago('')
       cargarTab('pagos')
-      onActualizar()
+      refrescarOrden()
     } catch (err: any) {
       setErrorPago(err.response?.data?.mensaje || 'Error al registrar pago')
     } finally {
@@ -155,20 +173,20 @@ export default function OrdenDetalleModal({
         <div className="flex items-start justify-between p-6 border-b">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <span className="font-mono text-sm font-bold text-gray-400">#{orden.numero}</span>
-              <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${colorEstado[orden.estado]}`}>
-                {labelEstado[orden.estado]}
+              <span className="font-mono text-sm font-bold text-gray-400">#{ordenActual.numero}</span>
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${colorEstado[ordenActual.estado]}`}>
+                {labelEstado[ordenActual.estado]}
               </span>
               <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium
-                ${orden.estadoPago === 'PAGADO' ? 'bg-green-100 text-green-700'
-                  : orden.estadoPago === 'PARCIAL' ? 'bg-yellow-100 text-yellow-700'
+                ${ordenActual.estadoPago === 'PAGADO' ? 'bg-green-100 text-green-700'
+                  : ordenActual.estadoPago === 'PARCIAL' ? 'bg-yellow-100 text-yellow-700'
                   : 'bg-red-100 text-red-700'}`}>
-                {orden.estadoPago === 'PAGADO' ? '✓ Pagado' : orden.estadoPago === 'PARCIAL' ? '½ Parcial' : '⚠ Pendiente'}
+                {ordenActual.estadoPago === 'PAGADO' ? '✓ Pagado' : ordenActual.estadoPago === 'PARCIAL' ? '½ Parcial' : '⚠ Pendiente'}
               </span>
             </div>
-            <div className="text-lg font-bold text-gray-800">{orden.cliente?.nombre}</div>
+            <div className="text-lg font-bold text-gray-800">{ordenActual.cliente?.nombre}</div>
             <div className="text-sm text-gray-500">
-              {orden.vehiculo?.marca} {orden.vehiculo?.modelo} — {orden.vehiculo?.placa}
+              {ordenActual.vehiculo?.marca} {ordenActual.vehiculo?.modelo} — {ordenActual.vehiculo?.placa}
             </div>
           </div>
           <button onClick={onCerrar} className="text-gray-400 hover:text-gray-600 text-2xl">✕</button>
@@ -204,38 +222,38 @@ export default function OrdenDetalleModal({
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <div className="bg-gray-50 rounded-xl p-4 text-center">
                             <div className="text-xs text-gray-500 mb-1">Mano de obra</div>
-                            <div className="font-bold text-gray-800">{fmt(orden.totalManoObra)}</div>
+                            <div className="font-bold text-gray-800">{fmt(ordenActual.totalManoObra)}</div>
                         </div>
                         <div className="bg-gray-50 rounded-xl p-4 text-center">
                             <div className="text-xs text-gray-500 mb-1">Refacciones</div>
-                            <div className="font-bold text-gray-800">{fmt(orden.totalRefacciones)}</div>
+                            <div className="font-bold text-gray-800">{fmt(ordenActual.totalRefacciones)}</div>
                         </div>
                         <div className="bg-blue-50 rounded-xl p-4 text-center">
                             <div className="text-xs text-blue-500 mb-1">Total</div>
-                            <div className="font-bold text-blue-700 text-lg">{fmt(orden.total)}</div>
+                            <div className="font-bold text-blue-700 text-lg">{fmt(ordenActual.total)}</div>
                         </div>
-                        <div className={`rounded-xl p-4 text-center ${Number(orden.saldoPendiente) > 0 ? 'bg-red-50' : 'bg-green-50'}`}>
-                            <div className={`text-xs mb-1 ${Number(orden.saldoPendiente) > 0 ? 'text-red-500' : 'text-green-500'}`}>Pendiente</div>
-                            <div className={`font-bold text-lg ${Number(orden.saldoPendiente) > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                                {fmt(orden.saldoPendiente)}
+                        <div className={`rounded-xl p-4 text-center ${Number(ordenActual.saldoPendiente) > 0 ? 'bg-red-50' : 'bg-green-50'}`}>
+                            <div className={`text-xs mb-1 ${Number(ordenActual.saldoPendiente) > 0 ? 'text-red-500' : 'text-green-500'}`}>Pendiente</div>
+                            <div className={`font-bold text-lg ${Number(ordenActual.saldoPendiente) > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                {fmt(ordenActual.saldoPendiente)}
                             </div>
                         </div>
                     </div>
 
                     <div className="grid gap-3 sm:grid-cols-3">
-                        <button onClick={() => abrirPDF(`/pdf/orden/${orden.id}`, `orden-${orden.numero}.pdf`)}
+                        <button onClick={() => abrirPDF(`/pdf/orden/${ordenActual.id}`, `orden-${ordenActual.numero}.pdf`)}
                                 className="bg-gray-800 hover:bg-gray-700 text-white text-sm font-medium py-2.5 rounded-lg flex items-center justify-center gap-2">
                             📄 PDF Orden
                         </button>
                         <button onClick={async () => {
-                            const { data } = await api.get(`/pdf/whatsapp/${orden.id}?tipo=listo`)
+                            const { data } = await api.get(`/pdf/whatsapp/${ordenActual.id}?tipo=listo`)
                             window.open(data.url, '_blank')
                         }} className="bg-green-600 hover:bg-green-700 text-white text-sm font-medium py-2.5 rounded-lg flex items-center justify-center gap-2">
                             📱 WhatsApp Listo
                         </button>
-                        {Number(orden.saldoPendiente) > 0 && (
+                        {Number(ordenActual.saldoPendiente) > 0 && (
                             <button onClick={async () => {
-                                const { data } = await api.get(`/pdf/whatsapp/${orden.id}?tipo=deuda`)
+                                const { data } = await api.get(`/pdf/whatsapp/${ordenActual.id}?tipo=deuda`)
                                 window.open(data.url, '_blank')
                             }} className="bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium py-2.5 rounded-lg flex items-center justify-center gap-2">
                                 💬 Cobrar Deuda
@@ -246,11 +264,11 @@ export default function OrdenDetalleModal({
                     <div className="grid grid-cols-2 gap-4 text-sm border-t pt-4">
                         <div>
                             <span className="text-gray-400 block">Mecánico</span>
-                            <span className="font-medium">{orden.mecanico?.nombre ?? 'Sin asignar'}</span>
+                            <span className="font-medium">{ordenActual.mecanico?.nombre ?? 'Sin asignar'}</span>
                         </div>
                         <div>
                             <span className="text-gray-400 block">Ingreso</span>
-                            <span className="font-medium">{new Date(orden.fechaIngreso).toLocaleDateString('es-MX')}</span>
+                            <span className="font-medium">{new Date(ordenActual.fechaIngreso).toLocaleDateString('es-MX')}</span>
                         </div>
                     </div>
                 </div>
@@ -260,7 +278,7 @@ export default function OrdenDetalleModal({
               {tab === 'refacciones' && (
                 <div className="space-y-5">
                    {/* Formulario de búsqueda y agregado */}
-                   {!['ENTREGADO', 'CANCELADO'].includes(orden.estado) && (
+                   {!['ENTREGADO', 'CANCELADO'].includes(ordenActual.estado) && (
                       <div className="border border-gray-200 rounded-xl p-4 space-y-3 bg-gray-50/50">
                         <label className="text-sm font-semibold text-gray-700">Buscar Refacción</label>
                         <div className="relative">
@@ -301,7 +319,7 @@ export default function OrdenDetalleModal({
                               </div>
                               <div className="flex items-center gap-4">
                                   <span className="font-bold text-sm">{fmt(d.subtotal)}</span>
-                                  {!['ENTREGADO', 'CANCELADO'].includes(orden.estado) && (
+                                  {!['ENTREGADO', 'CANCELADO'].includes(ordenActual.estado) && (
                                       <button onClick={() => handleQuitarRefaccion(d.id)} className="text-red-400 hover:text-red-600">✕</button>
                                   )}
                               </div>
@@ -322,7 +340,7 @@ export default function OrdenDetalleModal({
                         </div>
                     )}
 
-                    {!orden.pagado && (
+                    {!ordenActual.pagado && (
                         <form onSubmit={handleRegistrarPago} className="border rounded-xl p-4 bg-gray-50 space-y-3">
                             <div className="grid grid-cols-4 gap-2">
                                 {TIPOS_PAGO.map(t => (
