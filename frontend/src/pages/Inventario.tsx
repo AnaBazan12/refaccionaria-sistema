@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams }     from 'react-router-dom'
 import { useStockBajo }        from '../context/StockBajoContext'
+import * as XLSX               from 'xlsx'
 import {
   getRefacciones, buscarRefaccion, crearRefaccion,
   actualizarRefaccion, entradaInventario,
@@ -324,13 +325,41 @@ export default function Inventario() {
             )}
           </p>
         </div>
-        <button
-          onClick={abrirCrear}
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm
-                     font-medium px-5 py-2.5 rounded-lg transition-colors"
-        >
-          + Nueva refacción
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              const datos = refacciones.map(r => ({
+                'Código':           r.codigo,
+                'Nombre':           r.nombre,
+                'Marca':            r.marca ?? '',
+                'Proveedor':        r.proveedor?.nombre ?? '',
+                'Stock actual':     r.stockActual,
+                'Stock mínimo':     r.stockMinimo,
+                'Costo compra':     Number(r.costoCompra),
+                'Margen %':         Number(r.margenGanancia),
+                'Precio mostrador': Number(r.precioMostrador),
+                'Precio taller':    Number(r.precioTaller),
+                'Precio mayoreo':   r.precioMayoreo ? Number(r.precioMayoreo) : '',
+                'Stock bajo':       r.stockBajo ? 'Sí' : 'No',
+              }))
+              const ws = XLSX.utils.json_to_sheet(datos)
+              const wb = XLSX.utils.book_new()
+              XLSX.utils.book_append_sheet(wb, ws, 'Inventario')
+              XLSX.writeFile(wb, `inventario-${new Date().toISOString().split('T')[0]}.xlsx`)
+            }}
+            className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700
+                       text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
+          >
+            📊 Excel
+          </button>
+          <button
+            onClick={abrirCrear}
+            className="bg-blue-600 hover:bg-blue-700 text-white text-sm
+                       font-medium px-5 py-2.5 rounded-lg transition-colors"
+          >
+            + Nueva refacción
+          </button>
+        </div>
       </div>
 
       {/* ── Métricas financieras ───────────────────────── */}
