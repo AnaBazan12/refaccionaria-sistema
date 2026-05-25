@@ -20,6 +20,7 @@ import iaRoutes          from './routes/ia.routes'
 import dashboardRoutes   from './routes/dashboard.routes'
 import cajaRoutes        from './routes/caja.routes'
 import compraRoutes      from './routes/compra.routes'
+import busquedaRoutes    from './routes/busqueda.routes'
 
 dotenv.config()
 validarEnv()   // ← falla rápido si falta configuración crítica
@@ -112,6 +113,7 @@ app.use('/api/ia',          iaRoutes)
 app.use('/api/dashboard',   dashboardRoutes)
 app.use('/api/caja',        cajaRoutes)
 app.use('/api/compras',     compraRoutes)
+app.use('/api/buscar',      busquedaRoutes)
 
 // ── Manejo de errores global ──────────────────────────────────
 app.use((err: any, _req: express.Request, res: express.Response,

@@ -4,6 +4,7 @@ import { useAuth }                     from '../../context/AuthContext'
 import { useStockBajo }                from '../../context/StockBajoContext'
 import LogoRefaccionaria               from './LogoRefaccionaria'
 import { cambiarPassword }             from '../../services/usuario.service'
+import BusquedaGlobal                  from './BusquedaGlobal'
 
 // Cada item del menú tiene una lista de roles que pueden verlo
 const menu = [
@@ -265,8 +266,11 @@ export default function Sidebar() {
         </button>
       </div>
 
+      {/* Búsqueda global */}
+      <BusquedaGlobal />
+
       {/* Navegación */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
         {menuVisible.map(item => {
           const esInventario = item.ruta === '/inventario'
           const hayAlerta    = esInventario && conteo > 0
