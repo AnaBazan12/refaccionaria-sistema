@@ -14,6 +14,10 @@ interface DashboardData {
     ventasGanancia: string
     ventasCount:    number
   }
+  cotizaciones: {
+    pendientes: number
+    aprobadas:  number
+  }
   mes: {
     ingresos:       string
     ingresosMesAnt: string
@@ -127,16 +131,21 @@ function TooltipGrafica({ active, payload, label }: any) {
 
 /* ─── página ─────────────────────────────────────────────────── */
 export default function Dashboard() {
-  const [datos,    setDatos]    = useState<DashboardData | null>(null)
-  const [cargando, setCargando] = useState(true)
-  const [error,    setError]    = useState('')
+  const [datos,       setDatos]       = useState<DashboardData | null>(null)
+  const [cargando,    setCargando]    = useState(true)
+  const [refrescando, setRefrescando] = useState(false)
+  const [error,       setError]       = useState('')
 
-  useEffect(() => {
+  const cargar = (silencioso = false) => {
+    if (!silencioso) setCargando(true)
+    else setRefrescando(true)
     getDashboardData()
-      .then(setDatos)
+      .then(d => { setDatos(d); setError('') })
       .catch(() => setError('No se pudieron cargar los datos'))
-      .finally(() => setCargando(false))
-  }, [])
+      .finally(() => { setCargando(false); setRefrescando(false) })
+  }
+
+  useEffect(() => { cargar() }, [])
 
   const hoy = new Date().toLocaleDateString('es-MX', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
@@ -162,7 +171,7 @@ export default function Dashboard() {
     )
   }
 
-  const { hoy: dHoy, mes, activas, mecanicos, ultimos7, ultimasOrdenes, stockBajo } = datos
+  const { hoy: dHoy, mes, activas, mecanicos, ultimos7, ultimasOrdenes, stockBajo, cotizaciones } = datos
 
   const badgeCrecimiento = mes.crecimiento !== null
     ? { texto: `${Math.abs(Number(mes.crecimiento))}% vs mes ant.`, positivo: Number(mes.crecimiento) >= 0 }
@@ -181,10 +190,22 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
           <p className="text-gray-500 text-sm capitalize">{hoy}</p>
         </div>
-        <span className="text-xs bg-blue-50 text-blue-600 border border-blue-100
-                         rounded-full px-3 py-1 font-medium capitalize">
-          📅 {mesActual}
-        </span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => cargar(true)}
+            disabled={refrescando}
+            title="Actualizar datos"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-500 border border-gray-200
+                       rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+          >
+            <span className={refrescando ? 'animate-spin inline-block' : ''}>🔄</span>
+            {refrescando ? 'Actualizando...' : 'Actualizar'}
+          </button>
+          <span className="text-xs bg-blue-50 text-blue-600 border border-blue-100
+                           rounded-full px-3 py-1 font-medium capitalize">
+            📅 {mesActual}
+          </span>
+        </div>
       </div>
 
       {/* ══════════════════════════════════════════════════════
@@ -229,6 +250,35 @@ export default function Dashboard() {
           />
         </div>
       </div>
+
+      {/* ══════════════════════════════════════════════════════
+          COTIZACIONES
+      ══════════════════════════════════════════════════════ */}
+      {((cotizaciones?.pendientes ?? 0) > 0 || (cotizaciones?.aprobadas ?? 0) > 0) && (
+        <div>
+          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+            📋 Cotizaciones
+          </h2>
+          <div className="grid grid-cols-2 gap-4">
+            <MetricCard
+              icono="📋"
+              titulo="Pendientes de respuesta"
+              valor={cotizaciones?.pendientes ?? 0}
+              subtitulo="Esperando aprobación del cliente"
+              color="yellow"
+              badge={null}
+            />
+            <MetricCard
+              icono="✅"
+              titulo="Aprobadas — listas para OT"
+              valor={cotizaciones?.aprobadas ?? 0}
+              subtitulo="Convertir en orden de trabajo"
+              color="green"
+              badge={null}
+            />
+          </div>
+        </div>
+      )}
 
       {/* ══════════════════════════════════════════════════════
           SECCIÓN VENTAS MOSTRADOR

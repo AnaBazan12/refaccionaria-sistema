@@ -32,6 +32,8 @@ export const getDashboard = async (_req: Request, res: Response) => {
       ventasMes,
       ventasUltimos7,
       comprasMes,
+      cotizacionesPendientes,
+      cotizacionesAprobadas,
     ] = await Promise.all([
 
       // Órdenes del mes actual
@@ -115,6 +117,12 @@ export const getDashboard = async (_req: Request, res: Response) => {
         where: { fecha: { gte: inicioMes, lte: finMes } },
         select: { total: true }
       }),
+
+      // ── Cotizaciones pendientes ──────────────────────────────
+      prisma.cotizacion.count({ where: { estado: 'PENDIENTE' } }),
+
+      // ── Cotizaciones aprobadas (listas para convertir) ───────
+      prisma.cotizacion.count({ where: { estado: 'APROBADA' } }),
     ])
 
     // ── Métricas del mes actual ───────────────────────────────────
@@ -207,6 +215,10 @@ export const getDashboard = async (_req: Request, res: Response) => {
         ventasTotal:     totalVentasHoy.toFixed(2),
         ventasGanancia:  gananciaVentasHoy.toFixed(2),
         ventasCount:     ventasHoy.length,
+      },
+      cotizaciones: {
+        pendientes: cotizacionesPendientes,
+        aprobadas:  cotizacionesAprobadas,
       },
       mes: {
         ingresos:        ingresosMes.toFixed(2),

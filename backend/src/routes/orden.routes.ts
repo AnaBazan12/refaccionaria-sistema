@@ -4,7 +4,8 @@ import {
   obtenerOrdenesPorVehiculo, crearOrden,
   cambiarEstado, marcarPagada,
   agregarServicio, cancelarOrden,
-  archivarOrden, archivarOrdeneViejas   // ← agregar
+  archivarOrden, archivarOrdeneViejas,
+  actualizarOrden
 } from '../controllers/orden.controller'
 import {
   agregarRefaccion, quitarRefaccion, obtenerDetalle,
@@ -25,6 +26,7 @@ router.get('/:id', obtenerOrdenPorId)
 router.post('/', crearOrden)
 router.patch('/:id/estado', cambiarEstado)
 router.patch('/:id/pagar', marcarPagada)
+router.patch('/:id', actualizarOrden)
 router.post('/:id/servicios', agregarServicio)
 router.delete('/:id', cancelarOrden)
 router.patch('/:id/archivar',    archivarOrden)

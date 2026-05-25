@@ -26,7 +26,7 @@ const ESTADO_LABEL: Record<string, string> = {
   ENTREGADO:           'Entregado',
   CANCELADO:           'Cancelado',
 }
-// Qué estado sigue al actual para el mecánico
+// Qué estado avanza el botón principal
 const SIGUIENTE_ESTADO: Record<string, string | null> = {
   RECIBIDO:            'EN_PROCESO',
   EN_PROCESO:          'LISTO',
@@ -36,24 +36,27 @@ const SIGUIENTE_ESTADO: Record<string, string | null> = {
   CANCELADO:           null,
 }
 const BOTON_LABEL: Record<string, string> = {
-  EN_PROCESO: '▶  Iniciar trabajo',
-  LISTO:      '✅  Marcar como listo',
+  EN_PROCESO:          '▶  Iniciar trabajo',
+  LISTO:               '✅  Marcar como listo',
+  EN_ESPERA_REFACCION: '▶  Reanudar trabajo',   // cuando vuelve de espera
 }
 
 // ── Componente principal ───────────────────────────────────────────────────────
 export default function MecanicoApp() {
   const { usuario, logout } = useAuth()
 
-  const [ordenes,   setOrdenes]   = useState<any[]>([])
-  const [servicios, setServicios] = useState<any[]>([])
-  const [cargando,  setCargando]  = useState(true)
-  const [tab,       setTab]       = useState<'activas' | 'completadas'>('activas')
-  const [detalle,   setDetalle]   = useState<any>(null)
-  const [waToast,   setWaToast]   = useState<{ url: string; nombre: string } | null>(null)
+  const [ordenes,    setOrdenes]    = useState<any[]>([])
+  const [servicios,  setServicios]  = useState<any[]>([])
+  const [cargando,   setCargando]   = useState(true)
+  const [refrescando, setRefrescando] = useState(false)
+  const [tab,        setTab]        = useState<'activas' | 'completadas'>('activas')
+  const [detalle,    setDetalle]    = useState<any>(null)
+  const [waToast,    setWaToast]    = useState<{ url: string; nombre: string } | null>(null)
 
-  // ── Carga inicial ────────────────────────────────────────────────────────────
-  const cargar = async () => {
-    setCargando(true)
+  // ── Carga de órdenes ──────────────────────────────────────────────────────────
+  const cargar = async (silencioso = false) => {
+    if (!silencioso) setCargando(true)
+    else setRefrescando(true)
     try {
       const [rRec, rProc, rEsp, rListo, rSvcs] = await Promise.all([
         getOrdenes({ estado: 'RECIBIDO',            limit: 100 }),
@@ -74,21 +77,18 @@ export default function MecanicoApp() {
       console.error(err)
     } finally {
       setCargando(false)
+      setRefrescando(false)
     }
   }
 
   useEffect(() => { cargar() }, [])
 
-  // ── Filtrado por tab ─────────────────────────────────────────────────────────
-  const activas = ordenes.filter(o =>
-    ['RECIBIDO', 'EN_PROCESO', 'EN_ESPERA_REFACCION'].includes(o.estado)
-  )
-  const completadas = ordenes.filter(o =>
-    ['LISTO', 'ENTREGADO'].includes(o.estado)
-  )
-  const lista = tab === 'activas' ? activas : completadas
+  // ── Filtrado por tab ──────────────────────────────────────────────────────────
+  const activas     = ordenes.filter(o => ['RECIBIDO', 'EN_PROCESO', 'EN_ESPERA_REFACCION'].includes(o.estado))
+  const completadas = ordenes.filter(o => ['LISTO', 'ENTREGADO'].includes(o.estado))
+  const lista       = tab === 'activas' ? activas : completadas
 
-  // ── Abrir detalle ────────────────────────────────────────────────────────────
+  // ── Abrir detalle (siempre con datos frescos) ─────────────────────────────────
   const abrirDetalle = async (orden: any) => {
     try {
       const fresca = await getOrdenPorId(orden.id)
@@ -98,7 +98,12 @@ export default function MecanicoApp() {
     }
   }
 
-  // ── Pantalla de carga ────────────────────────────────────────────────────────
+  const mostrarWaToast = (data: { url: string; nombre: string }) => {
+    setWaToast(data)
+    setTimeout(() => setWaToast(null), 20000)
+  }
+
+  // ── Pantalla de carga inicial ─────────────────────────────────────────────────
   if (cargando) return (
     <div className="flex items-center justify-center h-screen bg-gray-50">
       <div className="text-center">
@@ -108,22 +113,17 @@ export default function MecanicoApp() {
     </div>
   )
 
-  const mostrarWaToast = (data: { url: string; nombre: string }) => {
-    setWaToast(data)
-    setTimeout(() => setWaToast(null), 20000)
-  }
-
-  // ── Detalle de orden ─────────────────────────────────────────────────────────
+  // ── Vista de detalle ──────────────────────────────────────────────────────────
   if (detalle) return (
     <>
       <DetalleOrden
         orden={detalle}
         servicios={servicios}
-        onVolver={() => setDetalle(null)}
+        onVolver={() => { setDetalle(null); cargar(true) }}
         onRefresh={async () => {
           const fresca = await getOrdenPorId(detalle.id)
           setDetalle(fresca)
-          await cargar()
+          cargar(true)
         }}
         onWhatsApp={mostrarWaToast}
       />
@@ -137,7 +137,7 @@ export default function MecanicoApp() {
     </>
   )
 
-  // ── Lista de órdenes ─────────────────────────────────────────────────────────
+  // ── Lista de órdenes ──────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col max-w-lg mx-auto">
 
@@ -147,12 +147,22 @@ export default function MecanicoApp() {
           <div className="text-base font-bold">🔧 Taller</div>
           <div className="text-xs text-amber-400 mt-0.5">{usuario?.nombre}</div>
         </div>
-        <button
-          onClick={logout}
-          className="text-gray-400 hover:text-white text-sm transition-colors"
-        >
-          Salir 🚪
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => cargar(true)}
+            disabled={refrescando}
+            className="text-gray-400 hover:text-white text-lg transition-colors disabled:opacity-50"
+            title="Actualizar"
+          >
+            {refrescando ? '⏳' : '🔄'}
+          </button>
+          <button
+            onClick={logout}
+            className="text-gray-400 hover:text-white text-sm transition-colors"
+          >
+            Salir 🚪
+          </button>
+        </div>
       </header>
 
       {/* Tabs */}
@@ -225,6 +235,7 @@ export default function MecanicoApp() {
           ))
         )}
       </div>
+
       {waToast && (
         <WhatsAppToast
           nombre={waToast.nombre}
@@ -238,7 +249,7 @@ export default function MecanicoApp() {
 
 // ── Detalle de una orden ───────────────────────────────────────────────────────
 function DetalleOrden({
-  orden,
+  orden: ordenInicial,
   servicios,
   onVolver,
   onRefresh,
@@ -250,20 +261,34 @@ function DetalleOrden({
   onRefresh:  () => Promise<void>
   onWhatsApp: (data: { url: string; nombre: string }) => void
 }) {
-  const [modalServicio, setModalServicio] = useState(false)
-  const [form,          setForm]          = useState({ servicioId: '', cantidad: 1, notas: '' })
-  const [guardando,     setGuardando]     = useState(false)
-  const [cambiandoEst,  setCambiandoEst]  = useState(false)
-  const [mostrarIA,     setMostrarIA]     = useState(false)
+  const [orden,          setOrden]          = useState(ordenInicial)
+  const [modalServicio,  setModalServicio]  = useState(false)
+  const [modalNota,      setModalNota]      = useState(false)
+  const [form,           setForm]           = useState({ servicioId: '', cantidad: 1, notas: '' })
+  const [notaTexto,      setNotaTexto]      = useState(orden.diagnostico ?? '')
+  const [guardando,      setGuardando]      = useState(false)
+  const [cambiandoEst,   setCambiandoEst]   = useState(false)
+  const [esperando,      setEsperando]      = useState(false)
+  const [mostrarIA,      setMostrarIA]      = useState(false)
+
+  // Refrescar datos locales
+  const refrescar = async () => {
+    try {
+      const fresca = await getOrdenPorId(orden.id)
+      setOrden(fresca)
+    } catch { /* silencioso */ }
+    await onRefresh()
+  }
 
   const siguienteEstado = SIGUIENTE_ESTADO[orden.estado]
 
+  // Avanzar estado principal
   const handleEstado = async () => {
     if (!siguienteEstado) return
     setCambiandoEst(true)
     try {
       const { data } = await api.patch(`/ordenes/${orden.id}/estado`, { estado: siguienteEstado })
-      await onRefresh()
+      await refrescar()
       if (data?.whatsapp?.url && data?.orden?.cliente?.nombre) {
         onWhatsApp({ url: data.whatsapp.url, nombre: data.orden.cliente.nombre })
       }
@@ -274,6 +299,34 @@ function DetalleOrden({
     }
   }
 
+  // Poner en espera de refacción (solo desde EN_PROCESO)
+  const handleEsperar = async () => {
+    setEsperando(true)
+    try {
+      await api.patch(`/ordenes/${orden.id}/estado`, { estado: 'EN_ESPERA_REFACCION' })
+      await refrescar()
+    } catch {
+      alert('Error al cambiar el estado')
+    } finally {
+      setEsperando(false)
+    }
+  }
+
+  // Guardar nota/diagnóstico
+  const handleGuardarNota = async () => {
+    setGuardando(true)
+    try {
+      await api.patch(`/ordenes/${orden.id}`, { diagnostico: notaTexto })
+      await refrescar()
+      setModalNota(false)
+    } catch {
+      alert('Error al guardar la nota')
+    } finally {
+      setGuardando(false)
+    }
+  }
+
+  // Agregar servicio
   const handleServicio = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.servicioId) return
@@ -288,7 +341,7 @@ function DetalleOrden({
       })
       setModalServicio(false)
       setForm({ servicioId: '', cantidad: 1, notas: '' })
-      await onRefresh()
+      await refrescar()
     } catch {
       alert('Error al agregar el servicio')
     } finally {
@@ -296,12 +349,14 @@ function DetalleOrden({
     }
   }
 
-  const totalServicios = (orden.servicios ?? []).reduce(
-    (s: number, x: any) => s + Number(x.precioUnitario ?? 0) * Number(x.cantidad ?? 1), 0
-  )
-  const totalRefacciones = (orden.detalle ?? []).reduce(
-    (s: number, x: any) => s + Number(x.precioUnitario ?? 0) * Number(x.cantidad ?? 1), 0
-  )
+  // Totales: usar campos del servidor cuando existen, calcular localmente como respaldo
+  const totalManoObra    = Number(orden.totalManoObra)    ||
+    (orden.servicios ?? []).reduce((s: number, x: any) => s + Number(x.precioUnitario ?? 0) * Number(x.cantidad ?? 1), 0)
+  const totalRefacciones = Number(orden.totalRefacciones) ||
+    (orden.detalle ?? []).reduce((s: number, x: any) => s + Number(x.subtotal ?? (x.precioUnitario * x.cantidad) ?? 0), 0)
+  const totalGeneral     = Number(orden.total) || (totalManoObra + totalRefacciones)
+
+  const puedeEditar = !['LISTO', 'ENTREGADO', 'CANCELADO'].includes(orden.estado)
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col max-w-lg mx-auto">
@@ -320,6 +375,13 @@ function DetalleOrden({
           </div>
           <div className="text-xs text-gray-400 truncate">{orden.cliente?.nombre}</div>
         </div>
+        <button
+          onClick={refrescar}
+          className="text-gray-400 hover:text-white text-lg transition-colors mr-1"
+          title="Actualizar"
+        >
+          🔄
+        </button>
         <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full shrink-0 ${ESTADO_COLOR[orden.estado]}`}>
           {ESTADO_LABEL[orden.estado]}
         </span>
@@ -332,17 +394,40 @@ function DetalleOrden({
         <section className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Vehículo</p>
           <div className="space-y-1.5 text-sm">
-            <Row label="Auto"    value={`${orden.vehiculo?.marca ?? ''} ${orden.vehiculo?.modelo ?? ''} ${orden.vehiculo?.anio ?? ''}`} />
+            <Row label="Auto"    value={`${orden.vehiculo?.marca ?? ''} ${orden.vehiculo?.modelo ?? ''} ${orden.vehiculo?.anio ?? ''}`.trim()} />
             <Row label="Placas"  value={orden.vehiculo?.placa ?? '—'} />
             <Row label="Cliente" value={orden.cliente?.nombre ?? '—'} />
-            {orden.mecanico?.nombre && <Row label="Mecánico" value={orden.mecanico.nombre} />}
-            {orden.kilometraje && <Row label="Kilometraje" value={`${orden.kilometraje.toLocaleString('es-MX')} km`} />}
+            {orden.mecanico?.nombre  && <Row label="Mecánico"    value={orden.mecanico.nombre} />}
+            {orden.kilometraje       && <Row label="Kilometraje" value={`${orden.kilometraje.toLocaleString('es-MX')} km`} />}
           </div>
-          {orden.diagnostico && (
-            <div className="mt-3 bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-800">
-              <span className="font-semibold">Falla: </span>{orden.diagnostico}
-            </div>
-          )}
+
+          {/* Diagnóstico / falla */}
+          <div className="mt-3">
+            {orden.diagnostico ? (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-800 flex items-start gap-2">
+                <div className="flex-1">
+                  <span className="font-semibold">Falla: </span>{orden.diagnostico}
+                </div>
+                {puedeEditar && (
+                  <button
+                    onClick={() => { setNotaTexto(orden.diagnostico); setModalNota(true) }}
+                    className="text-amber-600 hover:text-amber-800 text-xs font-medium shrink-0"
+                  >
+                    ✏️
+                  </button>
+                )}
+              </div>
+            ) : puedeEditar ? (
+              <button
+                onClick={() => { setNotaTexto(''); setModalNota(true) }}
+                className="w-full border border-dashed border-gray-300 rounded-lg py-2.5 text-sm text-gray-400
+                           hover:border-amber-300 hover:text-amber-600 transition-colors text-center"
+              >
+                + Agregar nota / diagnóstico
+              </button>
+            ) : null}
+          </div>
+
           {orden.observaciones && (
             <div className="mt-2 bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm text-gray-600">
               <span className="font-semibold">Observaciones: </span>{orden.observaciones}
@@ -354,7 +439,7 @@ function DetalleOrden({
         <section className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Servicios</p>
-            {orden.estado !== 'LISTO' && orden.estado !== 'ENTREGADO' && orden.estado !== 'CANCELADO' && (
+            {puedeEditar && (
               <button
                 onClick={() => setModalServicio(true)}
                 className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold
@@ -384,17 +469,27 @@ function DetalleOrden({
                 </div>
               ))}
               <div className="flex justify-between text-sm font-semibold text-gray-700 pt-2 border-t border-gray-100">
-                <span>Subtotal servicios</span>
-                <span>${totalServicios.toLocaleString('es-MX')}</span>
+                <span>Subtotal mano de obra</span>
+                <span>${totalManoObra.toLocaleString('es-MX')}</span>
               </div>
             </div>
           )}
         </section>
 
-        {/* Refacciones (solo lectura) */}
-        {orden.detalle && orden.detalle.length > 0 && (
-          <section className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Refacciones</p>
+        {/* Refacciones */}
+        <section className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Refacciones</p>
+            {orden.estado === 'EN_ESPERA_REFACCION' && (
+              <span className="text-xs text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full font-medium">
+                ⏳ Pendiente
+              </span>
+            )}
+          </div>
+
+          {(!orden.detalle || orden.detalle.length === 0) ? (
+            <p className="text-sm text-gray-400 text-center py-4">Sin refacciones asignadas</p>
+          ) : (
             <div className="space-y-2">
               {orden.detalle.map((r: any, i: number) => (
                 <div key={i} className="flex items-start justify-between bg-gray-50 rounded-lg px-3 py-2.5">
@@ -402,10 +497,13 @@ function DetalleOrden({
                     <div className="text-sm font-medium text-gray-800 truncate">
                       {r.refaccion?.nombre ?? '—'}
                     </div>
+                    {r.refaccion?.codigo && (
+                      <div className="text-xs text-gray-400">{r.refaccion.codigo}</div>
+                    )}
                     <div className="text-xs text-gray-400">× {r.cantidad}</div>
                   </div>
                   <div className="text-sm font-semibold text-gray-700 ml-3 shrink-0">
-                    ${Number(r.precioUnitario * r.cantidad).toLocaleString('es-MX')}
+                    ${Number(r.subtotal ?? r.precioUnitario * r.cantidad).toLocaleString('es-MX')}
                   </div>
                 </div>
               ))}
@@ -414,45 +512,74 @@ function DetalleOrden({
                 <span>${totalRefacciones.toLocaleString('es-MX')}</span>
               </div>
             </div>
-          </section>
-        )}
+          )}
+        </section>
 
         {/* Total general */}
-        {(totalServicios + totalRefacciones) > 0 && (
-          <div className="bg-gray-900 text-white rounded-xl px-5 py-4 flex justify-between items-center">
-            <span className="font-semibold">Total estimado</span>
-            <span className="text-xl font-bold">
-              ${(totalServicios + totalRefacciones).toLocaleString('es-MX')}
-            </span>
+        {totalGeneral > 0 && (
+          <div className="bg-gray-900 text-white rounded-xl px-5 py-4">
+            <div className="flex justify-between items-center">
+              <span className="font-semibold">Total</span>
+              <span className="text-xl font-bold">${totalGeneral.toLocaleString('es-MX')}</span>
+            </div>
+            {Number(orden.totalPagado) > 0 && (
+              <div className="flex justify-between items-center mt-1.5 text-sm text-gray-300">
+                <span>Saldo pendiente</span>
+                <span className="font-semibold text-yellow-300">
+                  ${Number(orden.saldoPendiente ?? 0).toLocaleString('es-MX')}
+                </span>
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      {/* Barra de acciones fija abajo */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 max-w-lg mx-auto flex gap-3">
-        {/* Botón asistente IA */}
-        <button
-          onClick={() => setMostrarIA(true)}
-          className="flex items-center gap-2 px-4 py-3 rounded-xl border border-purple-200 bg-purple-50
-                     text-purple-700 text-sm font-semibold hover:bg-purple-100 transition-colors shrink-0"
-        >
-          🤖 Asistente
-        </button>
+      {/* ── Barra de acciones fija ── */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 max-w-lg mx-auto">
 
-        {/* Botón cambio de estado */}
+        {/* Fila superior: IA + Esperando pieza (solo en EN_PROCESO) */}
+        <div className="flex gap-2 mb-2">
+          <button
+            onClick={() => setMostrarIA(true)}
+            className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-purple-200 bg-purple-50
+                       text-purple-700 text-xs font-semibold hover:bg-purple-100 transition-colors"
+          >
+            🤖 Asistente
+          </button>
+
+          {orden.estado === 'EN_PROCESO' && (
+            <button
+              onClick={handleEsperar}
+              disabled={esperando}
+              className="flex-1 py-2.5 rounded-xl border border-orange-300 bg-orange-50 text-orange-700
+                         text-xs font-semibold hover:bg-orange-100 transition-colors disabled:opacity-50"
+            >
+              {esperando ? 'Actualizando...' : '⏳ Esperando refacción'}
+            </button>
+          )}
+        </div>
+
+        {/* Botón principal de estado */}
         {siguienteEstado ? (
           <button
             disabled={cambiandoEst}
             onClick={handleEstado}
-            className={`flex-1 py-3 rounded-xl text-white font-bold text-sm transition-colors
+            className={`w-full py-3.5 rounded-xl text-white font-bold text-sm transition-colors
                         disabled:opacity-60 ${
-              siguienteEstado === 'LISTO' ? 'bg-green-600 active:bg-green-700' : 'bg-blue-600 active:bg-blue-700'
+              siguienteEstado === 'LISTO'
+                ? 'bg-green-600 active:bg-green-700'
+                : siguienteEstado === 'EN_PROCESO' && orden.estado === 'EN_ESPERA_REFACCION'
+                  ? 'bg-blue-600 active:bg-blue-700'
+                  : 'bg-blue-600 active:bg-blue-700'
             }`}
           >
-            {cambiandoEst ? 'Actualizando...' : BOTON_LABEL[siguienteEstado]}
+            {cambiandoEst
+              ? 'Actualizando...'
+              : BOTON_LABEL[siguienteEstado] ?? `Cambiar a ${ESTADO_LABEL[siguienteEstado]}`
+            }
           </button>
         ) : (
-          <div className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-400 text-sm font-medium text-center">
+          <div className="w-full py-3.5 rounded-xl bg-gray-100 text-gray-400 text-sm font-medium text-center">
             {ESTADO_LABEL[orden.estado]}
           </div>
         )}
@@ -460,10 +587,7 @@ function DetalleOrden({
 
       {/* Panel — Asistente IA */}
       {mostrarIA && (
-        <AsistenteIA
-          orden={orden}
-          onCerrar={() => setMostrarIA(false)}
-        />
+        <AsistenteIA orden={orden} onCerrar={() => setMostrarIA(false)} />
       )}
 
       {/* Modal — Agregar servicio */}
@@ -536,18 +660,54 @@ function DetalleOrden({
           </div>
         </div>
       )}
+
+      {/* Modal — Nota / diagnóstico */}
+      {modalNota && (
+        <div className="fixed inset-0 bg-black/60 flex items-end z-50">
+          <div className="bg-white rounded-t-2xl w-full max-w-lg mx-auto p-6 space-y-4 pb-8">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-lg">Diagnóstico / falla</h3>
+              <button onClick={() => setModalNota(false)} className="text-gray-400 text-2xl leading-none">×</button>
+            </div>
+            <textarea
+              value={notaTexto}
+              onChange={e => setNotaTexto(e.target.value)}
+              placeholder="Describe la falla, síntomas o diagnóstico del vehículo..."
+              rows={4}
+              className="w-full border border-gray-300 rounded-xl p-3.5 text-sm resize-none
+                         focus:outline-none focus:ring-2 focus:ring-amber-400"
+            />
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setModalNota(false)}
+                className="flex-1 border border-gray-300 py-3.5 rounded-xl text-sm font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleGuardarNota}
+                disabled={guardando}
+                className="flex-1 bg-amber-500 text-white py-3.5 rounded-xl text-sm font-bold
+                           disabled:opacity-50 active:bg-amber-600 transition-colors"
+              >
+                {guardando ? 'Guardando...' : 'Guardar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
 // ── Asistente de diagnóstico IA ────────────────────────────────────────────────
 function AsistenteIA({ orden, onCerrar }: { orden: any; onCerrar: () => void }) {
-  const [pregunta,   setPregunta]   = useState('')
-  const [mensajes,   setMensajes]   = useState<{ rol: 'user' | 'ia'; texto: string }[]>([])
-  const [cargando,   setCargando]   = useState(false)
+  const [pregunta, setPregunta] = useState('')
+  const [mensajes, setMensajes] = useState<{ rol: 'user' | 'ia'; texto: string }[]>([])
+  const [cargando, setCargando] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  // Mensaje de bienvenida con contexto precargado
   const contextoPrevio = [
     orden.vehiculo?.marca && `${orden.vehiculo.marca} ${orden.vehiculo.modelo ?? ''} ${orden.vehiculo.anio ?? ''}`.trim(),
     orden.diagnostico && `Falla: "${orden.diagnostico}"`,
@@ -571,8 +731,9 @@ function AsistenteIA({ orden, onCerrar }: { orden: any; onCerrar: () => void }) 
         pregunta:    texto,
       })
       setMensajes(prev => [...prev, { rol: 'ia', texto: data.respuesta }])
-    } catch {
-      setMensajes(prev => [...prev, { rol: 'ia', texto: 'Error al consultar el asistente. Verifica tu conexión.' }])
+    } catch (err: any) {
+      const msg = err?.response?.data?.mensaje ?? 'Error al consultar el asistente. Verifica tu conexión.'
+      setMensajes(prev => [...prev, { rol: 'ia', texto: `⚠️ ${msg}` }])
     } finally {
       setCargando(false)
     }
@@ -584,10 +745,11 @@ function AsistenteIA({ orden, onCerrar }: { orden: any; onCerrar: () => void }) 
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-end z-50">
-      <div className="bg-white rounded-t-2xl w-full max-w-lg mx-auto flex flex-col"
-           style={{ maxHeight: '85vh' }}>
-
-        {/* Header del panel */}
+      <div
+        className="bg-white rounded-t-2xl w-full max-w-lg mx-auto flex flex-col"
+        style={{ maxHeight: '85vh' }}
+      >
+        {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b">
           <div>
             <div className="font-bold text-gray-800">🤖 Asistente de diagnóstico</div>
@@ -614,7 +776,6 @@ function AsistenteIA({ orden, onCerrar }: { orden: any; onCerrar: () => void }) 
               )}
             </div>
           )}
-
           {mensajes.map((m, i) => (
             <div key={i} className={`flex ${m.rol === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap ${
@@ -626,7 +787,6 @@ function AsistenteIA({ orden, onCerrar }: { orden: any; onCerrar: () => void }) 
               </div>
             </div>
           ))}
-
           {cargando && (
             <div className="flex justify-start">
               <div className="bg-gray-100 rounded-2xl rounded-bl-sm px-4 py-3 text-sm text-gray-500">

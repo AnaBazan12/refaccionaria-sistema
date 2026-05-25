@@ -277,7 +277,8 @@ export default function Reportes() {
             </select>
             <select value={anio} onChange={e => setAnio(Number(e.target.value))}
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">
-              {[2025, 2026, 2027].map(a => <option key={a} value={a}>{a}</option>)}
+              {Array.from({ length: 4 }, (_, i) => new Date().getFullYear() - 1 + i)
+                .map(a => <option key={a} value={a}>{a}</option>)}
             </select>
           </div>
         )}

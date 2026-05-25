@@ -408,6 +408,32 @@ export const archivarOrdeneViejas = async (req: Request, res: Response) => {
     return res.status(500).json({ mensaje: 'Error del servidor', error })
   }
 }
+// ── Actualizar campos editables de la orden (mecánico / recepcionista) ────────
+export const actualizarOrden = async (req: RequestConUsuario, res: Response) => {
+  try {
+    const { diagnostico, observaciones, kilometraje, mecanicoId } = req.body
+
+    const actualizable: any = {}
+    if (diagnostico   !== undefined) actualizable.diagnostico   = diagnostico   ?? null
+    if (observaciones !== undefined) actualizable.observaciones = observaciones ?? null
+    if (kilometraje   !== undefined) actualizable.kilometraje   = kilometraje   ? Number(kilometraje) : null
+    if (mecanicoId    !== undefined) actualizable.mecanicoId    = mecanicoId    ?? null
+    if (req.usuario?.id)             actualizable.modificadoPorId = req.usuario.id
+
+    if (Object.keys(actualizable).length === 0) {
+      return res.status(400).json({ mensaje: 'No hay campos para actualizar' })
+    }
+
+    const orden = await prisma.ordenTrabajo.update({
+      where: { id: req.params.id as string },
+      data:  actualizable,
+    })
+    return res.json({ mensaje: 'Orden actualizada', orden })
+  } catch (error) {
+    return res.status(500).json({ mensaje: 'Error del servidor', error })
+  }
+}
+
 export const obtenerBitacora = async (req: Request, res: Response) => {
   try {
     const bitacora = await prisma.bitacoraOrden.findMany({

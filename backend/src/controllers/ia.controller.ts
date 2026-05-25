@@ -44,7 +44,7 @@ Sé breve pero completo. Usa listas numeradas o con guiones. Sin markdown comple
     const client = new Anthropic({ apiKey })
 
     const message = await client.messages.create({
-      model:      'claude-haiku-4-5-20251001',
+      model:      'claude-haiku-4-5',
       max_tokens: 700,
       system:     sistemaPrompt,
       messages:   [{ role: 'user', content: mensajeUsuario }],
