@@ -3,6 +3,7 @@ import { NavLink, useNavigate }        from 'react-router-dom'
 import { useAuth }                     from '../../context/AuthContext'
 import { useStockBajo }                from '../../context/StockBajoContext'
 import LogoRefaccionaria               from './LogoRefaccionaria'
+import { cambiarPassword }             from '../../services/usuario.service'
 
 // Cada item del menú tiene una lista de roles que pueden verlo
 const menu = [
@@ -118,11 +119,92 @@ function PanelStockBajo({ onCerrar }: { onCerrar: () => void }) {
   )
 }
 
+/* ── Modal cambiar contraseña ─────────────────────────────────── */
+function ModalCambiarPassword({ onCerrar }: { onCerrar: () => void }) {
+  const [actual,    setActual]    = useState('')
+  const [nueva,     setNueva]     = useState('')
+  const [confirmar, setConfirmar] = useState('')
+  const [error,     setError]     = useState('')
+  const [exito,     setExito]     = useState(false)
+  const [guardando, setGuardando] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    if (nueva.length < 6) { setError('La nueva contraseña debe tener al menos 6 caracteres'); return }
+    if (nueva !== confirmar) { setError('Las contraseñas no coinciden'); return }
+    setGuardando(true)
+    try {
+      await cambiarPassword(actual, nueva)
+      setExito(true)
+      setTimeout(onCerrar, 1500)
+    } catch (err: any) {
+      setError(err.response?.data?.mensaje || 'Error al cambiar contraseña')
+    } finally { setGuardando(false) }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl w-full max-w-sm shadow-xl">
+        <div className="flex items-center justify-between p-5 border-b">
+          <h2 className="text-base font-bold text-gray-800">Cambiar contraseña</h2>
+          <button onClick={onCerrar} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
+        </div>
+        {exito ? (
+          <div className="p-6 text-center">
+            <div className="text-4xl mb-2">✅</div>
+            <p className="text-green-700 font-medium">Contraseña actualizada</p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="p-5 space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña actual</label>
+              <input type="password" value={actual} onChange={e => setActual(e.target.value)}
+                required placeholder="••••••••"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm
+                           focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Nueva contraseña</label>
+              <input type="password" value={nueva} onChange={e => setNueva(e.target.value)}
+                required placeholder="Mínimo 6 caracteres"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm
+                           focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña</label>
+              <input type="password" value={confirmar} onChange={e => setConfirmar(e.target.value)}
+                required placeholder="Repite la contraseña"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm
+                           focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-3 py-2">
+                {error}
+              </div>
+            )}
+            <div className="flex justify-end gap-3 pt-1">
+              <button type="button" onClick={onCerrar}
+                className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800">Cancelar</button>
+              <button type="submit" disabled={guardando}
+                className="px-5 py-2 bg-blue-600 text-white text-sm font-medium
+                           rounded-lg hover:bg-blue-700 disabled:bg-blue-400">
+                {guardando ? 'Guardando...' : 'Cambiar'}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  )
+}
+
 /* ── Sidebar principal ────────────────────────────────────────── */
 export default function Sidebar() {
   const { usuario, logout }    = useAuth()
   const { conteo }             = useStockBajo()
   const [panelAbierto, setPanelAbierto] = useState(false)
+  const [modalPassword, setModalPassword] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
 
   // Cerrar panel al hacer clic fuera
@@ -142,6 +224,7 @@ export default function Sidebar() {
   )
 
   return (
+    <>
     <aside className="w-64 min-h-screen bg-gray-900 text-white flex flex-col">
 
       {/* Logo */}
@@ -168,11 +251,18 @@ export default function Sidebar() {
       </div>
 
       {/* Usuario actual */}
-      <div className="px-6 py-4 border-b border-gray-700">
+      <div className="px-4 py-3 border-b border-gray-700">
         <div className="text-sm font-medium">{usuario?.nombre}</div>
         <div className={`text-xs font-medium mt-0.5 ${colorRol[usuario?.rol ?? '']}`}>
           {usuario?.rol}
         </div>
+        <button
+          onClick={() => setModalPassword(true)}
+          className="mt-2 text-xs text-gray-400 hover:text-gray-200 transition-colors
+                     flex items-center gap-1"
+        >
+          🔑 Cambiar contraseña
+        </button>
       </div>
 
       {/* Navegación */}
@@ -236,5 +326,9 @@ export default function Sidebar() {
         </button>
       </div>
     </aside>
+
+    {/* Modal cambiar contraseña */}
+    {modalPassword && <ModalCambiarPassword onCerrar={() => setModalPassword(false)} />}
+  </>
   )
 }

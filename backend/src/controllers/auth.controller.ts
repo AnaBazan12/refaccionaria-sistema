@@ -90,6 +90,42 @@ export const obtenerUsuarios = async (_req: Request, res: Response) => {
   }
 }
 
+export const editarUsuario = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string
+    const { nombre, email, rol, nuevaPassword } = req.body
+
+    // Validar que el usuario existe
+    const existe = await prisma.usuario.findUnique({ where: { id } })
+    if (!existe) return res.status(404).json({ mensaje: 'Usuario no encontrado' })
+
+    // Si cambia email, verificar que no esté en uso por otro
+    if (email && email !== existe.email) {
+      const ocupado = await prisma.usuario.findUnique({ where: { email } })
+      if (ocupado) return res.status(400).json({ mensaje: 'Ese email ya está en uso' })
+    }
+
+    const data: Record<string, any> = {}
+    if (nombre)        data.nombre = nombre
+    if (email)         data.email  = email
+    if (rol)           data.rol    = rol
+    if (nuevaPassword) {
+      if (nuevaPassword.length < 6)
+        return res.status(400).json({ mensaje: 'La contraseña debe tener al menos 6 caracteres' })
+      data.password = await bcrypt.hash(nuevaPassword, 10)
+    }
+
+    const usuario = await prisma.usuario.update({
+      where: { id },
+      data,
+      select: { id: true, nombre: true, email: true, rol: true, activo: true }
+    })
+    return res.json({ mensaje: 'Usuario actualizado', usuario })
+  } catch (error) {
+    return res.status(500).json({ mensaje: 'Error del servidor', error })
+  }
+}
+
 export const toggleActivo = async (req: Request, res: Response) => {
   try {
     const usuario = await prisma.usuario.update({
