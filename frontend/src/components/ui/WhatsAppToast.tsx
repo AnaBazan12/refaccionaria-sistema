@@ -6,7 +6,7 @@ interface Props {
 
 export default function WhatsAppToast({ nombre, url, onCerrar }: Props) {
   return (
-    <div className="fixed bottom-6 right-6 z-[100] animate-in slide-in-from-bottom-4 duration-300">
+    <div className="fixed bottom-6 right-6 z-[100] animate-slide-up">
       <div className="bg-white border border-green-200 rounded-2xl shadow-2xl shadow-green-100 p-5 w-80">
         {/* Icono + encabezado */}
         <div className="flex items-start gap-3 mb-4">
