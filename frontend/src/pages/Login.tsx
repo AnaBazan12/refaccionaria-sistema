@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { loginService } from '../services/auth.service'
 import api from '../services/api'
@@ -196,8 +196,18 @@ export default function Login() {
   const [fCargando, setFCargando] = useState(false)
 
   const { login } = useAuth()
-  const navigate  = useNavigate()
-  const fortaleza = pwdFortaleza(rPass)
+  const navigate       = useNavigate()
+  const [searchParams] = useSearchParams()
+  const esDemo         = searchParams.get('demo') === '1'
+  const fortaleza      = pwdFortaleza(rPass)
+
+  // Pre-llenar credenciales demo si viene desde la landing
+  useEffect(() => {
+    if (esDemo) {
+      setLEmail('demo@tallerpro.mx')
+      setLPass('Demo1234')
+    }
+  }, [esDemo])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -300,6 +310,22 @@ export default function Login() {
       </button>
 
       <div className="w-full max-w-md animate-slide-up">
+
+        {/* ── Banner demo ────────────────────────────────────── */}
+        {esDemo && (
+          <div className="mb-4 rounded-2xl px-5 py-3 text-sm flex items-center gap-3"
+               style={{
+                 background: dark ? 'rgba(59,130,246,0.15)' : '#eff6ff',
+                 border: `1px solid ${dark ? 'rgba(59,130,246,0.35)' : '#bfdbfe'}`,
+                 color: dark ? '#93c5fd' : '#1d4ed8',
+               }}>
+            <span className="text-xl">🖥️</span>
+            <div>
+              <p className="font-bold">Modo demo — ya llenamos los datos</p>
+              <p className="opacity-70 text-xs mt-0.5">Presiona <strong>Entrar</strong> para explorar el sistema completo</p>
+            </div>
+          </div>
+        )}
 
         {/* ── Pantalla éxito ─────────────────────────────────── */}
         {pantalla === 'exito' && (

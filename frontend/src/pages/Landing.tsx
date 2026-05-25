@@ -2,11 +2,70 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 /* ─── número de WhatsApp para contacto (configurable) ────────── */
-const WA_NUMERO  = '524771234567'           // ← cambia por tu número
+const WA_NUMERO  = '4436123733'          
 const WA_MENSAJE = encodeURIComponent(
   '¡Hola! Me interesa el sistema de taller. ¿Me puedes dar más información?'
 )
 const WA_URL = `https://wa.me/${WA_NUMERO}?text=${WA_MENSAJE}`
+
+/* ─── credenciales del demo público ─────────────────────────── */
+const DEMO_EMAIL = 'demo@tallerpro.mx'
+const DEMO_PASS  = 'Demo1234'
+
+/* ─── planes de precio ───────────────────────────────────────── */
+const PLANES = [
+  {
+    nombre:   'Mensual',
+    precio:   '$ 799',
+    periodo:  '/ mes',
+    ahorro:   null,
+    color:    'border-gray-200',
+    badge:    null,
+    incluye: [
+      'Todos los módulos incluidos',
+      'Usuarios ilimitados',
+      'Soporte por WhatsApp',
+      'Actualizaciones incluidas',
+      'Configuración en 1 día',
+    ],
+    cta: 'Empezar ahora',
+    ctaStyle: 'bg-blue-600 hover:bg-blue-700 text-white',
+  },
+  {
+    nombre:   'Anual',
+    precio:   '$ 649',
+    periodo:  '/ mes',
+    ahorro:   'Ahorras $1,800 al año',
+    color:    'border-blue-500 ring-2 ring-blue-500',
+    badge:    'MÁS POPULAR',
+    incluye: [
+      'Todo lo del plan Mensual',
+      'Capacitación de 1 hora incluida',
+      'Soporte prioritario',
+      'Copia de seguridad diaria',
+      'Dominio personalizado gratis',
+    ],
+    cta: 'Elegir plan anual',
+    ctaStyle: 'bg-blue-600 hover:bg-blue-700 text-white',
+  },
+  {
+    nombre:   'Para siempre',
+    precio:   '$ 9,500',
+    periodo:  'pago único',
+    ahorro:   '+ $299/mes soporte',
+    color:    'border-gray-200',
+    badge:    null,
+    incluye: [
+      'Licencia vitalicia',
+      'Instalación y configuración',
+      'Capacitación presencial',
+      'Código fuente incluido',
+      'Personalización de logo/colores',
+    ],
+    cta: 'Cotizar instalación',
+    ctaStyle: 'bg-gray-900 hover:bg-gray-700 text-white',
+  },
+]
 
 /* ─── datos de features ──────────────────────────────────────── */
 const FEATURES = [
@@ -122,6 +181,7 @@ export default function Landing() {
             <a href="#funciones"  className="hover:text-blue-600 transition-colors">Funciones</a>
             <a href="#como"       className="hover:text-blue-600 transition-colors">Cómo funciona</a>
             <a href="#modulos"    className="hover:text-blue-600 transition-colors">Módulos</a>
+            <a href="#precios"    className="hover:text-blue-600 transition-colors">Precios</a>
             <a href="#contacto"   className="hover:text-blue-600 transition-colors">Contacto</a>
           </div>
           <div className="flex items-center gap-3">
@@ -144,12 +204,12 @@ export default function Landing() {
       </nav>
 
       {/* ── Hero ────────────────────────────────────────────── */}
-      <section className="pt-28 pb-24 bg-gradient-to-br from-gray-950 via-blue-950 to-gray-900 relative overflow-hidden">
+      <section className="pt-28 pb-24 bg-linear-to-br from-gray-950 via-blue-950 to-gray-900 relative overflow-hidden">
         {/* Decoración de fondo */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -right-40 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl" />
           <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-blue-800/20 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-px bg-linear-to-r from-transparent via-blue-500/20 to-transparent" />
         </div>
 
         <div className="max-w-5xl mx-auto px-6 text-center relative">
@@ -161,7 +221,7 @@ export default function Landing() {
 
           <h1 className="text-5xl md:text-6xl font-black text-white leading-tight mb-6">
             Tu taller, más organizado{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
+            <span className="text-transparent bg-clip-text bg-linear -to-r from-blue-400 to-cyan-400">
               desde el día uno
             </span>
           </h1>
@@ -184,11 +244,19 @@ export default function Landing() {
               Quiero mi taller digital
             </a>
             <button
-              onClick={() => navigate('/login')}
-              className="flex items-center gap-2 text-white/70 hover:text-white font-medium px-6 py-4 rounded-2xl border border-white/10 hover:border-white/30 transition-all text-lg"
+              onClick={() => navigate('/login?demo=1')}
+              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-bold px-7 py-4 rounded-2xl border border-white/20 hover:border-white/40 transition-all text-lg"
             >
-              Ver demo en vivo →
+              🖥️ Probar demo gratis →
             </button>
+          </div>
+
+          {/* Credenciales demo visibles */}
+          <div className="mt-6 inline-flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-sm text-gray-300">
+            <span className="text-gray-400">Demo:</span>
+            <code className="text-blue-300 font-mono">{DEMO_EMAIL}</code>
+            <span className="text-gray-600">|</span>
+            <code className="text-blue-300 font-mono">{DEMO_PASS}</code>
           </div>
 
           {/* Números */}
@@ -249,7 +317,7 @@ export default function Landing() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
             {/* Línea conectora */}
-            <div className="hidden md:block absolute top-10 left-1/6 right-1/6 h-px bg-gradient-to-r from-blue-200 via-blue-400 to-blue-200" />
+            <div className="hidden md:block absolute top-10 left-1/6 right-1/6 h-px bg-linear-to-r from-blue-200 via-blue-400 to-blue-200" />
 
             {PASOS.map((p, i) => (
               <div key={i} className="text-center relative">
@@ -279,7 +347,7 @@ export default function Landing() {
             href={WA_URL}
             target="_blank"
             rel="noreferrer"
-            className="flex-shrink-0 bg-white text-blue-600 hover:bg-blue-50 font-bold px-8 py-4 rounded-2xl transition-colors shadow-lg text-sm whitespace-nowrap"
+            className="shrink-0 bg-white text-blue-600 hover:bg-blue-50 font-bold px-8 py-4 rounded-2xl transition-colors shadow-lg text-sm whitespace-nowrap"
           >
             📱 Hablar por WhatsApp
           </a>
@@ -314,8 +382,8 @@ export default function Landing() {
       {/* ── Bloque de confianza ──────────────────────────────── */}
       <section className="py-20 bg-white">
         <div className="max-w-4xl mx-auto px-6">
-          <div className="bg-gradient-to-br from-gray-900 to-blue-950 rounded-3xl p-10 text-center text-white relative overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-600/20 to-transparent pointer-events-none" />
+          <div className="bg-linear-to-br from-gray-900 to-blue-950 rounded-3xl p-10 text-center text-white relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-blue-600/20 to-transparent pointer-events-none" />
             <div className="relative">
               <div className="text-5xl mb-6">🔧</div>
               <h3 className="text-3xl font-black mb-4">
@@ -346,6 +414,69 @@ export default function Landing() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ── Precios ──────────────────────────────────────────── */}
+      <section id="precios" className="py-24 bg-white">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-14">
+            <span className="text-blue-600 text-sm font-bold uppercase tracking-wider">Precios</span>
+            <h2 className="text-4xl font-black text-gray-900 mt-2 mb-4">
+              Sin letra chica. Sin sorpresas.
+            </h2>
+            <p className="text-gray-500 text-lg max-w-lg mx-auto">
+              Elige el plan que mejor se adapta a tu taller. Puedes cambiar cuando quieras.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+            {PLANES.map((plan, i) => (
+              <div
+                key={i}
+                className={`relative bg-white rounded-3xl border-2 p-8 ${plan.color} transition-all hover:-translate-y-1 hover:shadow-xl`}
+              >
+                {plan.badge && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-black px-4 py-1.5 rounded-full tracking-wider">
+                    {plan.badge}
+                  </div>
+                )}
+
+                <div className="mb-6">
+                  <p className="text-gray-500 text-sm font-semibold mb-2">{plan.nombre}</p>
+                  <div className="flex items-end gap-1">
+                    <span className="text-4xl font-black text-gray-900">{plan.precio}</span>
+                    <span className="text-gray-400 text-sm mb-1">{plan.periodo}</span>
+                  </div>
+                  {plan.ahorro && (
+                    <p className="text-green-600 text-sm font-semibold mt-1">{plan.ahorro}</p>
+                  )}
+                </div>
+
+                <ul className="space-y-3 mb-8">
+                  {plan.incluye.map((item, j) => (
+                    <li key={j} className="flex items-start gap-2 text-sm text-gray-600">
+                      <span className="text-green-500 font-bold mt-0.5">✓</span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+
+                <a
+                  href={WA_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={`block text-center font-bold py-3 rounded-xl transition-all ${plan.ctaStyle}`}
+                >
+                  {plan.cta}
+                </a>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-center text-gray-400 text-sm mt-8">
+            ¿No sabes cuál elegir? <a href={WA_URL} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline font-medium">Escríbenos y te asesoramos sin compromiso</a>
+          </p>
         </div>
       </section>
 
