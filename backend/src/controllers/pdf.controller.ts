@@ -7,13 +7,19 @@ import fs                    from 'fs'
 // Ruta al logo del negocio
 const LOGO_PATH = path.join(__dirname, '../assets/LogoRefaccionaria.png')
 
-// ── Datos del negocio desde variables de entorno ─────────────
-const NEGOCIO = {
-  nombre:    process.env.NEGOCIO_NOMBRE    ?? 'REFACCIONARIA & TALLER',
-  subtitulo: process.env.NEGOCIO_SUBTITULO ?? 'Servicio mecánico profesional',
-  telefono:  process.env.NEGOCIO_TELEFONO  ?? '',
-  direccion: process.env.NEGOCIO_DIRECCION ?? '',
-  ciudad:    process.env.NEGOCIO_CIUDAD    ?? '',
+// ── Datos del negocio: BD > env vars > defaults ───────────────
+async function getNegocio() {
+  try {
+    const cfg = await prisma.configNegocio.findUnique({ where: { id: 'singleton' } })
+    if (cfg) return cfg
+  } catch { /* ignorar si tabla no existe aún */ }
+  return {
+    nombre:    process.env.NEGOCIO_NOMBRE    ?? 'REFACCIONARIA & TALLER',
+    subtitulo: process.env.NEGOCIO_SUBTITULO ?? 'Servicio mecánico profesional',
+    telefono:  process.env.NEGOCIO_TELEFONO  ?? '',
+    direccion: process.env.NEGOCIO_DIRECCION ?? '',
+    ciudad:    process.env.NEGOCIO_CIUDAD    ?? '',
+  }
 }
 
 // ── Helper: formato de moneda ─────────────────────────────────
@@ -29,29 +35,24 @@ const linea = (doc: PDFKit.PDFDocument, y: number, color = '#e5e7eb') => {
 }
 
 // ── Helper: dibujar logo ──────────────────────────────────────
-// Usa imagen real si existe, sino dibuja ícono vectorial como respaldo
-const dibujarLogo = (doc: PDFKit.PDFDocument, x: number, y: number) => {
+const dibujarLogo = (doc: PDFKit.PDFDocument, x: number, y: number, negocioNombre: string) => {
   const size = 52
 
   if (fs.existsSync(LOGO_PATH)) {
-    // Logo real — imagen cuadrada con esquinas redondeadas simuladas por clip
     try {
       doc.save()
       doc.roundedRect(x, y, size, size, 8).clip()
       doc.image(LOGO_PATH, x, y, { width: size, height: size, cover: [size, size] })
       doc.restore()
       return
-    } catch {
-      // Si falla la imagen, cae al vectorial
-    }
+    } catch { /* cae al vectorial */ }
   }
 
-  // Respaldo vectorial: cuadrado azul con inicial
   doc.roundedRect(x, y, size, size, 8).fillColor('#1d4ed8').fill()
   doc.rect(x, y + size - 10, size, 10).fillColor('#1e3a8a').fill()
   doc.circle(x + size / 2, y + size / 2 - 3, 18).fillColor('#2563eb').fill()
 
-  const inicial = NEGOCIO.nombre.charAt(0).toUpperCase()
+  const inicial = negocioNombre.charAt(0).toUpperCase()
   doc.fillColor('#ffffff').fontSize(22).font('Helvetica-Bold')
      .text(inicial, x, y + 13, { width: size, align: 'center' })
   doc.fillColor('#93c5fd').fontSize(7).font('Helvetica')
@@ -59,39 +60,36 @@ const dibujarLogo = (doc: PDFKit.PDFDocument, x: number, y: number) => {
 }
 
 // ── Helper: encabezado del negocio ────────────────────────────
+type NegocioInfo = { nombre: string; subtitulo: string; telefono: string; direccion: string; ciudad: string }
+
 const encabezado = (
-  doc:    PDFKit.PDFDocument,
-  titulo: string,
-  numero: string
+  doc:     PDFKit.PDFDocument,
+  titulo:  string,
+  numero:  string,
+  negocio: NegocioInfo
 ): number => {
   const alturaHeader = 90
 
-  // Fondo del encabezado
   doc.rect(0, 0, 595, alturaHeader).fillColor('#0f172a').fill()
 
-  // Logo vectorial
-  dibujarLogo(doc, 30, 19)
+  dibujarLogo(doc, 30, 19, negocio.nombre)
 
-  // Nombre del negocio
   doc.fillColor('#ffffff')
-     .fontSize(17)
-     .font('Helvetica-Bold')
-     .text(NEGOCIO.nombre, 95, 22, { width: 280 })
+     .fontSize(17).font('Helvetica-Bold')
+     .text(negocio.nombre, 95, 22, { width: 280 })
 
   doc.fillColor('#94a3b8')
-     .fontSize(8.5)
-     .font('Helvetica')
-     .text(NEGOCIO.subtitulo, 95, 43)
+     .fontSize(8.5).font('Helvetica')
+     .text(negocio.subtitulo, 95, 43)
 
-  // Teléfono y dirección del negocio (si están configurados)
   let infoY = 57
-  if (NEGOCIO.telefono) {
+  if (negocio.telefono) {
     doc.fillColor('#64748b').fontSize(7.5).font('Helvetica')
-       .text(`Tel. ${NEGOCIO.telefono}`, 95, infoY)
+       .text(`Tel. ${negocio.telefono}`, 95, infoY)
     infoY += 11
   }
-  if (NEGOCIO.ciudad || NEGOCIO.direccion) {
-    const lugar = [NEGOCIO.direccion, NEGOCIO.ciudad].filter(Boolean).join(', ')
+  if (negocio.ciudad || negocio.direccion) {
+    const lugar = [negocio.direccion, negocio.ciudad].filter(Boolean).join(', ')
     doc.fillColor('#64748b').fontSize(7.5).font('Helvetica')
        .text(`Dir. ${lugar}`, 95, infoY)
   }
@@ -141,12 +139,14 @@ export const pdfOrden = async (req: Request, res: Response) => {
 
     if (!orden) return res.status(404).json({ mensaje: 'Orden no encontrada' })
 
+    const negocio = await getNegocio()
+
     const doc = new PDFDocument({ margin: 50, size: 'LETTER' })
     res.setHeader('Content-Type', 'application/pdf')
     res.setHeader('Content-Disposition', `inline; filename="orden-${orden.numero}.pdf"`)
     doc.pipe(res)
 
-    let y = encabezado(doc, 'ORDEN DE TRABAJO', `#${orden.numero}`)
+    let y = encabezado(doc, 'ORDEN DE TRABAJO', `#${orden.numero}`, negocio)
 
     // ── Bloques cliente / vehículo ──────────────────────────
     doc.rect(50, y, 240, 95).fillColor('#f8fafc').fill()
@@ -336,10 +336,10 @@ export const pdfOrden = async (req: Request, res: Response) => {
     linea(doc, y)
     y += 8
 
-    const infoNegocio = [NEGOCIO.telefono, NEGOCIO.ciudad].filter(Boolean).join('  ·  ')
+    const infoNegocio = [negocio.telefono, negocio.ciudad].filter(Boolean).join('  ·  ')
     doc.fillColor('#94a3b8').fontSize(7.5).font('Helvetica')
        .text(
-         `${NEGOCIO.nombre}${infoNegocio ? '  ·  ' + infoNegocio : ''}`,
+         `${negocio.nombre}${infoNegocio ? '  ·  ' + infoNegocio : ''}`,
          50, y, { align: 'center', width: 495 }
        )
     doc.text(
@@ -375,12 +375,14 @@ export const pdfCotizacion = async (req: Request, res: Response) => {
 
     if (!cotizacion) return res.status(404).json({ mensaje: 'Cotización no encontrada' })
 
+    const negocio = await getNegocio()
+
     const doc = new PDFDocument({ margin: 50, size: 'LETTER' })
     res.setHeader('Content-Type', 'application/pdf')
     res.setHeader('Content-Disposition', `inline; filename="cotizacion-${cotizacion.numero}.pdf"`)
     doc.pipe(res)
 
-    let y = encabezado(doc, 'COTIZACIÓN', `#COT-${cotizacion.numero}`)
+    let y = encabezado(doc, 'COTIZACIÓN', `#COT-${cotizacion.numero}`, negocio)
 
     // ── Aviso de cotización ─────────────────────────────────
     doc.rect(50, y, 495, 28).fillColor('#fef9c3').fill()
@@ -514,10 +516,10 @@ export const pdfCotizacion = async (req: Request, res: Response) => {
     linea(doc, y)
     y += 8
 
-    const infoNeg = [NEGOCIO.telefono, NEGOCIO.ciudad].filter(Boolean).join('  ·  ')
+    const infoNeg = [negocio.telefono, negocio.ciudad].filter(Boolean).join('  ·  ')
     doc.fillColor('#94a3b8').fontSize(7.5).font('Helvetica')
        .text(
-         `${NEGOCIO.nombre}${infoNeg ? '  ·  ' + infoNeg : ''}`,
+         `${negocio.nombre}${infoNeg ? '  ·  ' + infoNeg : ''}`,
          50, y, { align: 'center', width: 495 }
        )
     doc.text(
@@ -537,6 +539,7 @@ export const pdfCotizacion = async (req: Request, res: Response) => {
 export const mensajeWhatsApp = async (req: Request, res: Response) => {
   try {
     const { tipo } = req.query
+    const negocio  = await getNegocio()
 
     if (tipo === 'listo') {
       const orden = await prisma.ordenTrabajo.findUnique({
@@ -556,8 +559,8 @@ export const mensajeWhatsApp = async (req: Request, res: Response) => {
       const saldo  = Number(orden.saldoPendiente)
 
       const mensaje = saldo > 0
-        ? `Hola ${nombre} 👋\n\nTe informamos que tu *${auto}* (${placa}) ya está *listo para recoger* 🔧✅\n\n*Total del servicio:* ${total}\n*Saldo pendiente:* ${fmt(saldo)}\n\nTe esperamos. ¡Gracias por tu preferencia!\n\n_${NEGOCIO.nombre}_ ${NEGOCIO.telefono ? '· ' + NEGOCIO.telefono : ''}`
-        : `Hola ${nombre} 👋\n\nTe informamos que tu *${auto}* (${placa}) ya está *listo para recoger* 🔧✅\n\n*Total:* ${total} ✓ _Pagado_\n\nTe esperamos. ¡Gracias por tu preferencia!\n\n_${NEGOCIO.nombre}_ ${NEGOCIO.telefono ? '· ' + NEGOCIO.telefono : ''}`
+        ? `Hola ${nombre} 👋\n\nTe informamos que tu *${auto}* (${placa}) ya está *listo para recoger* 🔧✅\n\n*Total del servicio:* ${total}\n*Saldo pendiente:* ${fmt(saldo)}\n\nTe esperamos. ¡Gracias por tu preferencia!\n\n_${negocio.nombre}_ ${negocio.telefono ? '· ' + negocio.telefono : ''}`
+        : `Hola ${nombre} 👋\n\nTe informamos que tu *${auto}* (${placa}) ya está *listo para recoger* 🔧✅\n\n*Total:* ${total} ✓ _Pagado_\n\nTe esperamos. ¡Gracias por tu preferencia!\n\n_${negocio.nombre}_ ${negocio.telefono ? '· ' + negocio.telefono : ''}`
 
       return res.json({
         telefono: tel,
@@ -581,7 +584,7 @@ export const mensajeWhatsApp = async (req: Request, res: Response) => {
       const auto   = `${orden.vehiculo?.marca} ${orden.vehiculo?.modelo}`
       const saldo  = fmt(orden.saldoPendiente)
 
-      const mensaje = `Hola ${nombre} 👋\n\nTe recordamos que tienes un saldo pendiente de *${saldo}* por el servicio de tu *${auto}*.\n\nCualquier duda estamos para atenderte. ¡Gracias!\n\n_${NEGOCIO.nombre}_ ${NEGOCIO.telefono ? '· ' + NEGOCIO.telefono : ''}`
+      const mensaje = `Hola ${nombre} 👋\n\nTe recordamos que tienes un saldo pendiente de *${saldo}* por el servicio de tu *${auto}*.\n\nCualquier duda estamos para atenderte. ¡Gracias!\n\n_${negocio.nombre}_ ${negocio.telefono ? '· ' + negocio.telefono : ''}`
 
       return res.json({
         telefono: tel,
@@ -611,7 +614,7 @@ export const mensajeWhatsApp = async (req: Request, res: Response) => {
         : ''
 
       const mensaje =
-        `Hola ${nombre} 👋\n\nTe enviamos el presupuesto *#COT-${cot.numero}*${auto} por un total de *${total}*.${validez}\n\n${cot.notas ? '📝 ' + cot.notas + '\n\n' : ''}¿Deseas que procedamos? Con gusto te atendemos. ✅\n\n_${NEGOCIO.nombre}_ ${NEGOCIO.telefono ? '· ' + NEGOCIO.telefono : ''}`
+        `Hola ${nombre} 👋\n\nTe enviamos el presupuesto *#COT-${cot.numero}*${auto} por un total de *${total}*.${validez}\n\n${cot.notas ? '📝 ' + cot.notas + '\n\n' : ''}¿Deseas que procedamos? Con gusto te atendemos. ✅\n\n_${negocio.nombre}_ ${negocio.telefono ? '· ' + negocio.telefono : ''}`
 
       return res.json({
         telefono: tel,

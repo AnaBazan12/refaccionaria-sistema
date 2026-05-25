@@ -117,3 +117,8 @@ export type GastoCaja = Prisma.GastoCajaModel
  * 
  */
 export type BitacoraOrden = Prisma.BitacoraOrdenModel
+/**
+ * Model ConfigNegocio
+ * 
+ */
+export type ConfigNegocio = Prisma.ConfigNegocioModel

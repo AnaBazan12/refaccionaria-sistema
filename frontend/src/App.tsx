@@ -20,7 +20,8 @@ import Servicios      from './pages/Servicios'
 import MecanicoApp   from './pages/MecanicoApp'
 import Landing       from './pages/Landing'
 import Caja          from './pages/Caja'
-import Compras       from './pages/Compras'
+import Compras         from './pages/Compras'
+import Configuracion  from './pages/Configuracion'
 
 // ── Pantalla de carga ─────────────────────────────────────────
 const Cargando = () => (
@@ -222,6 +223,14 @@ export default function App() {
               element={
                 <RutaProtegida rolesPermitidos={['ADMIN']}>
                   <Usuarios />
+                </RutaProtegida>
+              }
+            />
+            <Route
+              path="/configuracion"
+              element={
+                <RutaProtegida rolesPermitidos={['ADMIN']}>
+                  <Configuracion />
                 </RutaProtegida>
               }
             />

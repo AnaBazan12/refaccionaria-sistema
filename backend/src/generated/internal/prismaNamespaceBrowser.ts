@@ -70,7 +70,8 @@ export const ModelName = {
   Cotizacion: 'Cotizacion',
   CotizacionItem: 'CotizacionItem',
   GastoCaja: 'GastoCaja',
-  BitacoraOrden: 'BitacoraOrden'
+  BitacoraOrden: 'BitacoraOrden',
+  ConfigNegocio: 'ConfigNegocio'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -411,6 +412,22 @@ export const BitacoraOrdenScalarFieldEnum = {
 } as const
 
 export type BitacoraOrdenScalarFieldEnum = (typeof BitacoraOrdenScalarFieldEnum)[keyof typeof BitacoraOrdenScalarFieldEnum]
+
+
+export const ConfigNegocioScalarFieldEnum = {
+  id: 'id',
+  nombre: 'nombre',
+  subtitulo: 'subtitulo',
+  telefono: 'telefono',
+  direccion: 'direccion',
+  ciudad: 'ciudad',
+  rfc: 'rfc',
+  email: 'email',
+  horario: 'horario',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ConfigNegocioScalarFieldEnum = (typeof ConfigNegocioScalarFieldEnum)[keyof typeof ConfigNegocioScalarFieldEnum]
 
 
 export const SortOrder = {

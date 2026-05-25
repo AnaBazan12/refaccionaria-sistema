@@ -403,7 +403,8 @@ export const ModelName = {
   Cotizacion: 'Cotizacion',
   CotizacionItem: 'CotizacionItem',
   GastoCaja: 'GastoCaja',
-  BitacoraOrden: 'BitacoraOrden'
+  BitacoraOrden: 'BitacoraOrden',
+  ConfigNegocio: 'ConfigNegocio'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -419,7 +420,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "usuario" | "cliente" | "vehiculo" | "mecanico" | "tipoServicio" | "ordenTrabajo" | "ordenServicio" | "proveedor" | "refaccion" | "ventaRefaccion" | "movimientoInventario" | "facturaProveedor" | "compra" | "compraItem" | "ordenDetalle" | "pago" | "cotizacion" | "cotizacionItem" | "gastoCaja" | "bitacoraOrden"
+    modelProps: "usuario" | "cliente" | "vehiculo" | "mecanico" | "tipoServicio" | "ordenTrabajo" | "ordenServicio" | "proveedor" | "refaccion" | "ventaRefaccion" | "movimientoInventario" | "facturaProveedor" | "compra" | "compraItem" | "ordenDetalle" | "pago" | "cotizacion" | "cotizacionItem" | "gastoCaja" | "bitacoraOrden" | "configNegocio"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1903,6 +1904,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ConfigNegocio: {
+      payload: Prisma.$ConfigNegocioPayload<ExtArgs>
+      fields: Prisma.ConfigNegocioFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ConfigNegocioFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConfigNegocioPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ConfigNegocioFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConfigNegocioPayload>
+        }
+        findFirst: {
+          args: Prisma.ConfigNegocioFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConfigNegocioPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ConfigNegocioFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConfigNegocioPayload>
+        }
+        findMany: {
+          args: Prisma.ConfigNegocioFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConfigNegocioPayload>[]
+        }
+        create: {
+          args: Prisma.ConfigNegocioCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConfigNegocioPayload>
+        }
+        createMany: {
+          args: Prisma.ConfigNegocioCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ConfigNegocioCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConfigNegocioPayload>[]
+        }
+        delete: {
+          args: Prisma.ConfigNegocioDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConfigNegocioPayload>
+        }
+        update: {
+          args: Prisma.ConfigNegocioUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConfigNegocioPayload>
+        }
+        deleteMany: {
+          args: Prisma.ConfigNegocioDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ConfigNegocioUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ConfigNegocioUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConfigNegocioPayload>[]
+        }
+        upsert: {
+          args: Prisma.ConfigNegocioUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConfigNegocioPayload>
+        }
+        aggregate: {
+          args: Prisma.ConfigNegocioAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateConfigNegocio>
+        }
+        groupBy: {
+          args: Prisma.ConfigNegocioGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ConfigNegocioGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ConfigNegocioCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ConfigNegocioCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2266,6 +2341,22 @@ export const BitacoraOrdenScalarFieldEnum = {
 export type BitacoraOrdenScalarFieldEnum = (typeof BitacoraOrdenScalarFieldEnum)[keyof typeof BitacoraOrdenScalarFieldEnum]
 
 
+export const ConfigNegocioScalarFieldEnum = {
+  id: 'id',
+  nombre: 'nombre',
+  subtitulo: 'subtitulo',
+  telefono: 'telefono',
+  direccion: 'direccion',
+  ciudad: 'ciudad',
+  rfc: 'rfc',
+  email: 'email',
+  horario: 'horario',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ConfigNegocioScalarFieldEnum = (typeof ConfigNegocioScalarFieldEnum)[keyof typeof ConfigNegocioScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -2599,6 +2690,7 @@ export type GlobalOmitConfig = {
   cotizacionItem?: Prisma.CotizacionItemOmit
   gastoCaja?: Prisma.GastoCajaOmit
   bitacoraOrden?: Prisma.BitacoraOrdenOmit
+  configNegocio?: Prisma.ConfigNegocioOmit
 }
 
 /* Types for Logging */

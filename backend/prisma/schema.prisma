@@ -504,3 +504,18 @@ model BitacoraOrden {
   @@index([ordenId])
   @@index([fecha])
 }
+
+model ConfigNegocio {
+  id        String  @id @default("singleton")
+  nombre    String  @default("Mi Taller")
+  subtitulo String  @default("Servicio mecánico profesional")
+  telefono  String  @default("")
+  direccion String  @default("")
+  ciudad    String  @default("")
+  rfc       String  @default("")
+  email     String  @default("")
+  horario   String  @default("")
+  updatedAt DateTime @updatedAt
+
+  @@map("config_negocio")
+}
