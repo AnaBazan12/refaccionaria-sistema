@@ -86,3 +86,8 @@ export const agregarRefaccionesLote = async (
   const { data } = await api.post(`/ordenes/${ordenId}/detalle-lote`, { items })
   return data
 }
+
+export const eliminarOrden = async (id: string) => {
+  const { data } = await api.delete(`/ordenes/${id}/eliminar`)
+  return data
+}

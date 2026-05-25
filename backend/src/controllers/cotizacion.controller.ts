@@ -269,3 +269,24 @@ export const rechazarCotizacion = async (req: Request, res: Response) => {
     return res.status(500).json({ mensaje: 'Error del servidor', error })
   }
 }
+
+// ── Eliminar cotización ───────────────────────────────────────
+export const eliminarCotizacion = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string
+    const cot = await prisma.cotizacion.findUnique({ where: { id } })
+    if (!cot) return res.status(404).json({ mensaje: 'Cotización no encontrada' })
+
+    // No se puede eliminar si ya fue convertida en orden
+    if (cot.estado === 'CONVERTIDA') {
+      return res.status(400).json({
+        mensaje: 'No se puede eliminar una cotización que ya fue convertida en orden de trabajo'
+      })
+    }
+
+    await prisma.cotizacion.delete({ where: { id } })
+    return res.json({ mensaje: 'Cotización eliminada correctamente' })
+  } catch (error) {
+    return res.status(500).json({ mensaje: 'Error del servidor', error })
+  }
+}

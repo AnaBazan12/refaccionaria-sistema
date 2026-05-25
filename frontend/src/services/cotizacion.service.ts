@@ -50,3 +50,8 @@ export const rechazarCotizacion = async (id: string) => {
   const { data } = await api.patch(`/cotizaciones/${id}/rechazar`)
   return data
 }
+
+export const eliminarCotizacion = async (id: string) => {
+  const { data } = await api.delete(`/cotizaciones/${id}`)
+  return data
+}

@@ -3,6 +3,8 @@ import api from '../../services/api'
 import { labelEstado, colorEstado } from '../../utils/estados'
 import { buscarRefaccion } from '../../services/inventario.service'
 import { abrirPDF } from '../../utils/pdf'
+import { eliminarOrden } from '../../services/orden.service'
+import { useAuth } from '../../context/AuthContext'
 
 interface Props {
   orden: any
@@ -22,12 +24,14 @@ type Tab = 'resumen' | 'refacciones' | 'pagos' | 'bitacora'
 export default function OrdenDetalleModal({
   orden, onCerrar, onActualizar
 }: Props) {
+  const { usuario } = useAuth()
   const [tab, setTab] = useState<Tab>('resumen')
   const [detalle, setDetalle] = useState<any[]>([])
   const [pagos, setPagos] = useState<any[]>([])
   const [resumenPago, setResumenPago] = useState<any>(null)
   const [bitacora, setBitacora] = useState<any[]>([])
   const [cargando, setCargando] = useState(false)
+  const [confirmEliminar, setConfirmEliminar] = useState(false)
 
   // Datos frescos de la orden (totales, estado) — se re-fetcha al abrir
   const [ordenActual, setOrdenActual] = useState(orden)
@@ -166,6 +170,7 @@ export default function OrdenDetalleModal({
   ]
 
   return (
+    <>
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl w-full max-w-3xl max-h-[92vh] flex flex-col shadow-2xl">
         
@@ -271,6 +276,21 @@ export default function OrdenDetalleModal({
                             <span className="font-medium">{new Date(ordenActual.fechaIngreso).toLocaleDateString('es-MX')}</span>
                         </div>
                     </div>
+
+                    {/* Botón eliminar — solo ADMIN */}
+                    {usuario?.rol === 'ADMIN' && (
+                      <div className="border-t pt-4">
+                        <button
+                          onClick={() => setConfirmEliminar(true)}
+                          className="w-full text-sm text-red-500 hover:text-red-700
+                                     border border-red-200 hover:border-red-400
+                                     hover:bg-red-50 py-2 rounded-lg transition-colors
+                                     flex items-center justify-center gap-2"
+                        >
+                          🗑️ Eliminar orden permanentemente
+                        </button>
+                      </div>
+                    )}
                 </div>
               )}
 
@@ -399,5 +419,56 @@ export default function OrdenDetalleModal({
         </div>
       </div>
     </div>
+
+    {/* ── Modal confirmar eliminación ───────────────────────── */}
+    {confirmEliminar && (
+      <div className="fixed inset-0 bg-black/60 flex items-center
+                      justify-center z-[60] p-4">
+        <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl">
+          <div className="p-6 text-center">
+            <div className="text-5xl mb-3">⚠️</div>
+            <h3 className="text-lg font-bold text-gray-800 mb-1">
+              ¿Eliminar orden #{ordenActual.numero}?
+            </h3>
+            <p className="text-sm text-gray-500 mb-1">
+              Cliente: <span className="font-medium">{ordenActual.cliente?.nombre}</span>
+            </p>
+            <p className="text-xs text-red-500 mb-1">
+              • Se eliminará permanentemente
+            </p>
+            <p className="text-xs text-red-500 mb-5">
+              • El stock de refacciones usadas se devolverá
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmEliminar(false)}
+                className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg
+                           text-sm text-gray-600 hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    await eliminarOrden(ordenActual.id)
+                    setConfirmEliminar(false)
+                    onActualizar()
+                    onCerrar()
+                  } catch (err: any) {
+                    alert(err.response?.data?.mensaje || 'Error al eliminar')
+                    setConfirmEliminar(false)
+                  }
+                }}
+                className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700
+                           text-white text-sm font-medium rounded-lg"
+              >
+                Sí, eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+  </>
   )
 }

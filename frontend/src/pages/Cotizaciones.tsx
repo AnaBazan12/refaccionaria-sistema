@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import {
   getCotizaciones, crearCotizacion,
-  aprobarCotizacion, convertirEnOrden, rechazarCotizacion
+  aprobarCotizacion, convertirEnOrden, rechazarCotizacion,
+  eliminarCotizacion
 } from '../services/cotizacion.service'
 import { getClientes }          from '../services/cliente.service'
 import { getVehiculosPorCliente } from '../services/orden.service'
@@ -79,6 +80,7 @@ export default function Cotizaciones() {
 
   const [guardando,    setGuardando]    = useState(false)
   const [error,        setError]        = useState('')
+  const [confirmElim,  setConfirmElim]  = useState<any>(null)   // cotización a eliminar
 
   // OT creada exitosamente — mostrar panel de confirmación
   const [otCreada,     setOtCreada]     = useState<{ numero: number; id: string } | null>(null)
@@ -449,6 +451,19 @@ export default function Cotizaciones() {
                                      flex items-center gap-1">
                       ✓ OT creada
                     </span>
+                  )}
+
+                  {/* ── Eliminar (no convertidas) ── */}
+                  {c.estado !== 'CONVERTIDA' && (
+                    <button
+                      onClick={() => setConfirmElim(c)}
+                      className="text-xs text-red-400 hover:text-red-600
+                                 px-2 py-1.5 rounded-lg hover:bg-red-50
+                                 transition-colors ml-auto"
+                      title="Eliminar cotización"
+                    >
+                      🗑
+                    </button>
                   )}
                 </div>
               </div>
@@ -1069,6 +1084,55 @@ export default function Cotizaciones() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal confirmar eliminación ───────────────────────── */}
+      {confirmElim && (
+        <div className="fixed inset-0 bg-black/50 flex items-center
+                        justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-sm shadow-xl">
+            <div className="p-6 text-center">
+              <div className="text-4xl mb-3">🗑️</div>
+              <h3 className="text-lg font-bold text-gray-800 mb-1">
+                ¿Eliminar cotización?
+              </h3>
+              <p className="text-sm text-gray-500 mb-1">
+                <span className="font-semibold text-gray-700">
+                  #COT-{confirmElim.numero}
+                </span>
+                {' '}— {confirmElim.cliente?.nombre}
+              </p>
+              <p className="text-xs text-red-500 mb-5">
+                Esta acción no se puede deshacer.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setConfirmElim(null)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg
+                             text-sm text-gray-600 hover:bg-gray-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={async () => {
+                    try {
+                      await eliminarCotizacion(confirmElim.id)
+                      setConfirmElim(null)
+                      cargar(pagina, filtroEstado || undefined)
+                    } catch (err: any) {
+                      alert(err.response?.data?.mensaje || 'Error al eliminar')
+                      setConfirmElim(null)
+                    }
+                  }}
+                  className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700
+                             text-white text-sm font-medium rounded-lg"
+                >
+                  Sí, eliminar
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

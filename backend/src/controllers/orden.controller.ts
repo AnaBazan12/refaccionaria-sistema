@@ -434,6 +434,57 @@ export const actualizarOrden = async (req: RequestConUsuario, res: Response) => 
   }
 }
 
+// ── Eliminar orden permanentemente (solo ADMIN) ───────────────
+export const eliminarOrden = async (req: RequestConUsuario, res: Response) => {
+  try {
+    const id = req.params.id as string
+
+    const orden = await prisma.ordenTrabajo.findUnique({
+      where:   { id },
+      include: {
+        detalle: true,
+        pagos:   true,
+      }
+    })
+    if (!orden) return res.status(404).json({ mensaje: 'Orden no encontrada' })
+
+    // Bloquear si tiene pagos registrados — el admin debe resolverlo primero
+    if (orden.pagos.length > 0) {
+      return res.status(400).json({
+        mensaje: `No se puede eliminar: la orden tiene ${orden.pagos.length} pago(s) registrado(s). Cancela los pagos primero o usa la opción de cancelar.`
+      })
+    }
+
+    // Transacción: eliminar orden + revertir stock de refacciones usadas
+    await prisma.$transaction([
+      // Revertir stock de cada refacción del detalle
+      ...orden.detalle.map(d =>
+        prisma.refaccion.update({
+          where: { id: d.refaccionId },
+          data:  { stockActual: { increment: d.cantidad } }
+        })
+      ),
+      // Registrar movimientos de devolución
+      ...orden.detalle.map(d =>
+        prisma.movimientoInventario.create({
+          data: {
+            refaccionId: d.refaccionId,
+            tipo:        'ENTRADA',
+            cantidad:    d.cantidad,
+            motivo:      `Eliminación de orden #${orden.numero}`
+          }
+        })
+      ),
+      // Eliminar la orden (cascade borra detalle, servicios, bitácora)
+      prisma.ordenTrabajo.delete({ where: { id } })
+    ] as any[])
+
+    return res.json({ mensaje: `Orden #${orden.numero} eliminada permanentemente` })
+  } catch (error) {
+    return res.status(500).json({ mensaje: 'Error del servidor', error })
+  }
+}
+
 export const obtenerBitacora = async (req: Request, res: Response) => {
   try {
     const bitacora = await prisma.bitacoraOrden.findMany({

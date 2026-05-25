@@ -5,7 +5,7 @@ import {
   cambiarEstado, marcarPagada,
   agregarServicio, cancelarOrden,
   archivarOrden, archivarOrdeneViejas,
-  actualizarOrden
+  actualizarOrden, eliminarOrden
 } from '../controllers/orden.controller'
 import {
   agregarRefaccion, quitarRefaccion, obtenerDetalle,
@@ -28,7 +28,8 @@ router.patch('/:id/estado', cambiarEstado)
 router.patch('/:id/pagar', marcarPagada)
 router.patch('/:id', actualizarOrden)
 router.post('/:id/servicios', agregarServicio)
-router.delete('/:id', cancelarOrden)
+router.delete('/:id',         soloRoles('ADMIN'), cancelarOrden)
+router.delete('/:id/eliminar',soloRoles('ADMIN'), eliminarOrden)
 router.patch('/:id/archivar',    archivarOrden)
 router.post('/archivar-viejas',    soloRoles('ADMIN'), archivarOrdeneViejas)
 // Detalle refacciones
