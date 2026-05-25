@@ -1,6 +1,11 @@
 import { Request, Response } from 'express'
 import PDFDocument           from 'pdfkit'
 import { prisma }            from '../utils/prisma'
+import path                  from 'path'
+import fs                    from 'fs'
+
+// Ruta al logo del negocio
+const LOGO_PATH = path.join(__dirname, '../assets/LogoRefaccionaria.png')
 
 // ── Datos del negocio desde variables de entorno ─────────────
 const NEGOCIO = {
@@ -23,37 +28,33 @@ const linea = (doc: PDFKit.PDFDocument, y: number, color = '#e5e7eb') => {
   doc.moveTo(50, y).lineTo(545, y).strokeColor(color).lineWidth(1).stroke()
 }
 
-// ── Helper: dibujar logo como ícono vectorial ─────────────────
-// Dibuja un ícono profesional: fondo oscuro + iniciales + llave inglesa
+// ── Helper: dibujar logo ──────────────────────────────────────
+// Usa imagen real si existe, sino dibuja ícono vectorial como respaldo
 const dibujarLogo = (doc: PDFKit.PDFDocument, x: number, y: number) => {
   const size = 52
 
-  // Fondo del logo — cuadrado redondeado azul oscuro
-  doc.roundedRect(x, y, size, size, 8)
-     .fillColor('#1d4ed8')
-     .fill()
+  if (fs.existsSync(LOGO_PATH)) {
+    // Logo real — imagen cuadrada con esquinas redondeadas simuladas por clip
+    try {
+      doc.save()
+      doc.roundedRect(x, y, size, size, 8).clip()
+      doc.image(LOGO_PATH, x, y, { width: size, height: size, cover: [size, size] })
+      doc.restore()
+      return
+    } catch {
+      // Si falla la imagen, cae al vectorial
+    }
+  }
 
-  // Franja inferior de acento
-  doc.rect(x, y + size - 10, size, 10)
-     .fillColor('#1e3a8a')
-     .fill()
+  // Respaldo vectorial: cuadrado azul con inicial
+  doc.roundedRect(x, y, size, size, 8).fillColor('#1d4ed8').fill()
+  doc.rect(x, y + size - 10, size, 10).fillColor('#1e3a8a').fill()
+  doc.circle(x + size / 2, y + size / 2 - 3, 18).fillColor('#2563eb').fill()
 
-  // Círculo decorativo interior
-  doc.circle(x + size / 2, y + size / 2 - 3, 18)
-     .fillColor('#2563eb')
-     .fill()
-
-  // Inicial del negocio
   const inicial = NEGOCIO.nombre.charAt(0).toUpperCase()
-  doc.fillColor('#ffffff')
-     .fontSize(22)
-     .font('Helvetica-Bold')
+  doc.fillColor('#ffffff').fontSize(22).font('Helvetica-Bold')
      .text(inicial, x, y + 13, { width: size, align: 'center' })
-
-  // Pequeña llave inglesa debajo (representada con una "R" de refaccionaria en pequeño)
-  doc.fillColor('#93c5fd')
-     .fontSize(7)
-     .font('Helvetica')
+  doc.fillColor('#93c5fd').fontSize(7).font('Helvetica')
      .text('TALLER', x, y + 39, { width: size, align: 'center' })
 }
 
@@ -86,13 +87,13 @@ const encabezado = (
   let infoY = 57
   if (NEGOCIO.telefono) {
     doc.fillColor('#64748b').fontSize(7.5).font('Helvetica')
-       .text(`📞 ${NEGOCIO.telefono}`, 95, infoY)
+       .text(`Tel. ${NEGOCIO.telefono}`, 95, infoY)
     infoY += 11
   }
   if (NEGOCIO.ciudad || NEGOCIO.direccion) {
     const lugar = [NEGOCIO.direccion, NEGOCIO.ciudad].filter(Boolean).join(', ')
     doc.fillColor('#64748b').fontSize(7.5).font('Helvetica')
-       .text(`📍 ${lugar}`, 95, infoY)
+       .text(`Dir. ${lugar}`, 95, infoY)
   }
 
   // Separador vertical
@@ -281,7 +282,7 @@ export const pdfOrden = async (req: Request, res: Response) => {
     } else {
       doc.rect(360, y, 185, 24).fillColor('#dcfce7').fill()
       doc.fillColor('#16a34a').fontSize(10).font('Helvetica-Bold')
-         .text('✓ PAGADO COMPLETO', 385, y + 7)
+         .text('PAGADO COMPLETO', 385, y + 7)
     }
     y += 34
 
