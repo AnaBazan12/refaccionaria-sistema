@@ -49,3 +49,38 @@
 .btn-shimmer:hover {
   animation: shimmer 1.2s linear infinite;
 }
+
+/* ── Animaciones del Carro (Login) ─────────────────────────── */
+@keyframes wheel-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes car-bounce {
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-3px); }
+}
+@keyframes road-move {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-64px); }
+}
+@keyframes cloud-move {
+  from { transform: translateX(320px); opacity: 0; }
+  15%  { opacity: 0.35; }
+  85%  { opacity: 0.35; }
+  to   { transform: translateX(-120px); opacity: 0; }
+}
+@keyframes puff1 {
+  0%   { transform: scale(1)   translateX(0);    opacity: 0.55; }
+  100% { transform: scale(2)   translateX(-10px); opacity: 0; }
+}
+@keyframes puff2 {
+  0%   { transform: scale(1)   translateX(0);    opacity: 0.35; }
+  100% { transform: scale(2.6) translateX(-14px); opacity: 0; }
+}
+
+.animate-wheel-spin { animation: wheel-spin 0.9s linear infinite; }
+.animate-car-bounce { animation: car-bounce 1.2s ease-in-out infinite; }
+.animate-road-move  { animation: road-move  0.7s linear infinite; }
+.animate-cloud-move { animation: cloud-move 9s  linear infinite; }
+.animate-puff1      { animation: puff1 1.4s ease-out infinite; }
+.animate-puff2      { animation: puff2 1.8s ease-out infinite 0.5s; }
