@@ -40,6 +40,10 @@ export type CompraMinAggregateOutputType = {
   facturaNumero: string | null
   notas: string | null
   total: runtime.Decimal | null
+  esCredito: boolean | null
+  fechaVencimiento: Date | null
+  pagada: boolean | null
+  telefonoContacto: string | null
   proveedorId: string | null
 }
 
@@ -49,6 +53,10 @@ export type CompraMaxAggregateOutputType = {
   facturaNumero: string | null
   notas: string | null
   total: runtime.Decimal | null
+  esCredito: boolean | null
+  fechaVencimiento: Date | null
+  pagada: boolean | null
+  telefonoContacto: string | null
   proveedorId: string | null
 }
 
@@ -58,6 +66,10 @@ export type CompraCountAggregateOutputType = {
   facturaNumero: number
   notas: number
   total: number
+  esCredito: number
+  fechaVencimiento: number
+  pagada: number
+  telefonoContacto: number
   proveedorId: number
   _all: number
 }
@@ -77,6 +89,10 @@ export type CompraMinAggregateInputType = {
   facturaNumero?: true
   notas?: true
   total?: true
+  esCredito?: true
+  fechaVencimiento?: true
+  pagada?: true
+  telefonoContacto?: true
   proveedorId?: true
 }
 
@@ -86,6 +102,10 @@ export type CompraMaxAggregateInputType = {
   facturaNumero?: true
   notas?: true
   total?: true
+  esCredito?: true
+  fechaVencimiento?: true
+  pagada?: true
+  telefonoContacto?: true
   proveedorId?: true
 }
 
@@ -95,6 +115,10 @@ export type CompraCountAggregateInputType = {
   facturaNumero?: true
   notas?: true
   total?: true
+  esCredito?: true
+  fechaVencimiento?: true
+  pagada?: true
+  telefonoContacto?: true
   proveedorId?: true
   _all?: true
 }
@@ -191,6 +215,10 @@ export type CompraGroupByOutputType = {
   facturaNumero: string | null
   notas: string | null
   total: runtime.Decimal
+  esCredito: boolean
+  fechaVencimiento: Date | null
+  pagada: boolean
+  telefonoContacto: string | null
   proveedorId: string | null
   _count: CompraCountAggregateOutputType | null
   _avg: CompraAvgAggregateOutputType | null
@@ -223,6 +251,10 @@ export type CompraWhereInput = {
   facturaNumero?: Prisma.StringNullableFilter<"Compra"> | string | null
   notas?: Prisma.StringNullableFilter<"Compra"> | string | null
   total?: Prisma.DecimalFilter<"Compra"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  esCredito?: Prisma.BoolFilter<"Compra"> | boolean
+  fechaVencimiento?: Prisma.DateTimeNullableFilter<"Compra"> | Date | string | null
+  pagada?: Prisma.BoolFilter<"Compra"> | boolean
+  telefonoContacto?: Prisma.StringNullableFilter<"Compra"> | string | null
   proveedorId?: Prisma.StringNullableFilter<"Compra"> | string | null
   proveedor?: Prisma.XOR<Prisma.ProveedorNullableScalarRelationFilter, Prisma.ProveedorWhereInput> | null
   items?: Prisma.CompraItemListRelationFilter
@@ -234,6 +266,10 @@ export type CompraOrderByWithRelationInput = {
   facturaNumero?: Prisma.SortOrderInput | Prisma.SortOrder
   notas?: Prisma.SortOrderInput | Prisma.SortOrder
   total?: Prisma.SortOrder
+  esCredito?: Prisma.SortOrder
+  fechaVencimiento?: Prisma.SortOrderInput | Prisma.SortOrder
+  pagada?: Prisma.SortOrder
+  telefonoContacto?: Prisma.SortOrderInput | Prisma.SortOrder
   proveedorId?: Prisma.SortOrderInput | Prisma.SortOrder
   proveedor?: Prisma.ProveedorOrderByWithRelationInput
   items?: Prisma.CompraItemOrderByRelationAggregateInput
@@ -248,6 +284,10 @@ export type CompraWhereUniqueInput = Prisma.AtLeast<{
   facturaNumero?: Prisma.StringNullableFilter<"Compra"> | string | null
   notas?: Prisma.StringNullableFilter<"Compra"> | string | null
   total?: Prisma.DecimalFilter<"Compra"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  esCredito?: Prisma.BoolFilter<"Compra"> | boolean
+  fechaVencimiento?: Prisma.DateTimeNullableFilter<"Compra"> | Date | string | null
+  pagada?: Prisma.BoolFilter<"Compra"> | boolean
+  telefonoContacto?: Prisma.StringNullableFilter<"Compra"> | string | null
   proveedorId?: Prisma.StringNullableFilter<"Compra"> | string | null
   proveedor?: Prisma.XOR<Prisma.ProveedorNullableScalarRelationFilter, Prisma.ProveedorWhereInput> | null
   items?: Prisma.CompraItemListRelationFilter
@@ -259,6 +299,10 @@ export type CompraOrderByWithAggregationInput = {
   facturaNumero?: Prisma.SortOrderInput | Prisma.SortOrder
   notas?: Prisma.SortOrderInput | Prisma.SortOrder
   total?: Prisma.SortOrder
+  esCredito?: Prisma.SortOrder
+  fechaVencimiento?: Prisma.SortOrderInput | Prisma.SortOrder
+  pagada?: Prisma.SortOrder
+  telefonoContacto?: Prisma.SortOrderInput | Prisma.SortOrder
   proveedorId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.CompraCountOrderByAggregateInput
   _avg?: Prisma.CompraAvgOrderByAggregateInput
@@ -276,6 +320,10 @@ export type CompraScalarWhereWithAggregatesInput = {
   facturaNumero?: Prisma.StringNullableWithAggregatesFilter<"Compra"> | string | null
   notas?: Prisma.StringNullableWithAggregatesFilter<"Compra"> | string | null
   total?: Prisma.DecimalWithAggregatesFilter<"Compra"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  esCredito?: Prisma.BoolWithAggregatesFilter<"Compra"> | boolean
+  fechaVencimiento?: Prisma.DateTimeNullableWithAggregatesFilter<"Compra"> | Date | string | null
+  pagada?: Prisma.BoolWithAggregatesFilter<"Compra"> | boolean
+  telefonoContacto?: Prisma.StringNullableWithAggregatesFilter<"Compra"> | string | null
   proveedorId?: Prisma.StringNullableWithAggregatesFilter<"Compra"> | string | null
 }
 
@@ -285,6 +333,10 @@ export type CompraCreateInput = {
   facturaNumero?: string | null
   notas?: string | null
   total: runtime.Decimal | runtime.DecimalJsLike | number | string
+  esCredito?: boolean
+  fechaVencimiento?: Date | string | null
+  pagada?: boolean
+  telefonoContacto?: string | null
   proveedor?: Prisma.ProveedorCreateNestedOneWithoutComprasInput
   items?: Prisma.CompraItemCreateNestedManyWithoutCompraInput
 }
@@ -295,6 +347,10 @@ export type CompraUncheckedCreateInput = {
   facturaNumero?: string | null
   notas?: string | null
   total: runtime.Decimal | runtime.DecimalJsLike | number | string
+  esCredito?: boolean
+  fechaVencimiento?: Date | string | null
+  pagada?: boolean
+  telefonoContacto?: string | null
   proveedorId?: string | null
   items?: Prisma.CompraItemUncheckedCreateNestedManyWithoutCompraInput
 }
@@ -305,6 +361,10 @@ export type CompraUpdateInput = {
   facturaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  esCredito?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  fechaVencimiento?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pagada?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  telefonoContacto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   proveedor?: Prisma.ProveedorUpdateOneWithoutComprasNestedInput
   items?: Prisma.CompraItemUpdateManyWithoutCompraNestedInput
 }
@@ -315,6 +375,10 @@ export type CompraUncheckedUpdateInput = {
   facturaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  esCredito?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  fechaVencimiento?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pagada?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  telefonoContacto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   proveedorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   items?: Prisma.CompraItemUncheckedUpdateManyWithoutCompraNestedInput
 }
@@ -325,6 +389,10 @@ export type CompraCreateManyInput = {
   facturaNumero?: string | null
   notas?: string | null
   total: runtime.Decimal | runtime.DecimalJsLike | number | string
+  esCredito?: boolean
+  fechaVencimiento?: Date | string | null
+  pagada?: boolean
+  telefonoContacto?: string | null
   proveedorId?: string | null
 }
 
@@ -334,6 +402,10 @@ export type CompraUpdateManyMutationInput = {
   facturaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  esCredito?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  fechaVencimiento?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pagada?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  telefonoContacto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CompraUncheckedUpdateManyInput = {
@@ -342,6 +414,10 @@ export type CompraUncheckedUpdateManyInput = {
   facturaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  esCredito?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  fechaVencimiento?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pagada?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  telefonoContacto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   proveedorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -361,6 +437,10 @@ export type CompraCountOrderByAggregateInput = {
   facturaNumero?: Prisma.SortOrder
   notas?: Prisma.SortOrder
   total?: Prisma.SortOrder
+  esCredito?: Prisma.SortOrder
+  fechaVencimiento?: Prisma.SortOrder
+  pagada?: Prisma.SortOrder
+  telefonoContacto?: Prisma.SortOrder
   proveedorId?: Prisma.SortOrder
 }
 
@@ -374,6 +454,10 @@ export type CompraMaxOrderByAggregateInput = {
   facturaNumero?: Prisma.SortOrder
   notas?: Prisma.SortOrder
   total?: Prisma.SortOrder
+  esCredito?: Prisma.SortOrder
+  fechaVencimiento?: Prisma.SortOrder
+  pagada?: Prisma.SortOrder
+  telefonoContacto?: Prisma.SortOrder
   proveedorId?: Prisma.SortOrder
 }
 
@@ -383,6 +467,10 @@ export type CompraMinOrderByAggregateInput = {
   facturaNumero?: Prisma.SortOrder
   notas?: Prisma.SortOrder
   total?: Prisma.SortOrder
+  esCredito?: Prisma.SortOrder
+  fechaVencimiento?: Prisma.SortOrder
+  pagada?: Prisma.SortOrder
+  telefonoContacto?: Prisma.SortOrder
   proveedorId?: Prisma.SortOrder
 }
 
@@ -457,6 +545,10 @@ export type CompraCreateWithoutProveedorInput = {
   facturaNumero?: string | null
   notas?: string | null
   total: runtime.Decimal | runtime.DecimalJsLike | number | string
+  esCredito?: boolean
+  fechaVencimiento?: Date | string | null
+  pagada?: boolean
+  telefonoContacto?: string | null
   items?: Prisma.CompraItemCreateNestedManyWithoutCompraInput
 }
 
@@ -466,6 +558,10 @@ export type CompraUncheckedCreateWithoutProveedorInput = {
   facturaNumero?: string | null
   notas?: string | null
   total: runtime.Decimal | runtime.DecimalJsLike | number | string
+  esCredito?: boolean
+  fechaVencimiento?: Date | string | null
+  pagada?: boolean
+  telefonoContacto?: string | null
   items?: Prisma.CompraItemUncheckedCreateNestedManyWithoutCompraInput
 }
 
@@ -504,6 +600,10 @@ export type CompraScalarWhereInput = {
   facturaNumero?: Prisma.StringNullableFilter<"Compra"> | string | null
   notas?: Prisma.StringNullableFilter<"Compra"> | string | null
   total?: Prisma.DecimalFilter<"Compra"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  esCredito?: Prisma.BoolFilter<"Compra"> | boolean
+  fechaVencimiento?: Prisma.DateTimeNullableFilter<"Compra"> | Date | string | null
+  pagada?: Prisma.BoolFilter<"Compra"> | boolean
+  telefonoContacto?: Prisma.StringNullableFilter<"Compra"> | string | null
   proveedorId?: Prisma.StringNullableFilter<"Compra"> | string | null
 }
 
@@ -513,6 +613,10 @@ export type CompraCreateWithoutItemsInput = {
   facturaNumero?: string | null
   notas?: string | null
   total: runtime.Decimal | runtime.DecimalJsLike | number | string
+  esCredito?: boolean
+  fechaVencimiento?: Date | string | null
+  pagada?: boolean
+  telefonoContacto?: string | null
   proveedor?: Prisma.ProveedorCreateNestedOneWithoutComprasInput
 }
 
@@ -522,6 +626,10 @@ export type CompraUncheckedCreateWithoutItemsInput = {
   facturaNumero?: string | null
   notas?: string | null
   total: runtime.Decimal | runtime.DecimalJsLike | number | string
+  esCredito?: boolean
+  fechaVencimiento?: Date | string | null
+  pagada?: boolean
+  telefonoContacto?: string | null
   proveedorId?: string | null
 }
 
@@ -547,6 +655,10 @@ export type CompraUpdateWithoutItemsInput = {
   facturaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  esCredito?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  fechaVencimiento?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pagada?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  telefonoContacto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   proveedor?: Prisma.ProveedorUpdateOneWithoutComprasNestedInput
 }
 
@@ -556,6 +668,10 @@ export type CompraUncheckedUpdateWithoutItemsInput = {
   facturaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  esCredito?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  fechaVencimiento?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pagada?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  telefonoContacto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   proveedorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -565,6 +681,10 @@ export type CompraCreateManyProveedorInput = {
   facturaNumero?: string | null
   notas?: string | null
   total: runtime.Decimal | runtime.DecimalJsLike | number | string
+  esCredito?: boolean
+  fechaVencimiento?: Date | string | null
+  pagada?: boolean
+  telefonoContacto?: string | null
 }
 
 export type CompraUpdateWithoutProveedorInput = {
@@ -573,6 +693,10 @@ export type CompraUpdateWithoutProveedorInput = {
   facturaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  esCredito?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  fechaVencimiento?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pagada?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  telefonoContacto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   items?: Prisma.CompraItemUpdateManyWithoutCompraNestedInput
 }
 
@@ -582,6 +706,10 @@ export type CompraUncheckedUpdateWithoutProveedorInput = {
   facturaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  esCredito?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  fechaVencimiento?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pagada?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  telefonoContacto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   items?: Prisma.CompraItemUncheckedUpdateManyWithoutCompraNestedInput
 }
 
@@ -591,6 +719,10 @@ export type CompraUncheckedUpdateManyWithoutProveedorInput = {
   facturaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   total?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  esCredito?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  fechaVencimiento?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pagada?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  telefonoContacto?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -630,6 +762,10 @@ export type CompraSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   facturaNumero?: boolean
   notas?: boolean
   total?: boolean
+  esCredito?: boolean
+  fechaVencimiento?: boolean
+  pagada?: boolean
+  telefonoContacto?: boolean
   proveedorId?: boolean
   proveedor?: boolean | Prisma.Compra$proveedorArgs<ExtArgs>
   items?: boolean | Prisma.Compra$itemsArgs<ExtArgs>
@@ -642,6 +778,10 @@ export type CompraSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   facturaNumero?: boolean
   notas?: boolean
   total?: boolean
+  esCredito?: boolean
+  fechaVencimiento?: boolean
+  pagada?: boolean
+  telefonoContacto?: boolean
   proveedorId?: boolean
   proveedor?: boolean | Prisma.Compra$proveedorArgs<ExtArgs>
 }, ExtArgs["result"]["compra"]>
@@ -652,6 +792,10 @@ export type CompraSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   facturaNumero?: boolean
   notas?: boolean
   total?: boolean
+  esCredito?: boolean
+  fechaVencimiento?: boolean
+  pagada?: boolean
+  telefonoContacto?: boolean
   proveedorId?: boolean
   proveedor?: boolean | Prisma.Compra$proveedorArgs<ExtArgs>
 }, ExtArgs["result"]["compra"]>
@@ -662,10 +806,14 @@ export type CompraSelectScalar = {
   facturaNumero?: boolean
   notas?: boolean
   total?: boolean
+  esCredito?: boolean
+  fechaVencimiento?: boolean
+  pagada?: boolean
+  telefonoContacto?: boolean
   proveedorId?: boolean
 }
 
-export type CompraOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fecha" | "facturaNumero" | "notas" | "total" | "proveedorId", ExtArgs["result"]["compra"]>
+export type CompraOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fecha" | "facturaNumero" | "notas" | "total" | "esCredito" | "fechaVencimiento" | "pagada" | "telefonoContacto" | "proveedorId", ExtArgs["result"]["compra"]>
 export type CompraInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   proveedor?: boolean | Prisma.Compra$proveedorArgs<ExtArgs>
   items?: boolean | Prisma.Compra$itemsArgs<ExtArgs>
@@ -690,6 +838,10 @@ export type $CompraPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     facturaNumero: string | null
     notas: string | null
     total: runtime.Decimal
+    esCredito: boolean
+    fechaVencimiento: Date | null
+    pagada: boolean
+    telefonoContacto: string | null
     proveedorId: string | null
   }, ExtArgs["result"]["compra"]>
   composites: {}
@@ -1121,6 +1273,10 @@ export interface CompraFieldRefs {
   readonly facturaNumero: Prisma.FieldRef<"Compra", 'String'>
   readonly notas: Prisma.FieldRef<"Compra", 'String'>
   readonly total: Prisma.FieldRef<"Compra", 'Decimal'>
+  readonly esCredito: Prisma.FieldRef<"Compra", 'Boolean'>
+  readonly fechaVencimiento: Prisma.FieldRef<"Compra", 'DateTime'>
+  readonly pagada: Prisma.FieldRef<"Compra", 'Boolean'>
+  readonly telefonoContacto: Prisma.FieldRef<"Compra", 'String'>
   readonly proveedorId: Prisma.FieldRef<"Compra", 'String'>
 }
     

@@ -2155,6 +2155,10 @@ export const CompraScalarFieldEnum = {
   facturaNumero: 'facturaNumero',
   notas: 'notas',
   total: 'total',
+  esCredito: 'esCredito',
+  fechaVencimiento: 'fechaVencimiento',
+  pagada: 'pagada',
+  telefonoContacto: 'telefonoContacto',
   proveedorId: 'proveedorId'
 } as const
 

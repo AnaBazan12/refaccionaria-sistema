@@ -7,16 +7,22 @@ import { RequestConUsuario } from '../middlewares/auth.middleware'
 export const registrarCompra = async (req: RequestConUsuario, res: Response) => {
   try {
     const {
-      proveedorId,    // opcional
-      facturaNumero,  // opcional
-      notas,          // opcional
+      proveedorId,      // opcional
+      facturaNumero,    // opcional
+      notas,            // opcional
       actualizarCostos, // boolean — si true, actualiza costoCompra en cada refaccion
-      items           // [{ refaccionId, cantidad, costoUnitario }]
+      esCredito,        // boolean — compra a crédito
+      fechaVencimiento, // fecha límite de pago (si esCredito)
+      telefonoContacto, // teléfono para recordatorio WhatsApp
+      items             // [{ refaccionId, cantidad, costoUnitario }]
     } = req.body as {
-      proveedorId?:    string
-      facturaNumero?:  string
-      notas?:          string
-      actualizarCostos: boolean
+      proveedorId?:      string
+      facturaNumero?:    string
+      notas?:            string
+      actualizarCostos:  boolean
+      esCredito?:        boolean
+      fechaVencimiento?: string
+      telefonoContacto?: string
       items: { refaccionId: string; cantidad: number; costoUnitario: number }[]
     }
 
@@ -51,9 +57,13 @@ export const registrarCompra = async (req: RequestConUsuario, res: Response) => 
       prisma.compra.create({
         data: {
           id: compraId,
-          proveedorId:   proveedorId   ?? null,
-          facturaNumero: facturaNumero ?? null,
-          notas:         notas         ?? null,
+          proveedorId:      proveedorId      ?? null,
+          facturaNumero:    facturaNumero    ?? null,
+          notas:            notas            ?? null,
+          esCredito:        esCredito        ?? false,
+          fechaVencimiento: esCredito && fechaVencimiento ? new Date(fechaVencimiento) : null,
+          pagada:           esCredito ? false : true,
+          telefonoContacto: telefonoContacto ?? null,
           total,
           items: {
             create: items.map(i => ({
@@ -151,6 +161,109 @@ export const getCompras = async (req: RequestConUsuario, res: Response) => {
       total,
       pagina:      pageNum,
       totalPaginas: Math.ceil(total / limitNum)
+    })
+  } catch (error) {
+    return res.status(500).json({ mensaje: 'Error del servidor', error })
+  }
+}
+
+// ── Eliminar compra (revierte stock) ─────────────────────────
+export const eliminarCompra = async (req: RequestConUsuario, res: Response) => {
+  try {
+    const id = req.params.id as string
+    const compra = await prisma.compra.findUnique({
+      where:   { id },
+      include: { items: true }
+    }) as any
+    if (!compra) return res.status(404).json({ mensaje: 'Compra no encontrada' })
+
+    // Revertir stock y crear movimientos de salida
+    await prisma.$transaction([
+      prisma.compra.delete({ where: { id } }),
+      ...compra.items.flatMap((item: any) => [
+        prisma.refaccion.update({
+          where: { id: item.refaccionId },
+          data:  { stockActual: { decrement: item.cantidad } }
+        }),
+        prisma.movimientoInventario.create({
+          data: {
+            refaccionId: item.refaccionId,
+            tipo:        'SALIDA',
+            cantidad:    item.cantidad,
+            motivo:      `Eliminación de compra${compra.facturaNumero ? ' #' + compra.facturaNumero : ''}`
+          }
+        })
+      ] as any[])
+    ] as any[])
+
+    return res.json({ mensaje: 'Compra eliminada y stock revertido' })
+  } catch (error) {
+    return res.status(500).json({ mensaje: 'Error del servidor', error })
+  }
+}
+
+// ── Marcar compra a crédito como pagada ───────────────────────
+export const marcarCompraPagada = async (req: RequestConUsuario, res: Response) => {
+  try {
+    const compra = await prisma.compra.update({
+      where: { id: req.params.id as string },
+      data:  { pagada: true }
+    })
+    return res.json({ mensaje: 'Compra marcada como pagada', compra })
+  } catch (error) {
+    return res.status(500).json({ mensaje: 'Error del servidor', error })
+  }
+}
+
+// ── Compras a crédito próximas a vencer (recordatorio) ───────
+export const comprasPorVencer = async (_req: RequestConUsuario, res: Response) => {
+  try {
+    const ahora  = new Date()
+    const en7    = new Date(ahora)
+    en7.setDate(en7.getDate() + 7)
+
+    const compras = await prisma.compra.findMany({
+      where: {
+        esCredito:        true,
+        pagada:           false,
+        fechaVencimiento: { lte: en7 }
+      },
+      include: {
+        proveedor: { select: { nombre: true } },
+        items:     { include: { refaccion: { select: { nombre: true } } } }
+      },
+      orderBy: { fechaVencimiento: 'asc' }
+    })
+
+    const NEGOCIO = process.env.NEGOCIO_NOMBRE ?? 'el taller'
+
+    const resultado = compras.map(c => {
+      const vence    = c.fechaVencimiento!
+      const diasLeft = Math.ceil((vence.getTime() - ahora.getTime()) / (1000 * 60 * 60 * 24))
+      const vencida  = diasLeft < 0
+
+      let waUrl: string | null = null
+      if (c.telefonoContacto) {
+        const tel     = c.telefonoContacto.replace(/\D/g, '')
+        const fechaStr = vence.toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })
+        const texto   = vencida
+          ? `Hola 👋 Te recordamos que la factura${c.facturaNumero ? ' #' + c.facturaNumero : ''} de *${c.proveedor?.nombre ?? 'proveedor'}* por *$${Number(c.total).toLocaleString('es-MX')}* venció el *${fechaStr}* y sigue pendiente de pago.\n\n_${NEGOCIO}_`
+          : `Hola 👋 Te recordamos que la factura${c.facturaNumero ? ' #' + c.facturaNumero : ''} de *${c.proveedor?.nombre ?? 'proveedor'}* por *$${Number(c.total).toLocaleString('es-MX')}* vence el *${fechaStr}* (en ${diasLeft} día${diasLeft !== 1 ? 's' : ''}).\n\n_${NEGOCIO}_`
+        waUrl = `https://wa.me/52${tel}?text=${encodeURIComponent(texto)}`
+      }
+
+      return {
+        ...c,
+        diasLeft,
+        vencida,
+        waUrl
+      }
+    })
+
+    return res.json({
+      total:   resultado.length,
+      vencidas: resultado.filter(c => c.vencida).length,
+      compras:  resultado
     })
   } catch (error) {
     return res.status(500).json({ mensaje: 'Error del servidor', error })
