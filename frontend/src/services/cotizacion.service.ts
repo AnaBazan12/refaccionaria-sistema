@@ -41,6 +41,11 @@ export const convertirEnOrden = async (id: string, extra: {
   return data
 }
 
+export const aprobarCotizacion = async (id: string) => {
+  const { data } = await api.patch(`/cotizaciones/${id}/aprobar`)
+  return data
+}
+
 export const rechazarCotizacion = async (id: string) => {
   const { data } = await api.patch(`/cotizaciones/${id}/rechazar`)
   return data

@@ -97,6 +97,31 @@ export const crearCotizacion = async (
   }
 }
 
+// ── Aprobar cotización ────────────────────────────────────────
+export const aprobarCotizacion = async (req: Request, res: Response) => {
+  try {
+    const cotizacion = await prisma.cotizacion.findUnique({
+      where: { id: req.params.id as string }
+    })
+    if (!cotizacion) {
+      return res.status(404).json({ mensaje: 'Cotización no encontrada' })
+    }
+    if (cotizacion.estado === 'CONVERTIDA') {
+      return res.status(400).json({ mensaje: 'Ya fue convertida en orden' })
+    }
+    if (cotizacion.estado === 'RECHAZADA') {
+      return res.status(400).json({ mensaje: 'No se puede aprobar una cotización rechazada' })
+    }
+    const actualizada = await prisma.cotizacion.update({
+      where: { id: req.params.id as string },
+      data:  { estado: 'APROBADA' }
+    })
+    return res.json({ mensaje: 'Cotización aprobada', cotizacion: actualizada })
+  } catch (error) {
+    return res.status(500).json({ mensaje: 'Error del servidor', error })
+  }
+}
+
 // ── Convertir cotización en orden de trabajo ──────────────────
 export const convertirEnOrden = async (
   req: RequestConUsuario,
@@ -115,31 +140,49 @@ export const convertirEnOrden = async (
         mensaje: 'Esta cotización ya fue convertida en orden'
       })
     }
+    if (!cotizacion.vehiculoId) {
+      return res.status(400).json({
+        mensaje: 'La cotización debe tener un vehículo para convertirse en orden'
+      })
+    }
 
     const { mecanicoId, kilometraje, diagnostico } = req.body
 
     // Separar items en servicios y refacciones
-    const serviciosItems  = cotizacion.items.filter(i => i.servicioId)
+    const serviciosItems   = cotizacion.items.filter(i => i.servicioId)
     const refaccionesItems = cotizacion.items.filter(i => i.refaccionId)
 
     const totalManoObra = serviciosItems.reduce(
       (s, i) => s + Number(i.subtotal), 0
     )
 
-    // Crear la orden
+    // Verificar stock de todas las refacciones antes de crear nada
+    const refacciones = await prisma.refaccion.findMany({
+      where: { id: { in: refaccionesItems.map(i => i.refaccionId!) } }
+    })
+    const sinStock: string[] = []
+    for (const item of refaccionesItems) {
+      const ref = refacciones.find(r => r.id === item.refaccionId)
+      if (!ref || ref.stockActual < item.cantidad) {
+        sinStock.push(ref?.nombre ?? item.refaccionId!)
+      }
+    }
+    if (sinStock.length > 0) {
+      return res.status(400).json({
+        mensaje: `Stock insuficiente para: ${sinStock.join(', ')}`
+      })
+    }
+
+    // ── Crear la orden con sus servicios ──────────────────────
     const orden = await prisma.ordenTrabajo.create({
       data: {
-        clienteId:   cotizacion.clienteId,
-        vehiculoId:  cotizacion.vehiculoId!,
-        mecanicoId:  mecanicoId ?? null,
-        kilometraje: kilometraje ?? null,
-        diagnostico: diagnostico ?? cotizacion.notas,
+        clienteId:    cotizacion.clienteId,
+        vehiculoId:   cotizacion.vehiculoId,
+        mecanicoId:   mecanicoId  ?? null,
+        kilometraje:  kilometraje ?? null,
+        diagnostico:  diagnostico ?? cotizacion.notas ?? null,
         totalManoObra,
-        total:       Number(cotizacion.total),
-        saldoPendiente: Number(cotizacion.total),
-        creadoPorId: req.usuario?.id ?? null,
-
-        // Crear servicios de la cotización
+        creadoPorId:  req.usuario?.id ?? null,
         servicios: {
           create: serviciosItems.map(i => ({
             servicioId:     i.servicioId!,
@@ -151,34 +194,57 @@ export const convertirEnOrden = async (
       }
     })
 
-    // Agregar refacciones al detalle con descuento de stock
-    for (const item of refaccionesItems) {
-      const refaccion = await prisma.refaccion.findUnique({
-        where: { id: item.refaccionId! }
-      })
-      if (refaccion && refaccion.stockActual >= item.cantidad) {
-        await prisma.$transaction([
-          prisma.ordenDetalle.create({
-            data: {
-              ordenId:        orden.id,
-              refaccionId:    item.refaccionId!,
-              cantidad:       item.cantidad,
-              precioUnitario: item.precioUnitario,
-              costoSnapshot:  Number(refaccion.costoCompra),
-              subtotal:       item.subtotal
-            }
-          }),
-          prisma.refaccion.update({
-            where: { id: item.refaccionId! },
-            data:  { stockActual: { decrement: item.cantidad } }
-          })
-        ])
-      }
+    // ── Agregar refacciones en transacción atómica ────────────
+    if (refaccionesItems.length > 0) {
+      await prisma.$transaction(
+        refaccionesItems.flatMap(item => {
+          const ref = refacciones.find(r => r.id === item.refaccionId)!
+          return [
+            prisma.ordenDetalle.create({
+              data: {
+                ordenId:        orden.id,
+                refaccionId:    item.refaccionId!,
+                cantidad:       item.cantidad,
+                precioUnitario: item.precioUnitario,
+                costoSnapshot:  Number(ref.costoCompra),
+                subtotal:       item.subtotal
+              }
+            }),
+            prisma.refaccion.update({
+              where: { id: item.refaccionId! },
+              data:  { stockActual: { decrement: item.cantidad } }
+            }),
+            prisma.movimientoInventario.create({
+              data: {
+                refaccionId: item.refaccionId!,
+                tipo:        'SALIDA',
+                cantidad:    item.cantidad,
+                motivo:      `Orden de trabajo (cotización #${cotizacion.numero})`
+              }
+            })
+          ]
+        })
+      )
     }
 
-    // Marcar cotización como convertida
+    // ── Recalcular totales de la orden ────────────────────────
+    const totalRefacciones = refaccionesItems.reduce(
+      (s, i) => s + Number(i.subtotal), 0
+    )
+    const nuevoTotal = totalManoObra + totalRefacciones
+
+    await prisma.ordenTrabajo.update({
+      where: { id: orden.id },
+      data: {
+        totalRefacciones,
+        total:          nuevoTotal,
+        saldoPendiente: nuevoTotal
+      }
+    })
+
+    // ── Marcar cotización como convertida ─────────────────────
     await prisma.cotizacion.update({
-      where: { id: req.params.id as string},
+      where: { id: req.params.id as string },
       data:  { estado: 'CONVERTIDA', ordenId: orden.id }
     })
 

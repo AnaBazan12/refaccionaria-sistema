@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import {
   getCotizaciones, crearCotizacion,
-  convertirEnOrden, rechazarCotizacion
+  aprobarCotizacion, convertirEnOrden, rechazarCotizacion
 } from '../services/cotizacion.service'
 import { getClientes }          from '../services/cliente.service'
 import { getVehiculosPorCliente } from '../services/orden.service'
@@ -79,6 +79,16 @@ export default function Cotizaciones() {
 
   const [guardando,    setGuardando]    = useState(false)
   const [error,        setError]        = useState('')
+
+  // OT creada exitosamente — mostrar panel de confirmación
+  const [otCreada,     setOtCreada]     = useState<{ numero: number; id: string } | null>(null)
+
+  // Auto-cerrar el banner de éxito
+  useEffect(() => {
+    if (!otCreada) return
+    const t = setTimeout(() => setOtCreada(null), 7000)
+    return () => clearTimeout(t)
+  }, [otCreada])
 
   const cargar = async (pag = 1, estado?: string) => {
     setCargando(true)
@@ -185,6 +195,16 @@ export default function Cotizaciones() {
     }
   }
 
+  // ── Aprobar cotización ────────────────────────────────────
+  const handleAprobar = async (id: string) => {
+    try {
+      await aprobarCotizacion(id)
+      cargar(pagina, filtroEstado || undefined)
+    } catch (err: any) {
+      alert(err.response?.data?.mensaje || 'Error al aprobar')
+    }
+  }
+
   // ── Convertir en orden ────────────────────────────────────
   const handleConvertir = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -196,7 +216,7 @@ export default function Cotizaciones() {
         kilometraje: kmConv ? Number(kmConv) : undefined,
         diagnostico: diagConv || undefined
       })
-      alert(`✅ Orden #${resultado.numero} creada exitosamente`)
+      setOtCreada({ numero: resultado.numero, id: resultado.ordenId })
       setModalConvertir(null)
       cargar(pagina, filtroEstado || undefined)
     } catch (err: any) {
@@ -383,21 +403,16 @@ export default function Cotizaciones() {
                       </button>
                     )}
                   </div>
+                  {/* ── PENDIENTE: aprobar o rechazar ── */}
                   {c.estado === 'PENDIENTE' && (
                     <>
                       <button
-                        onClick={() => {
-                          setError('')
-                          setMecanicoConv('')
-                          setKmConv('')
-                          setDiagConv('')
-                          setModalConvertir(c)
-                        }}
-                        className="text-xs bg-purple-600 hover:bg-purple-700
+                        onClick={() => handleAprobar(c.id)}
+                        className="text-xs bg-green-600 hover:bg-green-700
                                    text-white px-3 py-1.5 rounded-lg
                                    transition-colors"
                       >
-                        → Crear OT
+                        ✓ Aprobar
                       </button>
                       <button
                         onClick={() => handleRechazar(c.id)}
@@ -409,9 +424,30 @@ export default function Cotizaciones() {
                       </button>
                     </>
                   )}
-                  {c.estado === 'CONVERTIDA' && c.orden && (
-                    <span className="text-xs text-purple-600 font-medium px-3">
-                      OT #{c.orden.numero}
+
+                  {/* ── APROBADA: convertir en OT ── */}
+                  {c.estado === 'APROBADA' && (
+                    <button
+                      onClick={() => {
+                        setError('')
+                        setMecanicoConv('')
+                        setKmConv('')
+                        setDiagConv(c.notas ?? '')
+                        setModalConvertir(c)
+                      }}
+                      className="text-xs bg-purple-600 hover:bg-purple-700
+                                 text-white px-3 py-1.5 rounded-lg
+                                 transition-colors font-medium"
+                    >
+                      🔧 Crear OT
+                    </button>
+                  )}
+
+                  {/* ── CONVERTIDA: enlace a la OT ── */}
+                  {c.estado === 'CONVERTIDA' && (
+                    <span className="text-xs text-purple-600 font-semibold px-1
+                                     flex items-center gap-1">
+                      ✓ OT creada
                     </span>
                   )}
                 </div>
@@ -898,6 +934,29 @@ export default function Cotizaciones() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ── Banner de éxito: OT creada ──────────────────── */}
+      {otCreada && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50
+                        bg-white rounded-2xl shadow-2xl border border-green-200
+                        px-6 py-4 flex items-center gap-4 min-w-80 max-w-sm">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-green-500 text-lg">✅</span>
+              <span className="font-bold text-gray-800">
+                Orden #{otCreada.numero} creada
+              </span>
+            </div>
+            <div className="text-xs text-gray-500">
+              La cotización fue convertida exitosamente
+            </div>
+          </div>
+          <button
+            onClick={() => setOtCreada(null)}
+            className="text-gray-400 hover:text-gray-600 text-xl leading-none shrink-0"
+          >×</button>
         </div>
       )}
 
