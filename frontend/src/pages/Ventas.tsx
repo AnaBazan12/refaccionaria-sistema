@@ -3,7 +3,7 @@ import { registrarTicket, getVentasDelDia }              from '../services/venta
 import { buscarRefaccion }                               from '../services/inventario.service'
 import { getClientes }                                   from '../services/cliente.service'
 import { buscarOrdenes, agregarRefaccionesLote }         from '../services/orden.service'
-import TicketRecibo, { LineaTicket }                     from '../components/ui/TicketRecibo'
+import TicketRecibo, { type LineaTicket }                 from '../components/ui/TicketRecibo'
 
 type TipoVenta = 'MOSTRADOR' | 'TALLER' | 'MAYOREO'
 
