@@ -277,6 +277,113 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ── Mockup del sistema ──────────────────────────────── */}
+      <section className="py-20 bg-gray-950 overflow-hidden">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <span className="text-blue-400 text-sm font-bold uppercase tracking-wider">Vista previa</span>
+            <h2 className="text-3xl font-black text-white mt-2">
+              Así se ve tu taller digitalizado
+            </h2>
+          </div>
+
+          {/* Ventana de navegador simulada */}
+          <div className="rounded-2xl overflow-hidden shadow-2xl shadow-blue-950/50 border border-white/10 max-w-5xl mx-auto">
+            {/* Barra del navegador */}
+            <div className="bg-gray-800 px-4 py-3 flex items-center gap-3">
+              <div className="flex gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-red-500/70" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
+                <div className="w-3 h-3 rounded-full bg-green-500/70" />
+              </div>
+              <div className="flex-1 bg-gray-700 rounded-md px-3 py-1 text-xs text-gray-400 text-center">
+                tallerpro.mx/dashboard
+              </div>
+            </div>
+
+            {/* App simulada */}
+            <div className="bg-gray-900 flex" style={{ minHeight: 420 }}>
+
+              {/* Sidebar */}
+              <div className="w-48 bg-gray-950 border-r border-white/5 p-4 shrink-0 hidden sm:block">
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white text-xs font-black">T</div>
+                  <span className="text-white text-sm font-bold">TallerPro</span>
+                </div>
+                {[
+                  { icon: '📊', label: 'Dashboard',   active: true  },
+                  { icon: '🔧', label: 'Órdenes',     active: false },
+                  { icon: '💬', label: 'Cotizaciones', active: false },
+                  { icon: '📦', label: 'Inventario',   active: false },
+                  { icon: '👥', label: 'Clientes',     active: false },
+                  { icon: '💰', label: 'Caja',         active: false },
+                  { icon: '📄', label: 'Reportes',     active: false },
+                ].map((item, i) => (
+                  <div key={i} className={`flex items-center gap-2 px-3 py-2 rounded-lg mb-1 text-xs ${item.active ? 'bg-blue-600 text-white' : 'text-gray-400'}`}>
+                    <span>{item.icon}</span>
+                    <span className="font-medium">{item.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Contenido principal */}
+              <div className="flex-1 p-5 overflow-hidden">
+
+                {/* Encabezado */}
+                <div className="flex items-center justify-between mb-5">
+                  <div>
+                    <p className="text-gray-400 text-xs">Lunes 26 de mayo, 2025</p>
+                    <h3 className="text-white font-bold text-base">Dashboard</h3>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">A</div>
+                  </div>
+                </div>
+
+                {/* Tarjetas métricas */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+                  {[
+                    { label: 'Ingresos del mes', valor: '$38,450', icon: '💰', color: 'from-blue-600 to-blue-700'  },
+                    { label: 'Órdenes activas',  valor: '12',      icon: '🔧', color: 'from-violet-600 to-violet-700' },
+                    { label: 'Listos para entrega', valor: '4',   icon: '✅', color: 'from-green-600 to-green-700' },
+                    { label: 'Stock bajo',        valor: '3 pzs',  icon: '⚠️', color: 'from-amber-500 to-orange-600' },
+                  ].map((c, i) => (
+                    <div key={i} className={`bg-gradient-to-br ${c.color} rounded-xl p-3`}>
+                      <p className="text-white/70 text-xs">{c.label}</p>
+                      <p className="text-white font-black text-lg mt-1">{c.valor}</p>
+                      <p className="text-2xl mt-1">{c.icon}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Tabla órdenes recientes */}
+                <div className="bg-gray-800 rounded-xl p-3">
+                  <p className="text-gray-300 text-xs font-bold mb-3">Órdenes recientes</p>
+                  <div className="space-y-2">
+                    {[
+                      { num: '#0042', cliente: 'Roberto González', auto: 'VW Jetta 2020', estado: 'EN PROCESO', color: 'bg-blue-500/20 text-blue-300'  },
+                      { num: '#0041', cliente: 'María López',       auto: 'Chevy Aveo 2018', estado: 'LISTO',      color: 'bg-green-500/20 text-green-300' },
+                      { num: '#0040', cliente: 'Juan C. Pérez',    auto: 'Nissan Versa 2019', estado: 'RECIBIDO',   color: 'bg-gray-500/20 text-gray-300'  },
+                    ].map((o, i) => (
+                      <div key={i} className="flex items-center justify-between text-xs py-1.5 border-b border-white/5 last:border-0">
+                        <span className="text-blue-400 font-mono font-bold w-12">{o.num}</span>
+                        <span className="text-gray-300 flex-1 mx-2 truncate">{o.cliente}</span>
+                        <span className="text-gray-500 flex-1 truncate hidden lg:block">{o.auto}</span>
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${o.color}`}>{o.estado}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-center text-gray-500 text-sm mt-6">
+            Vista real del sistema — <button onClick={() => navigate('/login?demo=1')} className="text-blue-400 hover:text-blue-300 underline">pruébalo tú mismo</button>
+          </p>
+        </div>
+      </section>
+
       {/* ── Features ────────────────────────────────────────── */}
       <section id="funciones" className="py-24 bg-gray-50">
         <div className="max-w-6xl mx-auto px-6">
