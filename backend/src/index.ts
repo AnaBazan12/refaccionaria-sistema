@@ -1,7 +1,9 @@
 import express    from 'express'
 import helmet     from 'helmet'
 import rateLimit  from 'express-rate-limit'
+import compression from 'compression'
 import dotenv     from 'dotenv'
+import { validarEnv }    from './utils/validarEnv'
 import authRoutes        from './routes/auth.routes'
 import clienteRoutes     from './routes/cliente.routes'
 import vehiculoRoutes    from './routes/vehiculo.routes'
@@ -20,6 +22,7 @@ import cajaRoutes        from './routes/caja.routes'
 import compraRoutes      from './routes/compra.routes'
 
 dotenv.config()
+validarEnv()   // ← falla rápido si falta configuración crítica
 
 const app  = express()
 const PORT = process.env.PORT || 4000
@@ -67,6 +70,9 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' }, // permite recursos desde otros orígenes
 }))
+
+// ── Compresión gzip — reduce hasta 70% el tamaño de respuestas ─
+app.use(compression())
 
 app.use(express.json({ limit: '10mb' }))
 

@@ -195,6 +195,12 @@ model OrdenTrabajo {
   ventasRefacciones VentaRefaccion[]
   cotizacion   Cotizacion?
   @@map("ordenes_trabajo")
+  @@index([estado])
+  @@index([fechaIngreso])
+  @@index([clienteId])
+  @@index([mecanicoId])
+  @@index([archivada])
+  @@index([estadoPago])
 }
 
 // ─── Servicios dentro de la orden (tabla intermedia) ─────────
@@ -268,6 +274,10 @@ model Refaccion {
   compraItems      CompraItem[]
 
   @@map("refacciones")
+  @@index([nombre])
+  @@index([activo])
+  @@index([proveedorId])
+  @@index([stockActual])
 }
 
 // ─── Venta de refacción ──────────────────────────────────────
@@ -304,6 +314,10 @@ model VentaRefaccion {
   usuario          Usuario?   @relation(fields: [usuarioId], references: [id])
 
   @@map("ventas_refacciones")
+  @@index([fecha])
+  @@index([refaccionId])
+  @@index([ticketId])
+  @@index([clienteId])
   ordenServicios OrdenServicio[]
 }
 
@@ -319,6 +333,8 @@ model MovimientoInventario {
   refaccion   Refaccion @relation(fields: [refaccionId], references: [id])
 
   @@map("movimientos_inventario")
+  @@index([refaccionId])
+  @@index([fecha])
 }
 
 // ─── Factura de proveedor ────────────────────────────────────
@@ -360,6 +376,9 @@ model Compra {
   items            CompraItem[]
 
   @@map("compras")
+  @@index([fecha])
+  @@index([proveedorId])
+  @@index([esCredito, pagada])
 }
 
 model CompraItem {
@@ -465,6 +484,8 @@ model GastoCaja {
   usuario    Usuario?       @relation(fields: [usuarioId], references: [id])
 
   @@map("gastos_caja")
+  @@index([fecha])
+  @@index([categoria])
 }
 
 model BitacoraOrden {
@@ -480,4 +501,6 @@ model BitacoraOrden {
   usuario     Usuario?     @relation(fields: [usuarioId], references: [id])
 
   @@map("bitacora_ordenes")
+  @@index([ordenId])
+  @@index([fecha])
 }
