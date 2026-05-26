@@ -239,8 +239,15 @@ export const cambiarEstado = async (
     let whatsapp: { url: string; mensaje: string } | null = null
 
     if (estado === 'LISTO' && orden.cliente?.telefono) {
-      const NEGOCIO_NOMBRE = process.env.NEGOCIO_NOMBRE ?? 'el taller'
-      const NEGOCIO_TEL    = process.env.NEGOCIO_TELEFONO ?? ''
+      // Leer nombre y teléfono del negocio desde BD (fallback a env vars)
+      let negocioNombre = process.env.NEGOCIO_NOMBRE   ?? 'el taller'
+      let negocioTel    = process.env.NEGOCIO_TELEFONO ?? ''
+      try {
+        const cfg = await prisma.configNegocio.findUnique({ where: { id: 'singleton' } })
+        if (cfg?.nombre)   negocioNombre = cfg.nombre
+        if (cfg?.telefono) negocioTel    = cfg.telefono
+      } catch { /* usa fallback */ }
+
       const tel    = orden.cliente.telefono.replace(/\D/g, '')
       const nombre = orden.cliente.nombre
       const auto   = `${orden.vehiculo?.marca} ${orden.vehiculo?.modelo}`
@@ -248,10 +255,13 @@ export const cambiarEstado = async (
       const saldo  = Number(orden.saldoPendiente)
       const fmt    = (n: number) =>
         `$${n.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`
+      const firma  = negocioTel
+        ? `_${negocioNombre}_ · ${negocioTel}`
+        : `_${negocioNombre}_`
 
       const mensaje = saldo > 0
-        ? `Hola ${nombre} 👋\n\nTu *${auto}* (${placa}) ya está *listo para recoger* 🔧✅\n\n*Total del servicio:* ${fmt(Number(orden.total))}\n*Saldo pendiente:* ${fmt(saldo)}\n\nTe esperamos. ¡Gracias por tu preferencia!\n\n_${NEGOCIO_NOMBRE}_ ${NEGOCIO_TEL ? '· ' + NEGOCIO_TEL : ''}`
-        : `Hola ${nombre} 👋\n\nTu *${auto}* (${placa}) ya está *listo para recoger* 🔧✅\n\n*Total:* ${fmt(Number(orden.total))} ✓ _Pagado_\n\nTe esperamos. ¡Gracias por tu preferencia!\n\n_${NEGOCIO_NOMBRE}_ ${NEGOCIO_TEL ? '· ' + NEGOCIO_TEL : ''}`
+        ? `Hola ${nombre} 👋\n\nTu *${auto}* (${placa}) ya está *listo para recoger* 🔧✅\n\n*Total del servicio:* ${fmt(Number(orden.total))}\n*Saldo pendiente:* ${fmt(saldo)}\n\nTe esperamos en el taller. ¡Gracias por tu preferencia!\n\n${firma}`
+        : `Hola ${nombre} 👋\n\nTu *${auto}* (${placa}) ya está *listo para recoger* 🔧✅\n\n*Total:* ${fmt(Number(orden.total))} ✓ _Pagado_\n\nTe esperamos en el taller. ¡Gracias por tu preferencia!\n\n${firma}`
 
       whatsapp = {
         mensaje,
