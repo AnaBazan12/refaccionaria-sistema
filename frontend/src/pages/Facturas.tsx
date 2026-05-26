@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth }     from '../context/AuthContext'
-import {
-  listarCfdis, cancelarCfdi,
-  urlPdf, urlXml,
-  CfdiRow,
-} from '../services/cfdi.service'
+import { listarCfdis, cancelarCfdi, urlPdf, urlXml } from '../services/cfdi.service'
+import type { CfdiRow } from '../services/cfdi.service'
 import ModalFacturar from '../components/ui/ModalFacturar'
 
 const fmt = (n: string | number) =>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { crearFactura, CfdiItemInput, urlPdf, urlXml } from '../../services/cfdi.service'
+import { crearFactura, urlPdf, urlXml } from '../../services/cfdi.service'
+import type { CfdiItemInput } from '../../services/cfdi.service'
 
 // ── Catálogos SAT básicos ─────────────────────────────────────
 const USOS_CFDI = [
