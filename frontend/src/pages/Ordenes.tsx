@@ -457,7 +457,7 @@ export default function Ordenes() {
       {modalAbierto && (
         <ModalCrearOrden
           onCerrar={() => setModalAbierto(false)}
-          onCreada={() => { setModalAbierto(false); cargar(1) }}
+          onCreada={() => cargar(1)}   // solo recarga; el modal maneja su propio cierre
         />
       )}
     </div>

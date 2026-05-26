@@ -30,6 +30,8 @@ export default function ModalCrearOrden({ onCerrar, onCreada }: Props) {
 
   const [guardando, setGuardando] = useState(false)
   const [error,     setError]     = useState('')
+  // Paso 2: pantalla de éxito tras crear
+  const [ordenCreada, setOrdenCreada] = useState<{ numero: number; whatsapp: { url: string } | null } | null>(null)
 
   useEffect(() => {
     Promise.all([getClientes(), getMecanicos(), getServicios()])
@@ -91,19 +93,79 @@ export default function ModalCrearOrden({ onCerrar, onCreada }: Props) {
     setGuardando(true)
     setError('')
     try {
-      await crearOrden({
+      const res = await crearOrden({
         clienteId, vehiculoId,
         mecanicoId: mecanicoId || undefined,
         kilometraje: kilometraje ? Number(kilometraje) : undefined,
         diagnostico, observaciones,
         servicios: serviciosOrden
       })
+      // Notificar al padre para que recargue la lista
       onCreada()
+      // Mostrar pantalla de éxito (con o sin WhatsApp)
+      setOrdenCreada({ numero: res.orden?.numero, whatsapp: res.whatsapp ?? null })
     } catch (err: any) {
       setError(err.response?.data?.mensaje || 'Error al crear la orden')
     } finally {
       setGuardando(false)
     }
+  }
+
+  // ── Pantalla de éxito ───────────────────────────────────────
+  if (ordenCreada) {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-8 text-center">
+          <div className="text-5xl mb-4">✅</div>
+          <h2 className="text-xl font-bold text-gray-800 mb-1">
+            Orden #{ordenCreada.numero} creada
+          </h2>
+          <p className="text-sm text-gray-500 mb-6">
+            La orden quedó registrada con estado <span className="font-semibold text-blue-600">Recibido</span>.
+          </p>
+
+          {ordenCreada.whatsapp ? (
+            <>
+              <p className="text-sm text-gray-600 mb-4">
+                ¿Avisamos al cliente que ya recibimos su vehículo?
+              </p>
+              <div className="flex flex-col gap-3">
+                <a
+                  href={ordenCreada.whatsapp.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={onCerrar}
+                  className="flex items-center justify-center gap-2 bg-green-500
+                             hover:bg-green-600 text-white font-semibold py-3
+                             rounded-xl transition-colors text-sm"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.558 4.103 1.504 5.818L.057 23.885a.5.5 0 00.659.61l6.249-1.99A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.65-.504-5.173-1.378l-.361-.212-3.743 1.19 1.257-3.631-.229-.373A9.944 9.944 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                  </svg>
+                  📱 Avisar por WhatsApp
+                </a>
+                <button
+                  onClick={onCerrar}
+                  className="py-2.5 text-sm text-gray-500 hover:text-gray-700
+                             border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+                >
+                  Omitir
+                </button>
+              </div>
+            </>
+          ) : (
+            <button
+              onClick={onCerrar}
+              className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white
+                         font-semibold rounded-xl transition-colors text-sm"
+            >
+              Cerrar
+            </button>
+          )}
+        </div>
+      </div>
+    )
   }
 
   return (

@@ -180,7 +180,39 @@ export const crearOrden = async (req: Request, res: Response) => {
       })
     }
 
-    return res.status(201).json({ mensaje: 'Orden creada', orden })
+    // ── WhatsApp de recepción ─────────────────────────────────
+    let whatsapp: { url: string; mensaje: string } | null = null
+
+    if (cliente.telefono) {
+      let negocioNombre = process.env.NEGOCIO_NOMBRE   ?? 'el taller'
+      let negocioTel    = process.env.NEGOCIO_TELEFONO ?? ''
+      try {
+        const cfg = await prisma.configNegocio.findUnique({ where: { id: 'singleton' } })
+        if (cfg?.nombre)   negocioNombre = cfg.nombre
+        if (cfg?.telefono) negocioTel    = cfg.telefono
+      } catch { /* usa fallback */ }
+
+      const tel   = cliente.telefono.replace(/\D/g, '')
+      const auto  = `${vehiculo.marca} ${vehiculo.modelo}`
+      const placa = vehiculo.placa
+      const firma = negocioTel
+        ? `_${negocioNombre}_ · ${negocioTel}`
+        : `_${negocioNombre}_`
+
+      const mensaje =
+        `Hola ${cliente.nombre} 👋\n\n` +
+        `Hemos recibido tu *${auto}* (${placa}) en nuestro taller.\n\n` +
+        `Número de orden: *#${orden.numero}*\n\n` +
+        `Te avisaremos en cuanto esté listo. ¡Gracias por tu confianza! 🔧\n\n` +
+        firma
+
+      whatsapp = {
+        mensaje,
+        url: `https://wa.me/52${tel}?text=${encodeURIComponent(mensaje)}`
+      }
+    }
+
+    return res.status(201).json({ mensaje: 'Orden creada', orden, whatsapp })
   } catch (error) {
     return res.status(500).json({ mensaje: 'Error del servidor', error })
   }
