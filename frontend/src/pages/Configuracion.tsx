@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import api from '../services/api'
 
 interface Config {
@@ -28,27 +28,102 @@ export default function Configuracion() {
     nombre: '', subtitulo: '', telefono: '', direccion: '',
     ciudad: '', rfc: '', email: '', horario: '',
   })
-  const [cargando,  setCargando]  = useState(true)
-  const [guardando, setGuardando] = useState(false)
-  const [ok,        setOk]        = useState(false)
-  const [error,     setError]     = useState('')
+  const [cargando,       setCargando]       = useState(true)
+  const [guardando,      setGuardando]      = useState(false)
+  const [guardandoLogo,  setGuardandoLogo]  = useState(false)
+  const [ok,             setOk]             = useState(false)
+  const [okLogo,         setOkLogo]         = useState(false)
+  const [error,          setError]          = useState('')
+  const [errorLogo,      setErrorLogo]      = useState('')
+
+  // Logo: base64 sin prefijo (igual que lo guarda la BD)
+  const [logoGuardado,   setLogoGuardado]   = useState<string | null>(null)
+  const [logoPreview,    setLogoPreview]    = useState<string | null>(null)  // con prefijo para <img>
+  const [logoBase64,     setLogoBase64]     = useState<string | null>(null)  // sin prefijo, para enviar
+  const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     api.get('/config')
-      .then(({ data }) => setConfig({
-        nombre:    data.nombre    ?? '',
-        subtitulo: data.subtitulo ?? '',
-        telefono:  data.telefono  ?? '',
-        direccion: data.direccion ?? '',
-        ciudad:    data.ciudad    ?? '',
-        rfc:       data.rfc       ?? '',
-        email:     data.email     ?? '',
-        horario:   data.horario   ?? '',
-      }))
+      .then(({ data }) => {
+        setConfig({
+          nombre:    data.nombre    ?? '',
+          subtitulo: data.subtitulo ?? '',
+          telefono:  data.telefono  ?? '',
+          direccion: data.direccion ?? '',
+          ciudad:    data.ciudad    ?? '',
+          rfc:       data.rfc       ?? '',
+          email:     data.email     ?? '',
+          horario:   data.horario   ?? '',
+        })
+        if (data.logo) {
+          setLogoGuardado(data.logo)
+          setLogoPreview(`data:image/png;base64,${data.logo}`)
+        }
+      })
       .catch(() => setError('No se pudo cargar la configuración'))
       .finally(() => setCargando(false))
   }, [])
 
+  /* ── Manejo del archivo de logo ─────────────────────────── */
+  const onArchivoSeleccionado = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const archivo = e.target.files?.[0]
+    if (!archivo) return
+
+    if (archivo.size > 2_000_000) {
+      setErrorLogo('La imagen es demasiado grande. Máximo ~1.5 MB.')
+      return
+    }
+    if (!archivo.type.startsWith('image/')) {
+      setErrorLogo('Solo se aceptan imágenes (PNG, JPG, WebP).')
+      return
+    }
+
+    setErrorLogo('')
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string
+      // dataUrl = "data:image/png;base64,XXXX..."
+      const base64 = dataUrl.split(',')[1]
+      setLogoPreview(dataUrl)
+      setLogoBase64(base64)
+    }
+    reader.readAsDataURL(archivo)
+  }
+
+  const handleGuardarLogo = async () => {
+    if (!logoBase64) return
+    setErrorLogo('')
+    setGuardandoLogo(true)
+    try {
+      await api.put('/config/logo', { logo: logoBase64 })
+      setLogoGuardado(logoBase64)
+      setLogoBase64(null)   // ya no hay cambio pendiente
+      setOkLogo(true)
+      setTimeout(() => setOkLogo(false), 3000)
+    } catch (err: any) {
+      setErrorLogo(err.response?.data?.mensaje ?? 'Error al guardar logo')
+    } finally {
+      setGuardandoLogo(false)
+    }
+  }
+
+  const handleEliminarLogo = async () => {
+    setErrorLogo('')
+    setGuardandoLogo(true)
+    try {
+      await api.put('/config/logo', { logo: null })
+      setLogoGuardado(null)
+      setLogoPreview(null)
+      setLogoBase64(null)
+      if (fileRef.current) fileRef.current.value = ''
+    } catch (err: any) {
+      setErrorLogo(err.response?.data?.mensaje ?? 'Error al eliminar logo')
+    } finally {
+      setGuardandoLogo(false)
+    }
+  }
+
+  /* ── Guardar datos del negocio ──────────────────────────── */
   const handleGuardar = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
@@ -74,6 +149,8 @@ export default function Configuracion() {
     )
   }
 
+  const logoActual = logoPreview  // puede ser el guardado o uno recién seleccionado
+
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-6">
 
@@ -85,14 +162,123 @@ export default function Configuracion() {
         </p>
       </div>
 
+      {/* ── Sección de logo ──────────────────────────────────── */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-6">
+        <h2 className="text-sm font-bold text-gray-700 mb-4">Logo del negocio</h2>
+
+        <div className="flex items-start gap-5">
+
+          {/* Preview */}
+          <div className="shrink-0">
+            <div className="w-24 h-24 rounded-2xl overflow-hidden border-2 border-dashed border-gray-300
+                            bg-gray-50 flex items-center justify-center">
+              {logoActual ? (
+                <img
+                  src={logoActual}
+                  alt="Logo del negocio"
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <div className="text-center">
+                  <div className="text-3xl">🏢</div>
+                  <div className="text-xs text-gray-400 mt-1">Sin logo</div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Controles */}
+          <div className="flex-1 space-y-3">
+            <p className="text-xs text-gray-500">
+              PNG, JPG o WebP — máximo 1.5 MB.<br/>
+              Recomendado: fondo transparente (PNG), mínimo 200×200 px.
+            </p>
+
+            <div className="flex flex-wrap gap-2">
+              {/* Botón seleccionar archivo */}
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs
+                           font-medium rounded-lg transition-colors"
+              >
+                {logoActual ? '🔄 Cambiar logo' : '📁 Subir logo'}
+              </button>
+
+              {/* Guardar logo (solo si hay cambio pendiente) */}
+              {logoBase64 && (
+                <button
+                  type="button"
+                  onClick={handleGuardarLogo}
+                  disabled={guardandoLogo}
+                  className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400
+                             text-white text-xs font-medium rounded-lg transition-colors
+                             flex items-center gap-1.5"
+                >
+                  {guardandoLogo ? (
+                    <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : '💾'}
+                  Guardar logo
+                </button>
+              )}
+
+              {/* Eliminar logo (solo si hay logo guardado) */}
+              {logoGuardado && !logoBase64 && (
+                <button
+                  type="button"
+                  onClick={handleEliminarLogo}
+                  disabled={guardandoLogo}
+                  className="px-4 py-2 border border-red-200 text-red-600 hover:bg-red-50
+                             text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
+                >
+                  🗑 Eliminar logo
+                </button>
+              )}
+            </div>
+
+            {/* Feedback logo */}
+            {errorLogo && (
+              <p className="text-xs text-red-600 bg-red-50 border border-red-200 px-3 py-2 rounded-lg">
+                {errorLogo}
+              </p>
+            )}
+            {okLogo && (
+              <p className="text-xs text-green-700 bg-green-50 border border-green-200 px-3 py-2 rounded-lg flex items-center gap-1.5">
+                ✅ Logo guardado — aparecerá en todos los PDFs
+              </p>
+            )}
+            {logoBase64 && !okLogo && (
+              <p className="text-xs text-amber-700 bg-amber-50 border border-amber-100 px-3 py-2 rounded-lg">
+                Logo seleccionado — presiona "Guardar logo" para aplicarlo
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Input oculto */}
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          className="hidden"
+          onChange={onArchivoSeleccionado}
+        />
+      </div>
+
       {/* Vista previa del encabezado del PDF */}
       <div className="bg-gray-900 rounded-2xl p-5 text-white">
         <p className="text-xs text-gray-400 uppercase tracking-wider mb-3 font-semibold">
           Vista previa — encabezado del PDF
         </p>
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xl shrink-0">
-            {config.nombre.charAt(0).toUpperCase() || 'T'}
+          {/* Logo en preview */}
+          <div className="w-12 h-12 rounded-xl overflow-hidden bg-blue-600 flex items-center
+                          justify-center text-white font-black text-xl shrink-0">
+            {logoActual ? (
+              <img src={logoActual} alt="Logo" className="w-full h-full object-contain" />
+            ) : (
+              config.nombre.charAt(0).toUpperCase() || 'T'
+            )}
           </div>
           <div>
             <p className="font-bold text-base leading-tight">
@@ -113,8 +299,10 @@ export default function Configuracion() {
         </div>
       </div>
 
-      {/* Formulario */}
+      {/* Formulario datos del negocio */}
       <form onSubmit={handleGuardar} className="bg-white rounded-2xl border border-gray-200 p-6 space-y-4">
+
+        <h2 className="text-sm font-bold text-gray-700">Datos del negocio</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {CAMPOS.map(({ key, label, placeholder, icono, required }) => (
@@ -172,7 +360,8 @@ export default function Configuracion() {
       <div className="bg-blue-50 border border-blue-100 rounded-xl px-5 py-4 text-sm text-blue-700">
         <p className="font-semibold mb-1">💡 ¿Para qué sirve esto?</p>
         <ul className="space-y-1 text-blue-600 text-xs list-disc list-inside">
-          <li>Tu nombre y teléfono aparecen al pie de cada PDF de orden y cotización</li>
+          <li>Tu logo aparece en el encabezado de cada PDF de orden, cotización y reporte mensual</li>
+          <li>Tu nombre y teléfono se muestran junto al logo en todos los documentos</li>
           <li>Los mensajes de WhatsApp incluyen el nombre del taller automáticamente</li>
           <li>El RFC se puede usar en facturas cuando se integre facturación</li>
         </ul>

@@ -47,3 +47,25 @@ export const updateConfig = async (req: RequestConUsuario, res: Response) => {
     return res.status(500).json({ mensaje: 'Error al guardar configuración', error })
   }
 }
+
+/* ── PUT /api/config/logo ────────────────────────────────────── */
+export const updateLogo = async (req: RequestConUsuario, res: Response) => {
+  try {
+    const { logo } = req.body  // base64 sin prefijo, o null para eliminar
+
+    // Validar tamaño máximo ~1.5 MB en base64
+    if (logo && logo.length > 2_000_000) {
+      return res.status(400).json({ mensaje: 'La imagen es demasiado grande. Máximo ~1.5 MB.' })
+    }
+
+    const config = await prisma.configNegocio.upsert({
+      where:  { id: 'singleton' },
+      update: { logo: logo ?? null },
+      create: { id: 'singleton', nombre: 'Mi Taller', logo: logo ?? null },
+    })
+
+    return res.json({ mensaje: 'Logo actualizado', logo: config.logo })
+  } catch (error) {
+    return res.status(500).json({ mensaje: 'Error al actualizar logo', error })
+  }
+}

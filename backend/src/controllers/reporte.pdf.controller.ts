@@ -2,13 +2,28 @@ import { Request, Response } from 'express'
 import PDFDocument            from 'pdfkit'
 import { prisma }             from '../utils/prisma'
 
-// ── Datos del negocio ─────────────────────────────────────────
-const NEGOCIO = {
-  nombre:    process.env.NEGOCIO_NOMBRE    ?? 'REFACCIONARIA & TALLER',
-  subtitulo: process.env.NEGOCIO_SUBTITULO ?? 'Servicio mecánico profesional',
-  telefono:  process.env.NEGOCIO_TELEFONO  ?? '',
-  direccion: process.env.NEGOCIO_DIRECCION ?? '',
-  ciudad:    process.env.NEGOCIO_CIUDAD    ?? '',
+// ── Datos del negocio (desde BD, con fallback a env) ─────────
+type NegocioInfo = {
+  nombre:    string
+  subtitulo: string
+  telefono:  string
+  direccion: string
+  ciudad:    string
+  logo?:     string | null
+}
+
+async function getNegocio(): Promise<NegocioInfo> {
+  try {
+    const cfg = await prisma.configNegocio.findUnique({ where: { id: 'singleton' } })
+    if (cfg) return cfg
+  } catch { /* si falla la BD usamos env */ }
+  return {
+    nombre:    process.env.NEGOCIO_NOMBRE    ?? 'REFACCIONARIA & TALLER',
+    subtitulo: process.env.NEGOCIO_SUBTITULO ?? 'Servicio mecánico profesional',
+    telefono:  process.env.NEGOCIO_TELEFONO  ?? '',
+    direccion: process.env.NEGOCIO_DIRECCION ?? '',
+    ciudad:    process.env.NEGOCIO_CIUDAD    ?? '',
+  }
 }
 
 // ── Helpers ───────────────────────────────────────────────────
@@ -23,33 +38,46 @@ const hrule = (doc: PDFKit.PDFDocument, y: number, color = '#e5e7eb') => {
 }
 
 /** Dibuja el encabezado oscuro estándar y devuelve la Y donde continuar */
-const header = (doc: PDFKit.PDFDocument, titulo: string, subtitulo: string): number => {
+const header = (doc: PDFKit.PDFDocument, titulo: string, subtitulo: string, negocio: NegocioInfo): number => {
   const h = 86
   doc.rect(0, 0, 595, h).fillColor('#0f172a').fill()
 
   // — Logo (cuadrado redondeado) —
-  doc.roundedRect(28, 17, 50, 50, 7).fillColor('#1d4ed8').fill()
-  doc.rect(28, 57, 50, 10).fillColor('#1e3a8a').fill()
-  doc.circle(53, 39, 16).fillColor('#2563eb').fill()
-  doc.fillColor('#fff').fontSize(20).font('Helvetica-Bold')
-     .text(NEGOCIO.nombre.charAt(0), 28, 22, { width: 50, align: 'center' })
-  doc.fillColor('#93c5fd').fontSize(6.5).font('Helvetica')
-     .text('TALLER', 28, 58, { width: 50, align: 'center' })
+  let logoRendered = false
+  if (negocio.logo) {
+    try {
+      const buf = Buffer.from(negocio.logo, 'base64')
+      doc.save()
+      doc.roundedRect(28, 17, 50, 50, 7).clip()
+      doc.image(buf, 28, 17, { fit: [50, 50], align: 'center', valign: 'center' })
+      doc.restore()
+      logoRendered = true
+    } catch { /* cae al vectorial */ }
+  }
+  if (!logoRendered) {
+    doc.roundedRect(28, 17, 50, 50, 7).fillColor('#1d4ed8').fill()
+    doc.rect(28, 57, 50, 10).fillColor('#1e3a8a').fill()
+    doc.circle(53, 39, 16).fillColor('#2563eb').fill()
+    doc.fillColor('#fff').fontSize(20).font('Helvetica-Bold')
+       .text(negocio.nombre.charAt(0), 28, 22, { width: 50, align: 'center' })
+    doc.fillColor('#93c5fd').fontSize(6.5).font('Helvetica')
+       .text('TALLER', 28, 58, { width: 50, align: 'center' })
+  }
 
   // — Nombre del negocio —
   doc.fillColor('#fff').fontSize(15).font('Helvetica-Bold')
-     .text(NEGOCIO.nombre, 90, 20, { width: 280 })
+     .text(negocio.nombre, 90, 20, { width: 280 })
   doc.fillColor('#94a3b8').fontSize(8).font('Helvetica')
-     .text(NEGOCIO.subtitulo, 90, 40)
+     .text(negocio.subtitulo, 90, 40)
   let iy = 52
-  if (NEGOCIO.telefono) {
+  if (negocio.telefono) {
     doc.fillColor('#64748b').fontSize(7)
-       .text(`Tel: ${NEGOCIO.telefono}`, 90, iy)
+       .text(`Tel: ${negocio.telefono}`, 90, iy)
     iy += 10
   }
-  if (NEGOCIO.ciudad || NEGOCIO.direccion) {
+  if (negocio.ciudad || negocio.direccion) {
     doc.fillColor('#64748b').fontSize(7)
-       .text([NEGOCIO.direccion, NEGOCIO.ciudad].filter(Boolean).join(', '), 90, iy)
+       .text([negocio.direccion, negocio.ciudad].filter(Boolean).join(', '), 90, iy)
   }
 
   // — Título del reporte —
@@ -145,6 +173,8 @@ const tableFoot = (
 // ═══════════════════════════════════════════════════════════════
 export const pdfReporteDiario = async (req: Request, res: Response) => {
   try {
+    const negocio = await getNegocio()
+
     const fecha = req.query.fecha
       ? new Date(req.query.fecha as string + 'T12:00:00')
       : new Date()
@@ -183,7 +213,7 @@ export const pdfReporteDiario = async (req: Request, res: Response) => {
     res.setHeader('Content-Disposition', `attachment; filename="reporte-diario-${inicio.toISOString().split('T')[0]}.pdf"`)
     doc.pipe(res)
 
-    let y = header(doc, 'REPORTE DIARIO', fechaStr)
+    let y = header(doc, 'REPORTE DIARIO', fechaStr, negocio)
 
     // ── Métricas generales ────────────────────────────────────
     y = metricRow(doc, y, [
@@ -296,6 +326,8 @@ export const pdfReporteDiario = async (req: Request, res: Response) => {
 // ═══════════════════════════════════════════════════════════════
 export const pdfReporteMensual = async (req: Request, res: Response) => {
   try {
+    const negocio = await getNegocio()
+
     const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
                    'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
 
@@ -369,7 +401,7 @@ export const pdfReporteMensual = async (req: Request, res: Response) => {
     res.setHeader('Content-Disposition', `attachment; filename="reporte-mensual-${anio}-${String(mes).padStart(2,'0')}.pdf"`)
     doc.pipe(res)
 
-    let y = header(doc, 'REPORTE MENSUAL', periodoStr)
+    let y = header(doc, 'REPORTE MENSUAL', periodoStr, negocio)
 
     // ── Resumen general ───────────────────────────────────────
     y = metricRow(doc, y, [

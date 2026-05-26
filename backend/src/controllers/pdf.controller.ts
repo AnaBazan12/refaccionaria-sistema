@@ -35,9 +35,22 @@ const linea = (doc: PDFKit.PDFDocument, y: number, color = '#e5e7eb') => {
 }
 
 // ── Helper: dibujar logo ──────────────────────────────────────
-const dibujarLogo = (doc: PDFKit.PDFDocument, x: number, y: number, negocioNombre: string) => {
+const dibujarLogo = (doc: PDFKit.PDFDocument, x: number, y: number, negocio: Pick<NegocioInfo, 'nombre' | 'logo'>) => {
   const size = 52
 
+  // 1. Logo personalizado desde BD (base64)
+  if (negocio.logo) {
+    try {
+      const buffer = Buffer.from(negocio.logo, 'base64')
+      doc.save()
+      doc.roundedRect(x, y, size, size, 8).clip()
+      doc.image(buffer, x, y, { fit: [size, size], align: 'center', valign: 'center' })
+      doc.restore()
+      return
+    } catch { /* cae al siguiente */ }
+  }
+
+  // 2. Logo desde sistema de archivos (instalaciones con logo en disco)
   if (fs.existsSync(LOGO_PATH)) {
     try {
       doc.save()
@@ -48,11 +61,12 @@ const dibujarLogo = (doc: PDFKit.PDFDocument, x: number, y: number, negocioNombr
     } catch { /* cae al vectorial */ }
   }
 
+  // 3. Avatar vectorial con inicial
   doc.roundedRect(x, y, size, size, 8).fillColor('#1d4ed8').fill()
   doc.rect(x, y + size - 10, size, 10).fillColor('#1e3a8a').fill()
   doc.circle(x + size / 2, y + size / 2 - 3, 18).fillColor('#2563eb').fill()
 
-  const inicial = negocioNombre.charAt(0).toUpperCase()
+  const inicial = negocio.nombre.charAt(0).toUpperCase()
   doc.fillColor('#ffffff').fontSize(22).font('Helvetica-Bold')
      .text(inicial, x, y + 13, { width: size, align: 'center' })
   doc.fillColor('#93c5fd').fontSize(7).font('Helvetica')
@@ -60,7 +74,7 @@ const dibujarLogo = (doc: PDFKit.PDFDocument, x: number, y: number, negocioNombr
 }
 
 // ── Helper: encabezado del negocio ────────────────────────────
-type NegocioInfo = { nombre: string; subtitulo: string; telefono: string; direccion: string; ciudad: string }
+type NegocioInfo = { nombre: string; subtitulo: string; telefono: string; direccion: string; ciudad: string; logo?: string | null }
 
 const encabezado = (
   doc:     PDFKit.PDFDocument,
@@ -72,7 +86,7 @@ const encabezado = (
 
   doc.rect(0, 0, 595, alturaHeader).fillColor('#0f172a').fill()
 
-  dibujarLogo(doc, 30, 19, negocio.nombre)
+  dibujarLogo(doc, 30, 19, negocio)
 
   doc.fillColor('#ffffff')
      .fontSize(17).font('Helvetica-Bold')

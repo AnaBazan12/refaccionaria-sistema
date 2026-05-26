@@ -515,6 +515,7 @@ model ConfigNegocio {
   rfc       String  @default("")
   email     String  @default("")
   horario   String  @default("")
+  logo      String? // base64 de la imagen (sin el prefijo data:...)
   updatedAt DateTime @updatedAt
 
   @@map("config_negocio")
