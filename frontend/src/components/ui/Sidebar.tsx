@@ -21,6 +21,7 @@ const menu = [
   { ruta: '/compras',   icono: '🛒', label: 'Compras',            roles: ['ADMIN'] },
   { ruta: '/usuarios',      icono: '⚙️', label: 'Usuarios',           roles: ['ADMIN'] },
   { ruta: '/configuracion', icono: '🏢', label: 'Mi negocio',          roles: ['ADMIN'] },
+  { ruta: '/facturas',  icono: '🧾', label: 'Facturas CFDI',      roles: ['ADMIN', 'RECEPCIONISTA'] },
   { ruta: '/deudas',    icono: '💳', label: 'Cuentas por cobrar', roles: ['ADMIN', 'RECEPCIONISTA'] },
   { ruta: '/cotizaciones',icono:'📋',label: 'Cotizaciones',       roles: ['ADMIN', 'RECEPCIONISTA'] },
   { ruta: '/servicios', icono: '🛠️', label: 'Servicios',          roles: ['ADMIN'] },

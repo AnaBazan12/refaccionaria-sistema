@@ -71,7 +71,8 @@ export const ModelName = {
   CotizacionItem: 'CotizacionItem',
   GastoCaja: 'GastoCaja',
   BitacoraOrden: 'BitacoraOrden',
-  ConfigNegocio: 'ConfigNegocio'
+  ConfigNegocio: 'ConfigNegocio',
+  Cfdi: 'Cfdi'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -424,10 +425,41 @@ export const ConfigNegocioScalarFieldEnum = {
   rfc: 'rfc',
   email: 'email',
   horario: 'horario',
+  logo: 'logo',
+  cfdiRegimenFiscal: 'cfdiRegimenFiscal',
+  cfdiCodigoPostal: 'cfdiCodigoPostal',
+  cfdiSerie: 'cfdiSerie',
+  cfdiFacturamaUser: 'cfdiFacturamaUser',
+  cfdiFacturamaPass: 'cfdiFacturamaPass',
+  cfdiSandbox: 'cfdiSandbox',
+  cfdiCsdSubido: 'cfdiCsdSubido',
   updatedAt: 'updatedAt'
 } as const
 
 export type ConfigNegocioScalarFieldEnum = (typeof ConfigNegocioScalarFieldEnum)[keyof typeof ConfigNegocioScalarFieldEnum]
+
+
+export const CfdiScalarFieldEnum = {
+  id: 'id',
+  uuid: 'uuid',
+  serie: 'serie',
+  folio: 'folio',
+  fecha: 'fecha',
+  subtotal: 'subtotal',
+  iva: 'iva',
+  total: 'total',
+  rfcEmisor: 'rfcEmisor',
+  rfcReceptor: 'rfcReceptor',
+  receptor: 'receptor',
+  usoCfdi: 'usoCfdi',
+  formaPago: 'formaPago',
+  estado: 'estado',
+  facturamaId: 'facturamaId',
+  createdAt: 'createdAt',
+  ordenId: 'ordenId'
+} as const
+
+export type CfdiScalarFieldEnum = (typeof CfdiScalarFieldEnum)[keyof typeof CfdiScalarFieldEnum]
 
 
 export const SortOrder = {

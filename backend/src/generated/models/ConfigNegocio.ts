@@ -34,6 +34,14 @@ export type ConfigNegocioMinAggregateOutputType = {
   rfc: string | null
   email: string | null
   horario: string | null
+  logo: string | null
+  cfdiRegimenFiscal: string | null
+  cfdiCodigoPostal: string | null
+  cfdiSerie: string | null
+  cfdiFacturamaUser: string | null
+  cfdiFacturamaPass: string | null
+  cfdiSandbox: boolean | null
+  cfdiCsdSubido: boolean | null
   updatedAt: Date | null
 }
 
@@ -47,6 +55,14 @@ export type ConfigNegocioMaxAggregateOutputType = {
   rfc: string | null
   email: string | null
   horario: string | null
+  logo: string | null
+  cfdiRegimenFiscal: string | null
+  cfdiCodigoPostal: string | null
+  cfdiSerie: string | null
+  cfdiFacturamaUser: string | null
+  cfdiFacturamaPass: string | null
+  cfdiSandbox: boolean | null
+  cfdiCsdSubido: boolean | null
   updatedAt: Date | null
 }
 
@@ -60,6 +76,14 @@ export type ConfigNegocioCountAggregateOutputType = {
   rfc: number
   email: number
   horario: number
+  logo: number
+  cfdiRegimenFiscal: number
+  cfdiCodigoPostal: number
+  cfdiSerie: number
+  cfdiFacturamaUser: number
+  cfdiFacturamaPass: number
+  cfdiSandbox: number
+  cfdiCsdSubido: number
   updatedAt: number
   _all: number
 }
@@ -75,6 +99,14 @@ export type ConfigNegocioMinAggregateInputType = {
   rfc?: true
   email?: true
   horario?: true
+  logo?: true
+  cfdiRegimenFiscal?: true
+  cfdiCodigoPostal?: true
+  cfdiSerie?: true
+  cfdiFacturamaUser?: true
+  cfdiFacturamaPass?: true
+  cfdiSandbox?: true
+  cfdiCsdSubido?: true
   updatedAt?: true
 }
 
@@ -88,6 +120,14 @@ export type ConfigNegocioMaxAggregateInputType = {
   rfc?: true
   email?: true
   horario?: true
+  logo?: true
+  cfdiRegimenFiscal?: true
+  cfdiCodigoPostal?: true
+  cfdiSerie?: true
+  cfdiFacturamaUser?: true
+  cfdiFacturamaPass?: true
+  cfdiSandbox?: true
+  cfdiCsdSubido?: true
   updatedAt?: true
 }
 
@@ -101,6 +141,14 @@ export type ConfigNegocioCountAggregateInputType = {
   rfc?: true
   email?: true
   horario?: true
+  logo?: true
+  cfdiRegimenFiscal?: true
+  cfdiCodigoPostal?: true
+  cfdiSerie?: true
+  cfdiFacturamaUser?: true
+  cfdiFacturamaPass?: true
+  cfdiSandbox?: true
+  cfdiCsdSubido?: true
   updatedAt?: true
   _all?: true
 }
@@ -187,6 +235,14 @@ export type ConfigNegocioGroupByOutputType = {
   rfc: string
   email: string
   horario: string
+  logo: string | null
+  cfdiRegimenFiscal: string | null
+  cfdiCodigoPostal: string | null
+  cfdiSerie: string | null
+  cfdiFacturamaUser: string | null
+  cfdiFacturamaPass: string | null
+  cfdiSandbox: boolean
+  cfdiCsdSubido: boolean
   updatedAt: Date
   _count: ConfigNegocioCountAggregateOutputType | null
   _min: ConfigNegocioMinAggregateOutputType | null
@@ -221,6 +277,14 @@ export type ConfigNegocioWhereInput = {
   rfc?: Prisma.StringFilter<"ConfigNegocio"> | string
   email?: Prisma.StringFilter<"ConfigNegocio"> | string
   horario?: Prisma.StringFilter<"ConfigNegocio"> | string
+  logo?: Prisma.StringNullableFilter<"ConfigNegocio"> | string | null
+  cfdiRegimenFiscal?: Prisma.StringNullableFilter<"ConfigNegocio"> | string | null
+  cfdiCodigoPostal?: Prisma.StringNullableFilter<"ConfigNegocio"> | string | null
+  cfdiSerie?: Prisma.StringNullableFilter<"ConfigNegocio"> | string | null
+  cfdiFacturamaUser?: Prisma.StringNullableFilter<"ConfigNegocio"> | string | null
+  cfdiFacturamaPass?: Prisma.StringNullableFilter<"ConfigNegocio"> | string | null
+  cfdiSandbox?: Prisma.BoolFilter<"ConfigNegocio"> | boolean
+  cfdiCsdSubido?: Prisma.BoolFilter<"ConfigNegocio"> | boolean
   updatedAt?: Prisma.DateTimeFilter<"ConfigNegocio"> | Date | string
 }
 
@@ -234,6 +298,14 @@ export type ConfigNegocioOrderByWithRelationInput = {
   rfc?: Prisma.SortOrder
   email?: Prisma.SortOrder
   horario?: Prisma.SortOrder
+  logo?: Prisma.SortOrderInput | Prisma.SortOrder
+  cfdiRegimenFiscal?: Prisma.SortOrderInput | Prisma.SortOrder
+  cfdiCodigoPostal?: Prisma.SortOrderInput | Prisma.SortOrder
+  cfdiSerie?: Prisma.SortOrderInput | Prisma.SortOrder
+  cfdiFacturamaUser?: Prisma.SortOrderInput | Prisma.SortOrder
+  cfdiFacturamaPass?: Prisma.SortOrderInput | Prisma.SortOrder
+  cfdiSandbox?: Prisma.SortOrder
+  cfdiCsdSubido?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -250,6 +322,14 @@ export type ConfigNegocioWhereUniqueInput = Prisma.AtLeast<{
   rfc?: Prisma.StringFilter<"ConfigNegocio"> | string
   email?: Prisma.StringFilter<"ConfigNegocio"> | string
   horario?: Prisma.StringFilter<"ConfigNegocio"> | string
+  logo?: Prisma.StringNullableFilter<"ConfigNegocio"> | string | null
+  cfdiRegimenFiscal?: Prisma.StringNullableFilter<"ConfigNegocio"> | string | null
+  cfdiCodigoPostal?: Prisma.StringNullableFilter<"ConfigNegocio"> | string | null
+  cfdiSerie?: Prisma.StringNullableFilter<"ConfigNegocio"> | string | null
+  cfdiFacturamaUser?: Prisma.StringNullableFilter<"ConfigNegocio"> | string | null
+  cfdiFacturamaPass?: Prisma.StringNullableFilter<"ConfigNegocio"> | string | null
+  cfdiSandbox?: Prisma.BoolFilter<"ConfigNegocio"> | boolean
+  cfdiCsdSubido?: Prisma.BoolFilter<"ConfigNegocio"> | boolean
   updatedAt?: Prisma.DateTimeFilter<"ConfigNegocio"> | Date | string
 }, "id">
 
@@ -263,6 +343,14 @@ export type ConfigNegocioOrderByWithAggregationInput = {
   rfc?: Prisma.SortOrder
   email?: Prisma.SortOrder
   horario?: Prisma.SortOrder
+  logo?: Prisma.SortOrderInput | Prisma.SortOrder
+  cfdiRegimenFiscal?: Prisma.SortOrderInput | Prisma.SortOrder
+  cfdiCodigoPostal?: Prisma.SortOrderInput | Prisma.SortOrder
+  cfdiSerie?: Prisma.SortOrderInput | Prisma.SortOrder
+  cfdiFacturamaUser?: Prisma.SortOrderInput | Prisma.SortOrder
+  cfdiFacturamaPass?: Prisma.SortOrderInput | Prisma.SortOrder
+  cfdiSandbox?: Prisma.SortOrder
+  cfdiCsdSubido?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ConfigNegocioCountOrderByAggregateInput
   _max?: Prisma.ConfigNegocioMaxOrderByAggregateInput
@@ -282,6 +370,14 @@ export type ConfigNegocioScalarWhereWithAggregatesInput = {
   rfc?: Prisma.StringWithAggregatesFilter<"ConfigNegocio"> | string
   email?: Prisma.StringWithAggregatesFilter<"ConfigNegocio"> | string
   horario?: Prisma.StringWithAggregatesFilter<"ConfigNegocio"> | string
+  logo?: Prisma.StringNullableWithAggregatesFilter<"ConfigNegocio"> | string | null
+  cfdiRegimenFiscal?: Prisma.StringNullableWithAggregatesFilter<"ConfigNegocio"> | string | null
+  cfdiCodigoPostal?: Prisma.StringNullableWithAggregatesFilter<"ConfigNegocio"> | string | null
+  cfdiSerie?: Prisma.StringNullableWithAggregatesFilter<"ConfigNegocio"> | string | null
+  cfdiFacturamaUser?: Prisma.StringNullableWithAggregatesFilter<"ConfigNegocio"> | string | null
+  cfdiFacturamaPass?: Prisma.StringNullableWithAggregatesFilter<"ConfigNegocio"> | string | null
+  cfdiSandbox?: Prisma.BoolWithAggregatesFilter<"ConfigNegocio"> | boolean
+  cfdiCsdSubido?: Prisma.BoolWithAggregatesFilter<"ConfigNegocio"> | boolean
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ConfigNegocio"> | Date | string
 }
 
@@ -295,6 +391,14 @@ export type ConfigNegocioCreateInput = {
   rfc?: string
   email?: string
   horario?: string
+  logo?: string | null
+  cfdiRegimenFiscal?: string | null
+  cfdiCodigoPostal?: string | null
+  cfdiSerie?: string | null
+  cfdiFacturamaUser?: string | null
+  cfdiFacturamaPass?: string | null
+  cfdiSandbox?: boolean
+  cfdiCsdSubido?: boolean
   updatedAt?: Date | string
 }
 
@@ -308,6 +412,14 @@ export type ConfigNegocioUncheckedCreateInput = {
   rfc?: string
   email?: string
   horario?: string
+  logo?: string | null
+  cfdiRegimenFiscal?: string | null
+  cfdiCodigoPostal?: string | null
+  cfdiSerie?: string | null
+  cfdiFacturamaUser?: string | null
+  cfdiFacturamaPass?: string | null
+  cfdiSandbox?: boolean
+  cfdiCsdSubido?: boolean
   updatedAt?: Date | string
 }
 
@@ -321,6 +433,14 @@ export type ConfigNegocioUpdateInput = {
   rfc?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   horario?: Prisma.StringFieldUpdateOperationsInput | string
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiRegimenFiscal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiCodigoPostal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiSerie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiFacturamaUser?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiFacturamaPass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiSandbox?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cfdiCsdSubido?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -334,6 +454,14 @@ export type ConfigNegocioUncheckedUpdateInput = {
   rfc?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   horario?: Prisma.StringFieldUpdateOperationsInput | string
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiRegimenFiscal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiCodigoPostal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiSerie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiFacturamaUser?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiFacturamaPass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiSandbox?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cfdiCsdSubido?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -347,6 +475,14 @@ export type ConfigNegocioCreateManyInput = {
   rfc?: string
   email?: string
   horario?: string
+  logo?: string | null
+  cfdiRegimenFiscal?: string | null
+  cfdiCodigoPostal?: string | null
+  cfdiSerie?: string | null
+  cfdiFacturamaUser?: string | null
+  cfdiFacturamaPass?: string | null
+  cfdiSandbox?: boolean
+  cfdiCsdSubido?: boolean
   updatedAt?: Date | string
 }
 
@@ -360,6 +496,14 @@ export type ConfigNegocioUpdateManyMutationInput = {
   rfc?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   horario?: Prisma.StringFieldUpdateOperationsInput | string
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiRegimenFiscal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiCodigoPostal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiSerie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiFacturamaUser?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiFacturamaPass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiSandbox?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cfdiCsdSubido?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -373,6 +517,14 @@ export type ConfigNegocioUncheckedUpdateManyInput = {
   rfc?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   horario?: Prisma.StringFieldUpdateOperationsInput | string
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiRegimenFiscal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiCodigoPostal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiSerie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiFacturamaUser?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiFacturamaPass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cfdiSandbox?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cfdiCsdSubido?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -386,6 +538,14 @@ export type ConfigNegocioCountOrderByAggregateInput = {
   rfc?: Prisma.SortOrder
   email?: Prisma.SortOrder
   horario?: Prisma.SortOrder
+  logo?: Prisma.SortOrder
+  cfdiRegimenFiscal?: Prisma.SortOrder
+  cfdiCodigoPostal?: Prisma.SortOrder
+  cfdiSerie?: Prisma.SortOrder
+  cfdiFacturamaUser?: Prisma.SortOrder
+  cfdiFacturamaPass?: Prisma.SortOrder
+  cfdiSandbox?: Prisma.SortOrder
+  cfdiCsdSubido?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -399,6 +559,14 @@ export type ConfigNegocioMaxOrderByAggregateInput = {
   rfc?: Prisma.SortOrder
   email?: Prisma.SortOrder
   horario?: Prisma.SortOrder
+  logo?: Prisma.SortOrder
+  cfdiRegimenFiscal?: Prisma.SortOrder
+  cfdiCodigoPostal?: Prisma.SortOrder
+  cfdiSerie?: Prisma.SortOrder
+  cfdiFacturamaUser?: Prisma.SortOrder
+  cfdiFacturamaPass?: Prisma.SortOrder
+  cfdiSandbox?: Prisma.SortOrder
+  cfdiCsdSubido?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -412,6 +580,14 @@ export type ConfigNegocioMinOrderByAggregateInput = {
   rfc?: Prisma.SortOrder
   email?: Prisma.SortOrder
   horario?: Prisma.SortOrder
+  logo?: Prisma.SortOrder
+  cfdiRegimenFiscal?: Prisma.SortOrder
+  cfdiCodigoPostal?: Prisma.SortOrder
+  cfdiSerie?: Prisma.SortOrder
+  cfdiFacturamaUser?: Prisma.SortOrder
+  cfdiFacturamaPass?: Prisma.SortOrder
+  cfdiSandbox?: Prisma.SortOrder
+  cfdiCsdSubido?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -427,6 +603,14 @@ export type ConfigNegocioSelect<ExtArgs extends runtime.Types.Extensions.Interna
   rfc?: boolean
   email?: boolean
   horario?: boolean
+  logo?: boolean
+  cfdiRegimenFiscal?: boolean
+  cfdiCodigoPostal?: boolean
+  cfdiSerie?: boolean
+  cfdiFacturamaUser?: boolean
+  cfdiFacturamaPass?: boolean
+  cfdiSandbox?: boolean
+  cfdiCsdSubido?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["configNegocio"]>
 
@@ -440,6 +624,14 @@ export type ConfigNegocioSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   rfc?: boolean
   email?: boolean
   horario?: boolean
+  logo?: boolean
+  cfdiRegimenFiscal?: boolean
+  cfdiCodigoPostal?: boolean
+  cfdiSerie?: boolean
+  cfdiFacturamaUser?: boolean
+  cfdiFacturamaPass?: boolean
+  cfdiSandbox?: boolean
+  cfdiCsdSubido?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["configNegocio"]>
 
@@ -453,6 +645,14 @@ export type ConfigNegocioSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   rfc?: boolean
   email?: boolean
   horario?: boolean
+  logo?: boolean
+  cfdiRegimenFiscal?: boolean
+  cfdiCodigoPostal?: boolean
+  cfdiSerie?: boolean
+  cfdiFacturamaUser?: boolean
+  cfdiFacturamaPass?: boolean
+  cfdiSandbox?: boolean
+  cfdiCsdSubido?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["configNegocio"]>
 
@@ -466,10 +666,18 @@ export type ConfigNegocioSelectScalar = {
   rfc?: boolean
   email?: boolean
   horario?: boolean
+  logo?: boolean
+  cfdiRegimenFiscal?: boolean
+  cfdiCodigoPostal?: boolean
+  cfdiSerie?: boolean
+  cfdiFacturamaUser?: boolean
+  cfdiFacturamaPass?: boolean
+  cfdiSandbox?: boolean
+  cfdiCsdSubido?: boolean
   updatedAt?: boolean
 }
 
-export type ConfigNegocioOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nombre" | "subtitulo" | "telefono" | "direccion" | "ciudad" | "rfc" | "email" | "horario" | "updatedAt", ExtArgs["result"]["configNegocio"]>
+export type ConfigNegocioOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nombre" | "subtitulo" | "telefono" | "direccion" | "ciudad" | "rfc" | "email" | "horario" | "logo" | "cfdiRegimenFiscal" | "cfdiCodigoPostal" | "cfdiSerie" | "cfdiFacturamaUser" | "cfdiFacturamaPass" | "cfdiSandbox" | "cfdiCsdSubido" | "updatedAt", ExtArgs["result"]["configNegocio"]>
 
 export type $ConfigNegocioPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ConfigNegocio"
@@ -484,6 +692,14 @@ export type $ConfigNegocioPayload<ExtArgs extends runtime.Types.Extensions.Inter
     rfc: string
     email: string
     horario: string
+    logo: string | null
+    cfdiRegimenFiscal: string | null
+    cfdiCodigoPostal: string | null
+    cfdiSerie: string | null
+    cfdiFacturamaUser: string | null
+    cfdiFacturamaPass: string | null
+    cfdiSandbox: boolean
+    cfdiCsdSubido: boolean
     updatedAt: Date
   }, ExtArgs["result"]["configNegocio"]>
   composites: {}
@@ -917,6 +1133,14 @@ export interface ConfigNegocioFieldRefs {
   readonly rfc: Prisma.FieldRef<"ConfigNegocio", 'String'>
   readonly email: Prisma.FieldRef<"ConfigNegocio", 'String'>
   readonly horario: Prisma.FieldRef<"ConfigNegocio", 'String'>
+  readonly logo: Prisma.FieldRef<"ConfigNegocio", 'String'>
+  readonly cfdiRegimenFiscal: Prisma.FieldRef<"ConfigNegocio", 'String'>
+  readonly cfdiCodigoPostal: Prisma.FieldRef<"ConfigNegocio", 'String'>
+  readonly cfdiSerie: Prisma.FieldRef<"ConfigNegocio", 'String'>
+  readonly cfdiFacturamaUser: Prisma.FieldRef<"ConfigNegocio", 'String'>
+  readonly cfdiFacturamaPass: Prisma.FieldRef<"ConfigNegocio", 'String'>
+  readonly cfdiSandbox: Prisma.FieldRef<"ConfigNegocio", 'Boolean'>
+  readonly cfdiCsdSubido: Prisma.FieldRef<"ConfigNegocio", 'Boolean'>
   readonly updatedAt: Prisma.FieldRef<"ConfigNegocio", 'DateTime'>
 }
     

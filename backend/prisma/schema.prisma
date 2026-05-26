@@ -193,7 +193,8 @@ model OrdenTrabajo {
   pagos            Pago[]
   bitacora         BitacoraOrden[]
   ventasRefacciones VentaRefaccion[]
-  cotizacion   Cotizacion?
+  cotizacion       Cotizacion?
+  cfdis            Cfdi[]
   @@map("ordenes_trabajo")
   @@index([estado])
   @@index([fechaIngreso])
@@ -516,7 +517,44 @@ model ConfigNegocio {
   email     String  @default("")
   horario   String  @default("")
   logo      String? // base64 de la imagen (sin el prefijo data:...)
+
+  // CFDI / Facturación
+  cfdiRegimenFiscal  String? // ej: "612"
+  cfdiCodigoPostal   String? // CP del lugar de expedición
+  cfdiSerie          String? @default("A")
+  cfdiFacturamaUser  String?
+  cfdiFacturamaPass  String?
+  cfdiSandbox        Boolean @default(true)
+  cfdiCsdSubido      Boolean @default(false)
+
   updatedAt DateTime @updatedAt
 
   @@map("config_negocio")
+}
+
+model Cfdi {
+  id          String   @id @default(uuid())
+  uuid        String   @unique           // UUID del SAT
+  serie       String?
+  folio       Int
+  fecha       DateTime
+  subtotal    Decimal  @db.Decimal(10,2) // sin IVA
+  iva         Decimal  @db.Decimal(10,2)
+  total       Decimal  @db.Decimal(10,2)
+  rfcEmisor   String
+  rfcReceptor String
+  receptor    String                     // nombre del cliente
+  usoCfdi     String
+  formaPago   String   @default("01")    // 01 efectivo, 03 transferencia, 04 tarjeta
+  estado      String   @default("vigente") // vigente | cancelado
+  facturamaId String?                    // ID interno Facturama
+  createdAt   DateTime @default(now())
+
+  ordenId     String?
+  orden       OrdenTrabajo? @relation(fields: [ordenId], references: [id])
+
+  @@map("cfdis")
+  @@index([ordenId])
+  @@index([rfcReceptor])
+  @@index([createdAt])
 }

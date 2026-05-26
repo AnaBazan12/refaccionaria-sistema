@@ -22,6 +22,7 @@ import Landing       from './pages/Landing'
 import Caja          from './pages/Caja'
 import Compras         from './pages/Compras'
 import Configuracion  from './pages/Configuracion'
+import Facturas       from './pages/Facturas'
 
 // ── Pantalla de carga ─────────────────────────────────────────
 const Cargando = () => (
@@ -231,6 +232,14 @@ export default function App() {
               element={
                 <RutaProtegida rolesPermitidos={['ADMIN']}>
                   <Configuracion />
+                </RutaProtegida>
+              }
+            />
+            <Route
+              path="/facturas"
+              element={
+                <RutaProtegida rolesPermitidos={['ADMIN', 'RECEPCIONISTA']}>
+                  <Facturas />
                 </RutaProtegida>
               }
             />

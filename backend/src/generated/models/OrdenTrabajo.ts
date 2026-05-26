@@ -411,6 +411,7 @@ export type OrdenTrabajoWhereInput = {
   bitacora?: Prisma.BitacoraOrdenListRelationFilter
   ventasRefacciones?: Prisma.VentaRefaccionListRelationFilter
   cotizacion?: Prisma.XOR<Prisma.CotizacionNullableScalarRelationFilter, Prisma.CotizacionWhereInput> | null
+  cfdis?: Prisma.CfdiListRelationFilter
 }
 
 export type OrdenTrabajoOrderByWithRelationInput = {
@@ -450,6 +451,7 @@ export type OrdenTrabajoOrderByWithRelationInput = {
   bitacora?: Prisma.BitacoraOrdenOrderByRelationAggregateInput
   ventasRefacciones?: Prisma.VentaRefaccionOrderByRelationAggregateInput
   cotizacion?: Prisma.CotizacionOrderByWithRelationInput
+  cfdis?: Prisma.CfdiOrderByRelationAggregateInput
 }
 
 export type OrdenTrabajoWhereUniqueInput = Prisma.AtLeast<{
@@ -492,6 +494,7 @@ export type OrdenTrabajoWhereUniqueInput = Prisma.AtLeast<{
   bitacora?: Prisma.BitacoraOrdenListRelationFilter
   ventasRefacciones?: Prisma.VentaRefaccionListRelationFilter
   cotizacion?: Prisma.XOR<Prisma.CotizacionNullableScalarRelationFilter, Prisma.CotizacionWhereInput> | null
+  cfdis?: Prisma.CfdiListRelationFilter
 }, "id" | "numero">
 
 export type OrdenTrabajoOrderByWithAggregationInput = {
@@ -590,6 +593,7 @@ export type OrdenTrabajoCreateInput = {
   bitacora?: Prisma.BitacoraOrdenCreateNestedManyWithoutOrdenInput
   ventasRefacciones?: Prisma.VentaRefaccionCreateNestedManyWithoutOrdenInput
   cotizacion?: Prisma.CotizacionCreateNestedOneWithoutOrdenInput
+  cfdis?: Prisma.CfdiCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoUncheckedCreateInput = {
@@ -624,6 +628,7 @@ export type OrdenTrabajoUncheckedCreateInput = {
   bitacora?: Prisma.BitacoraOrdenUncheckedCreateNestedManyWithoutOrdenInput
   ventasRefacciones?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutOrdenInput
   cotizacion?: Prisma.CotizacionUncheckedCreateNestedOneWithoutOrdenInput
+  cfdis?: Prisma.CfdiUncheckedCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoUpdateInput = {
@@ -657,6 +662,7 @@ export type OrdenTrabajoUpdateInput = {
   bitacora?: Prisma.BitacoraOrdenUpdateManyWithoutOrdenNestedInput
   ventasRefacciones?: Prisma.VentaRefaccionUpdateManyWithoutOrdenNestedInput
   cotizacion?: Prisma.CotizacionUpdateOneWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoUncheckedUpdateInput = {
@@ -691,6 +697,7 @@ export type OrdenTrabajoUncheckedUpdateInput = {
   bitacora?: Prisma.BitacoraOrdenUncheckedUpdateManyWithoutOrdenNestedInput
   ventasRefacciones?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutOrdenNestedInput
   cotizacion?: Prisma.CotizacionUncheckedUpdateOneWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUncheckedUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoCreateManyInput = {
@@ -1205,6 +1212,22 @@ export type OrdenTrabajoUpdateOneRequiredWithoutBitacoraNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OrdenTrabajoUpdateToOneWithWhereWithoutBitacoraInput, Prisma.OrdenTrabajoUpdateWithoutBitacoraInput>, Prisma.OrdenTrabajoUncheckedUpdateWithoutBitacoraInput>
 }
 
+export type OrdenTrabajoCreateNestedOneWithoutCfdisInput = {
+  create?: Prisma.XOR<Prisma.OrdenTrabajoCreateWithoutCfdisInput, Prisma.OrdenTrabajoUncheckedCreateWithoutCfdisInput>
+  connectOrCreate?: Prisma.OrdenTrabajoCreateOrConnectWithoutCfdisInput
+  connect?: Prisma.OrdenTrabajoWhereUniqueInput
+}
+
+export type OrdenTrabajoUpdateOneWithoutCfdisNestedInput = {
+  create?: Prisma.XOR<Prisma.OrdenTrabajoCreateWithoutCfdisInput, Prisma.OrdenTrabajoUncheckedCreateWithoutCfdisInput>
+  connectOrCreate?: Prisma.OrdenTrabajoCreateOrConnectWithoutCfdisInput
+  upsert?: Prisma.OrdenTrabajoUpsertWithoutCfdisInput
+  disconnect?: Prisma.OrdenTrabajoWhereInput | boolean
+  delete?: Prisma.OrdenTrabajoWhereInput | boolean
+  connect?: Prisma.OrdenTrabajoWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrdenTrabajoUpdateToOneWithWhereWithoutCfdisInput, Prisma.OrdenTrabajoUpdateWithoutCfdisInput>, Prisma.OrdenTrabajoUncheckedUpdateWithoutCfdisInput>
+}
+
 export type OrdenTrabajoCreateWithoutCreadoPorInput = {
   id?: string
   numero?: number
@@ -1236,6 +1259,7 @@ export type OrdenTrabajoCreateWithoutCreadoPorInput = {
   bitacora?: Prisma.BitacoraOrdenCreateNestedManyWithoutOrdenInput
   ventasRefacciones?: Prisma.VentaRefaccionCreateNestedManyWithoutOrdenInput
   cotizacion?: Prisma.CotizacionCreateNestedOneWithoutOrdenInput
+  cfdis?: Prisma.CfdiCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoUncheckedCreateWithoutCreadoPorInput = {
@@ -1269,6 +1293,7 @@ export type OrdenTrabajoUncheckedCreateWithoutCreadoPorInput = {
   bitacora?: Prisma.BitacoraOrdenUncheckedCreateNestedManyWithoutOrdenInput
   ventasRefacciones?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutOrdenInput
   cotizacion?: Prisma.CotizacionUncheckedCreateNestedOneWithoutOrdenInput
+  cfdis?: Prisma.CfdiUncheckedCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoCreateOrConnectWithoutCreadoPorInput = {
@@ -1312,6 +1337,7 @@ export type OrdenTrabajoCreateWithoutModificadoPorInput = {
   bitacora?: Prisma.BitacoraOrdenCreateNestedManyWithoutOrdenInput
   ventasRefacciones?: Prisma.VentaRefaccionCreateNestedManyWithoutOrdenInput
   cotizacion?: Prisma.CotizacionCreateNestedOneWithoutOrdenInput
+  cfdis?: Prisma.CfdiCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoUncheckedCreateWithoutModificadoPorInput = {
@@ -1345,6 +1371,7 @@ export type OrdenTrabajoUncheckedCreateWithoutModificadoPorInput = {
   bitacora?: Prisma.BitacoraOrdenUncheckedCreateNestedManyWithoutOrdenInput
   ventasRefacciones?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutOrdenInput
   cotizacion?: Prisma.CotizacionUncheckedCreateNestedOneWithoutOrdenInput
+  cfdis?: Prisma.CfdiUncheckedCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoCreateOrConnectWithoutModificadoPorInput = {
@@ -1451,6 +1478,7 @@ export type OrdenTrabajoCreateWithoutClienteInput = {
   bitacora?: Prisma.BitacoraOrdenCreateNestedManyWithoutOrdenInput
   ventasRefacciones?: Prisma.VentaRefaccionCreateNestedManyWithoutOrdenInput
   cotizacion?: Prisma.CotizacionCreateNestedOneWithoutOrdenInput
+  cfdis?: Prisma.CfdiCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoUncheckedCreateWithoutClienteInput = {
@@ -1484,6 +1512,7 @@ export type OrdenTrabajoUncheckedCreateWithoutClienteInput = {
   bitacora?: Prisma.BitacoraOrdenUncheckedCreateNestedManyWithoutOrdenInput
   ventasRefacciones?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutOrdenInput
   cotizacion?: Prisma.CotizacionUncheckedCreateNestedOneWithoutOrdenInput
+  cfdis?: Prisma.CfdiUncheckedCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoCreateOrConnectWithoutClienteInput = {
@@ -1543,6 +1572,7 @@ export type OrdenTrabajoCreateWithoutVehiculoInput = {
   bitacora?: Prisma.BitacoraOrdenCreateNestedManyWithoutOrdenInput
   ventasRefacciones?: Prisma.VentaRefaccionCreateNestedManyWithoutOrdenInput
   cotizacion?: Prisma.CotizacionCreateNestedOneWithoutOrdenInput
+  cfdis?: Prisma.CfdiCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoUncheckedCreateWithoutVehiculoInput = {
@@ -1576,6 +1606,7 @@ export type OrdenTrabajoUncheckedCreateWithoutVehiculoInput = {
   bitacora?: Prisma.BitacoraOrdenUncheckedCreateNestedManyWithoutOrdenInput
   ventasRefacciones?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutOrdenInput
   cotizacion?: Prisma.CotizacionUncheckedCreateNestedOneWithoutOrdenInput
+  cfdis?: Prisma.CfdiUncheckedCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoCreateOrConnectWithoutVehiculoInput = {
@@ -1635,6 +1666,7 @@ export type OrdenTrabajoCreateWithoutMecanicoInput = {
   bitacora?: Prisma.BitacoraOrdenCreateNestedManyWithoutOrdenInput
   ventasRefacciones?: Prisma.VentaRefaccionCreateNestedManyWithoutOrdenInput
   cotizacion?: Prisma.CotizacionCreateNestedOneWithoutOrdenInput
+  cfdis?: Prisma.CfdiCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoUncheckedCreateWithoutMecanicoInput = {
@@ -1668,6 +1700,7 @@ export type OrdenTrabajoUncheckedCreateWithoutMecanicoInput = {
   bitacora?: Prisma.BitacoraOrdenUncheckedCreateNestedManyWithoutOrdenInput
   ventasRefacciones?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutOrdenInput
   cotizacion?: Prisma.CotizacionUncheckedCreateNestedOneWithoutOrdenInput
+  cfdis?: Prisma.CfdiUncheckedCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoCreateOrConnectWithoutMecanicoInput = {
@@ -1727,6 +1760,7 @@ export type OrdenTrabajoCreateWithoutServiciosInput = {
   bitacora?: Prisma.BitacoraOrdenCreateNestedManyWithoutOrdenInput
   ventasRefacciones?: Prisma.VentaRefaccionCreateNestedManyWithoutOrdenInput
   cotizacion?: Prisma.CotizacionCreateNestedOneWithoutOrdenInput
+  cfdis?: Prisma.CfdiCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoUncheckedCreateWithoutServiciosInput = {
@@ -1760,6 +1794,7 @@ export type OrdenTrabajoUncheckedCreateWithoutServiciosInput = {
   bitacora?: Prisma.BitacoraOrdenUncheckedCreateNestedManyWithoutOrdenInput
   ventasRefacciones?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutOrdenInput
   cotizacion?: Prisma.CotizacionUncheckedCreateNestedOneWithoutOrdenInput
+  cfdis?: Prisma.CfdiUncheckedCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoCreateOrConnectWithoutServiciosInput = {
@@ -1808,6 +1843,7 @@ export type OrdenTrabajoUpdateWithoutServiciosInput = {
   bitacora?: Prisma.BitacoraOrdenUpdateManyWithoutOrdenNestedInput
   ventasRefacciones?: Prisma.VentaRefaccionUpdateManyWithoutOrdenNestedInput
   cotizacion?: Prisma.CotizacionUpdateOneWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoUncheckedUpdateWithoutServiciosInput = {
@@ -1841,6 +1877,7 @@ export type OrdenTrabajoUncheckedUpdateWithoutServiciosInput = {
   bitacora?: Prisma.BitacoraOrdenUncheckedUpdateManyWithoutOrdenNestedInput
   ventasRefacciones?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutOrdenNestedInput
   cotizacion?: Prisma.CotizacionUncheckedUpdateOneWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUncheckedUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoCreateWithoutVentasRefaccionesInput = {
@@ -1874,6 +1911,7 @@ export type OrdenTrabajoCreateWithoutVentasRefaccionesInput = {
   pagos?: Prisma.PagoCreateNestedManyWithoutOrdenInput
   bitacora?: Prisma.BitacoraOrdenCreateNestedManyWithoutOrdenInput
   cotizacion?: Prisma.CotizacionCreateNestedOneWithoutOrdenInput
+  cfdis?: Prisma.CfdiCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoUncheckedCreateWithoutVentasRefaccionesInput = {
@@ -1907,6 +1945,7 @@ export type OrdenTrabajoUncheckedCreateWithoutVentasRefaccionesInput = {
   pagos?: Prisma.PagoUncheckedCreateNestedManyWithoutOrdenInput
   bitacora?: Prisma.BitacoraOrdenUncheckedCreateNestedManyWithoutOrdenInput
   cotizacion?: Prisma.CotizacionUncheckedCreateNestedOneWithoutOrdenInput
+  cfdis?: Prisma.CfdiUncheckedCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoCreateOrConnectWithoutVentasRefaccionesInput = {
@@ -1955,6 +1994,7 @@ export type OrdenTrabajoUpdateWithoutVentasRefaccionesInput = {
   pagos?: Prisma.PagoUpdateManyWithoutOrdenNestedInput
   bitacora?: Prisma.BitacoraOrdenUpdateManyWithoutOrdenNestedInput
   cotizacion?: Prisma.CotizacionUpdateOneWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoUncheckedUpdateWithoutVentasRefaccionesInput = {
@@ -1988,6 +2028,7 @@ export type OrdenTrabajoUncheckedUpdateWithoutVentasRefaccionesInput = {
   pagos?: Prisma.PagoUncheckedUpdateManyWithoutOrdenNestedInput
   bitacora?: Prisma.BitacoraOrdenUncheckedUpdateManyWithoutOrdenNestedInput
   cotizacion?: Prisma.CotizacionUncheckedUpdateOneWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUncheckedUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoCreateWithoutDetalleInput = {
@@ -2021,6 +2062,7 @@ export type OrdenTrabajoCreateWithoutDetalleInput = {
   bitacora?: Prisma.BitacoraOrdenCreateNestedManyWithoutOrdenInput
   ventasRefacciones?: Prisma.VentaRefaccionCreateNestedManyWithoutOrdenInput
   cotizacion?: Prisma.CotizacionCreateNestedOneWithoutOrdenInput
+  cfdis?: Prisma.CfdiCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoUncheckedCreateWithoutDetalleInput = {
@@ -2054,6 +2096,7 @@ export type OrdenTrabajoUncheckedCreateWithoutDetalleInput = {
   bitacora?: Prisma.BitacoraOrdenUncheckedCreateNestedManyWithoutOrdenInput
   ventasRefacciones?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutOrdenInput
   cotizacion?: Prisma.CotizacionUncheckedCreateNestedOneWithoutOrdenInput
+  cfdis?: Prisma.CfdiUncheckedCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoCreateOrConnectWithoutDetalleInput = {
@@ -2102,6 +2145,7 @@ export type OrdenTrabajoUpdateWithoutDetalleInput = {
   bitacora?: Prisma.BitacoraOrdenUpdateManyWithoutOrdenNestedInput
   ventasRefacciones?: Prisma.VentaRefaccionUpdateManyWithoutOrdenNestedInput
   cotizacion?: Prisma.CotizacionUpdateOneWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoUncheckedUpdateWithoutDetalleInput = {
@@ -2135,6 +2179,7 @@ export type OrdenTrabajoUncheckedUpdateWithoutDetalleInput = {
   bitacora?: Prisma.BitacoraOrdenUncheckedUpdateManyWithoutOrdenNestedInput
   ventasRefacciones?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutOrdenNestedInput
   cotizacion?: Prisma.CotizacionUncheckedUpdateOneWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUncheckedUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoCreateWithoutPagosInput = {
@@ -2168,6 +2213,7 @@ export type OrdenTrabajoCreateWithoutPagosInput = {
   bitacora?: Prisma.BitacoraOrdenCreateNestedManyWithoutOrdenInput
   ventasRefacciones?: Prisma.VentaRefaccionCreateNestedManyWithoutOrdenInput
   cotizacion?: Prisma.CotizacionCreateNestedOneWithoutOrdenInput
+  cfdis?: Prisma.CfdiCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoUncheckedCreateWithoutPagosInput = {
@@ -2201,6 +2247,7 @@ export type OrdenTrabajoUncheckedCreateWithoutPagosInput = {
   bitacora?: Prisma.BitacoraOrdenUncheckedCreateNestedManyWithoutOrdenInput
   ventasRefacciones?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutOrdenInput
   cotizacion?: Prisma.CotizacionUncheckedCreateNestedOneWithoutOrdenInput
+  cfdis?: Prisma.CfdiUncheckedCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoCreateOrConnectWithoutPagosInput = {
@@ -2249,6 +2296,7 @@ export type OrdenTrabajoUpdateWithoutPagosInput = {
   bitacora?: Prisma.BitacoraOrdenUpdateManyWithoutOrdenNestedInput
   ventasRefacciones?: Prisma.VentaRefaccionUpdateManyWithoutOrdenNestedInput
   cotizacion?: Prisma.CotizacionUpdateOneWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoUncheckedUpdateWithoutPagosInput = {
@@ -2282,6 +2330,7 @@ export type OrdenTrabajoUncheckedUpdateWithoutPagosInput = {
   bitacora?: Prisma.BitacoraOrdenUncheckedUpdateManyWithoutOrdenNestedInput
   ventasRefacciones?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutOrdenNestedInput
   cotizacion?: Prisma.CotizacionUncheckedUpdateOneWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUncheckedUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoCreateWithoutCotizacionInput = {
@@ -2315,6 +2364,7 @@ export type OrdenTrabajoCreateWithoutCotizacionInput = {
   pagos?: Prisma.PagoCreateNestedManyWithoutOrdenInput
   bitacora?: Prisma.BitacoraOrdenCreateNestedManyWithoutOrdenInput
   ventasRefacciones?: Prisma.VentaRefaccionCreateNestedManyWithoutOrdenInput
+  cfdis?: Prisma.CfdiCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoUncheckedCreateWithoutCotizacionInput = {
@@ -2348,6 +2398,7 @@ export type OrdenTrabajoUncheckedCreateWithoutCotizacionInput = {
   pagos?: Prisma.PagoUncheckedCreateNestedManyWithoutOrdenInput
   bitacora?: Prisma.BitacoraOrdenUncheckedCreateNestedManyWithoutOrdenInput
   ventasRefacciones?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutOrdenInput
+  cfdis?: Prisma.CfdiUncheckedCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoCreateOrConnectWithoutCotizacionInput = {
@@ -2396,6 +2447,7 @@ export type OrdenTrabajoUpdateWithoutCotizacionInput = {
   pagos?: Prisma.PagoUpdateManyWithoutOrdenNestedInput
   bitacora?: Prisma.BitacoraOrdenUpdateManyWithoutOrdenNestedInput
   ventasRefacciones?: Prisma.VentaRefaccionUpdateManyWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoUncheckedUpdateWithoutCotizacionInput = {
@@ -2429,6 +2481,7 @@ export type OrdenTrabajoUncheckedUpdateWithoutCotizacionInput = {
   pagos?: Prisma.PagoUncheckedUpdateManyWithoutOrdenNestedInput
   bitacora?: Prisma.BitacoraOrdenUncheckedUpdateManyWithoutOrdenNestedInput
   ventasRefacciones?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUncheckedUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoCreateWithoutBitacoraInput = {
@@ -2462,6 +2515,7 @@ export type OrdenTrabajoCreateWithoutBitacoraInput = {
   pagos?: Prisma.PagoCreateNestedManyWithoutOrdenInput
   ventasRefacciones?: Prisma.VentaRefaccionCreateNestedManyWithoutOrdenInput
   cotizacion?: Prisma.CotizacionCreateNestedOneWithoutOrdenInput
+  cfdis?: Prisma.CfdiCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoUncheckedCreateWithoutBitacoraInput = {
@@ -2495,6 +2549,7 @@ export type OrdenTrabajoUncheckedCreateWithoutBitacoraInput = {
   pagos?: Prisma.PagoUncheckedCreateNestedManyWithoutOrdenInput
   ventasRefacciones?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutOrdenInput
   cotizacion?: Prisma.CotizacionUncheckedCreateNestedOneWithoutOrdenInput
+  cfdis?: Prisma.CfdiUncheckedCreateNestedManyWithoutOrdenInput
 }
 
 export type OrdenTrabajoCreateOrConnectWithoutBitacoraInput = {
@@ -2543,6 +2598,7 @@ export type OrdenTrabajoUpdateWithoutBitacoraInput = {
   pagos?: Prisma.PagoUpdateManyWithoutOrdenNestedInput
   ventasRefacciones?: Prisma.VentaRefaccionUpdateManyWithoutOrdenNestedInput
   cotizacion?: Prisma.CotizacionUpdateOneWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoUncheckedUpdateWithoutBitacoraInput = {
@@ -2574,6 +2630,158 @@ export type OrdenTrabajoUncheckedUpdateWithoutBitacoraInput = {
   servicios?: Prisma.OrdenServicioUncheckedUpdateManyWithoutOrdenNestedInput
   detalle?: Prisma.OrdenDetalleUncheckedUpdateManyWithoutOrdenNestedInput
   pagos?: Prisma.PagoUncheckedUpdateManyWithoutOrdenNestedInput
+  ventasRefacciones?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutOrdenNestedInput
+  cotizacion?: Prisma.CotizacionUncheckedUpdateOneWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUncheckedUpdateManyWithoutOrdenNestedInput
+}
+
+export type OrdenTrabajoCreateWithoutCfdisInput = {
+  id?: string
+  numero?: number
+  estado?: $Enums.EstadoOrden
+  estadoPago?: $Enums.EstadoPago
+  fechaIngreso?: Date | string
+  fechaEntrega?: Date | string | null
+  fechaPromesa?: Date | string | null
+  kilometraje?: number | null
+  diagnostico?: string | null
+  observaciones?: string | null
+  totalManoObra?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalRefacciones?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  total?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalPagado?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoPendiente?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagado?: boolean
+  archivada?: boolean
+  activo?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  creadoPor?: Prisma.UsuarioCreateNestedOneWithoutOrdenesCreadasInput
+  modificadoPor?: Prisma.UsuarioCreateNestedOneWithoutOrdenesModificadasInput
+  cliente: Prisma.ClienteCreateNestedOneWithoutOrdenesInput
+  vehiculo: Prisma.VehiculoCreateNestedOneWithoutOrdenesInput
+  mecanico?: Prisma.MecanicoCreateNestedOneWithoutOrdenesInput
+  servicios?: Prisma.OrdenServicioCreateNestedManyWithoutOrdenInput
+  detalle?: Prisma.OrdenDetalleCreateNestedManyWithoutOrdenInput
+  pagos?: Prisma.PagoCreateNestedManyWithoutOrdenInput
+  bitacora?: Prisma.BitacoraOrdenCreateNestedManyWithoutOrdenInput
+  ventasRefacciones?: Prisma.VentaRefaccionCreateNestedManyWithoutOrdenInput
+  cotizacion?: Prisma.CotizacionCreateNestedOneWithoutOrdenInput
+}
+
+export type OrdenTrabajoUncheckedCreateWithoutCfdisInput = {
+  id?: string
+  numero?: number
+  estado?: $Enums.EstadoOrden
+  estadoPago?: $Enums.EstadoPago
+  fechaIngreso?: Date | string
+  fechaEntrega?: Date | string | null
+  fechaPromesa?: Date | string | null
+  kilometraje?: number | null
+  diagnostico?: string | null
+  observaciones?: string | null
+  totalManoObra?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalRefacciones?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  total?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalPagado?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoPendiente?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagado?: boolean
+  archivada?: boolean
+  activo?: boolean
+  creadoPorId?: string | null
+  modificadoPorId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  clienteId: string
+  vehiculoId: string
+  mecanicoId?: string | null
+  servicios?: Prisma.OrdenServicioUncheckedCreateNestedManyWithoutOrdenInput
+  detalle?: Prisma.OrdenDetalleUncheckedCreateNestedManyWithoutOrdenInput
+  pagos?: Prisma.PagoUncheckedCreateNestedManyWithoutOrdenInput
+  bitacora?: Prisma.BitacoraOrdenUncheckedCreateNestedManyWithoutOrdenInput
+  ventasRefacciones?: Prisma.VentaRefaccionUncheckedCreateNestedManyWithoutOrdenInput
+  cotizacion?: Prisma.CotizacionUncheckedCreateNestedOneWithoutOrdenInput
+}
+
+export type OrdenTrabajoCreateOrConnectWithoutCfdisInput = {
+  where: Prisma.OrdenTrabajoWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrdenTrabajoCreateWithoutCfdisInput, Prisma.OrdenTrabajoUncheckedCreateWithoutCfdisInput>
+}
+
+export type OrdenTrabajoUpsertWithoutCfdisInput = {
+  update: Prisma.XOR<Prisma.OrdenTrabajoUpdateWithoutCfdisInput, Prisma.OrdenTrabajoUncheckedUpdateWithoutCfdisInput>
+  create: Prisma.XOR<Prisma.OrdenTrabajoCreateWithoutCfdisInput, Prisma.OrdenTrabajoUncheckedCreateWithoutCfdisInput>
+  where?: Prisma.OrdenTrabajoWhereInput
+}
+
+export type OrdenTrabajoUpdateToOneWithWhereWithoutCfdisInput = {
+  where?: Prisma.OrdenTrabajoWhereInput
+  data: Prisma.XOR<Prisma.OrdenTrabajoUpdateWithoutCfdisInput, Prisma.OrdenTrabajoUncheckedUpdateWithoutCfdisInput>
+}
+
+export type OrdenTrabajoUpdateWithoutCfdisInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  estado?: Prisma.EnumEstadoOrdenFieldUpdateOperationsInput | $Enums.EstadoOrden
+  estadoPago?: Prisma.EnumEstadoPagoFieldUpdateOperationsInput | $Enums.EstadoPago
+  fechaIngreso?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fechaEntrega?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaPromesa?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  kilometraje?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  diagnostico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  observaciones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalManoObra?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalRefacciones?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  total?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalPagado?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoPendiente?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagado?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivada?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  creadoPor?: Prisma.UsuarioUpdateOneWithoutOrdenesCreadasNestedInput
+  modificadoPor?: Prisma.UsuarioUpdateOneWithoutOrdenesModificadasNestedInput
+  cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdenesNestedInput
+  vehiculo?: Prisma.VehiculoUpdateOneRequiredWithoutOrdenesNestedInput
+  mecanico?: Prisma.MecanicoUpdateOneWithoutOrdenesNestedInput
+  servicios?: Prisma.OrdenServicioUpdateManyWithoutOrdenNestedInput
+  detalle?: Prisma.OrdenDetalleUpdateManyWithoutOrdenNestedInput
+  pagos?: Prisma.PagoUpdateManyWithoutOrdenNestedInput
+  bitacora?: Prisma.BitacoraOrdenUpdateManyWithoutOrdenNestedInput
+  ventasRefacciones?: Prisma.VentaRefaccionUpdateManyWithoutOrdenNestedInput
+  cotizacion?: Prisma.CotizacionUpdateOneWithoutOrdenNestedInput
+}
+
+export type OrdenTrabajoUncheckedUpdateWithoutCfdisInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  numero?: Prisma.IntFieldUpdateOperationsInput | number
+  estado?: Prisma.EnumEstadoOrdenFieldUpdateOperationsInput | $Enums.EstadoOrden
+  estadoPago?: Prisma.EnumEstadoPagoFieldUpdateOperationsInput | $Enums.EstadoPago
+  fechaIngreso?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fechaEntrega?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaPromesa?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  kilometraje?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  diagnostico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  observaciones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalManoObra?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalRefacciones?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  total?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalPagado?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoPendiente?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagado?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivada?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  creadoPorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  modificadoPorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  clienteId?: Prisma.StringFieldUpdateOperationsInput | string
+  vehiculoId?: Prisma.StringFieldUpdateOperationsInput | string
+  mecanicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  servicios?: Prisma.OrdenServicioUncheckedUpdateManyWithoutOrdenNestedInput
+  detalle?: Prisma.OrdenDetalleUncheckedUpdateManyWithoutOrdenNestedInput
+  pagos?: Prisma.PagoUncheckedUpdateManyWithoutOrdenNestedInput
+  bitacora?: Prisma.BitacoraOrdenUncheckedUpdateManyWithoutOrdenNestedInput
   ventasRefacciones?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutOrdenNestedInput
   cotizacion?: Prisma.CotizacionUncheckedUpdateOneWithoutOrdenNestedInput
 }
@@ -2662,6 +2870,7 @@ export type OrdenTrabajoUpdateWithoutCreadoPorInput = {
   bitacora?: Prisma.BitacoraOrdenUpdateManyWithoutOrdenNestedInput
   ventasRefacciones?: Prisma.VentaRefaccionUpdateManyWithoutOrdenNestedInput
   cotizacion?: Prisma.CotizacionUpdateOneWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoUncheckedUpdateWithoutCreadoPorInput = {
@@ -2695,6 +2904,7 @@ export type OrdenTrabajoUncheckedUpdateWithoutCreadoPorInput = {
   bitacora?: Prisma.BitacoraOrdenUncheckedUpdateManyWithoutOrdenNestedInput
   ventasRefacciones?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutOrdenNestedInput
   cotizacion?: Prisma.CotizacionUncheckedUpdateOneWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUncheckedUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoUncheckedUpdateManyWithoutCreadoPorInput = {
@@ -2754,6 +2964,7 @@ export type OrdenTrabajoUpdateWithoutModificadoPorInput = {
   bitacora?: Prisma.BitacoraOrdenUpdateManyWithoutOrdenNestedInput
   ventasRefacciones?: Prisma.VentaRefaccionUpdateManyWithoutOrdenNestedInput
   cotizacion?: Prisma.CotizacionUpdateOneWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoUncheckedUpdateWithoutModificadoPorInput = {
@@ -2787,6 +2998,7 @@ export type OrdenTrabajoUncheckedUpdateWithoutModificadoPorInput = {
   bitacora?: Prisma.BitacoraOrdenUncheckedUpdateManyWithoutOrdenNestedInput
   ventasRefacciones?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutOrdenNestedInput
   cotizacion?: Prisma.CotizacionUncheckedUpdateOneWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUncheckedUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoUncheckedUpdateManyWithoutModificadoPorInput = {
@@ -2873,6 +3085,7 @@ export type OrdenTrabajoUpdateWithoutClienteInput = {
   bitacora?: Prisma.BitacoraOrdenUpdateManyWithoutOrdenNestedInput
   ventasRefacciones?: Prisma.VentaRefaccionUpdateManyWithoutOrdenNestedInput
   cotizacion?: Prisma.CotizacionUpdateOneWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoUncheckedUpdateWithoutClienteInput = {
@@ -2906,6 +3119,7 @@ export type OrdenTrabajoUncheckedUpdateWithoutClienteInput = {
   bitacora?: Prisma.BitacoraOrdenUncheckedUpdateManyWithoutOrdenNestedInput
   ventasRefacciones?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutOrdenNestedInput
   cotizacion?: Prisma.CotizacionUncheckedUpdateOneWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUncheckedUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoUncheckedUpdateManyWithoutClienteInput = {
@@ -2992,6 +3206,7 @@ export type OrdenTrabajoUpdateWithoutVehiculoInput = {
   bitacora?: Prisma.BitacoraOrdenUpdateManyWithoutOrdenNestedInput
   ventasRefacciones?: Prisma.VentaRefaccionUpdateManyWithoutOrdenNestedInput
   cotizacion?: Prisma.CotizacionUpdateOneWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoUncheckedUpdateWithoutVehiculoInput = {
@@ -3025,6 +3240,7 @@ export type OrdenTrabajoUncheckedUpdateWithoutVehiculoInput = {
   bitacora?: Prisma.BitacoraOrdenUncheckedUpdateManyWithoutOrdenNestedInput
   ventasRefacciones?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutOrdenNestedInput
   cotizacion?: Prisma.CotizacionUncheckedUpdateOneWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUncheckedUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoUncheckedUpdateManyWithoutVehiculoInput = {
@@ -3111,6 +3327,7 @@ export type OrdenTrabajoUpdateWithoutMecanicoInput = {
   bitacora?: Prisma.BitacoraOrdenUpdateManyWithoutOrdenNestedInput
   ventasRefacciones?: Prisma.VentaRefaccionUpdateManyWithoutOrdenNestedInput
   cotizacion?: Prisma.CotizacionUpdateOneWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoUncheckedUpdateWithoutMecanicoInput = {
@@ -3144,6 +3361,7 @@ export type OrdenTrabajoUncheckedUpdateWithoutMecanicoInput = {
   bitacora?: Prisma.BitacoraOrdenUncheckedUpdateManyWithoutOrdenNestedInput
   ventasRefacciones?: Prisma.VentaRefaccionUncheckedUpdateManyWithoutOrdenNestedInput
   cotizacion?: Prisma.CotizacionUncheckedUpdateOneWithoutOrdenNestedInput
+  cfdis?: Prisma.CfdiUncheckedUpdateManyWithoutOrdenNestedInput
 }
 
 export type OrdenTrabajoUncheckedUpdateManyWithoutMecanicoInput = {
@@ -3184,6 +3402,7 @@ export type OrdenTrabajoCountOutputType = {
   pagos: number
   bitacora: number
   ventasRefacciones: number
+  cfdis: number
 }
 
 export type OrdenTrabajoCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3192,6 +3411,7 @@ export type OrdenTrabajoCountOutputTypeSelect<ExtArgs extends runtime.Types.Exte
   pagos?: boolean | OrdenTrabajoCountOutputTypeCountPagosArgs
   bitacora?: boolean | OrdenTrabajoCountOutputTypeCountBitacoraArgs
   ventasRefacciones?: boolean | OrdenTrabajoCountOutputTypeCountVentasRefaccionesArgs
+  cfdis?: boolean | OrdenTrabajoCountOutputTypeCountCfdisArgs
 }
 
 /**
@@ -3239,6 +3459,13 @@ export type OrdenTrabajoCountOutputTypeCountVentasRefaccionesArgs<ExtArgs extend
   where?: Prisma.VentaRefaccionWhereInput
 }
 
+/**
+ * OrdenTrabajoCountOutputType without action
+ */
+export type OrdenTrabajoCountOutputTypeCountCfdisArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CfdiWhereInput
+}
+
 
 export type OrdenTrabajoSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -3277,6 +3504,7 @@ export type OrdenTrabajoSelect<ExtArgs extends runtime.Types.Extensions.Internal
   bitacora?: boolean | Prisma.OrdenTrabajo$bitacoraArgs<ExtArgs>
   ventasRefacciones?: boolean | Prisma.OrdenTrabajo$ventasRefaccionesArgs<ExtArgs>
   cotizacion?: boolean | Prisma.OrdenTrabajo$cotizacionArgs<ExtArgs>
+  cfdis?: boolean | Prisma.OrdenTrabajo$cfdisArgs<ExtArgs>
   _count?: boolean | Prisma.OrdenTrabajoCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["ordenTrabajo"]>
 
@@ -3387,6 +3615,7 @@ export type OrdenTrabajoInclude<ExtArgs extends runtime.Types.Extensions.Interna
   bitacora?: boolean | Prisma.OrdenTrabajo$bitacoraArgs<ExtArgs>
   ventasRefacciones?: boolean | Prisma.OrdenTrabajo$ventasRefaccionesArgs<ExtArgs>
   cotizacion?: boolean | Prisma.OrdenTrabajo$cotizacionArgs<ExtArgs>
+  cfdis?: boolean | Prisma.OrdenTrabajo$cfdisArgs<ExtArgs>
   _count?: boolean | Prisma.OrdenTrabajoCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type OrdenTrabajoIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3418,6 +3647,7 @@ export type $OrdenTrabajoPayload<ExtArgs extends runtime.Types.Extensions.Intern
     bitacora: Prisma.$BitacoraOrdenPayload<ExtArgs>[]
     ventasRefacciones: Prisma.$VentaRefaccionPayload<ExtArgs>[]
     cotizacion: Prisma.$CotizacionPayload<ExtArgs> | null
+    cfdis: Prisma.$CfdiPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3850,6 +4080,7 @@ export interface Prisma__OrdenTrabajoClient<T, Null = never, ExtArgs extends run
   bitacora<T extends Prisma.OrdenTrabajo$bitacoraArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrdenTrabajo$bitacoraArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BitacoraOrdenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ventasRefacciones<T extends Prisma.OrdenTrabajo$ventasRefaccionesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrdenTrabajo$ventasRefaccionesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VentaRefaccionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   cotizacion<T extends Prisma.OrdenTrabajo$cotizacionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrdenTrabajo$cotizacionArgs<ExtArgs>>): Prisma.Prisma__CotizacionClient<runtime.Types.Result.GetResult<Prisma.$CotizacionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  cfdis<T extends Prisma.OrdenTrabajo$cfdisArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrdenTrabajo$cfdisArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CfdiPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4498,6 +4729,30 @@ export type OrdenTrabajo$cotizacionArgs<ExtArgs extends runtime.Types.Extensions
    */
   include?: Prisma.CotizacionInclude<ExtArgs> | null
   where?: Prisma.CotizacionWhereInput
+}
+
+/**
+ * OrdenTrabajo.cfdis
+ */
+export type OrdenTrabajo$cfdisArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Cfdi
+   */
+  select?: Prisma.CfdiSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Cfdi
+   */
+  omit?: Prisma.CfdiOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CfdiInclude<ExtArgs> | null
+  where?: Prisma.CfdiWhereInput
+  orderBy?: Prisma.CfdiOrderByWithRelationInput | Prisma.CfdiOrderByWithRelationInput[]
+  cursor?: Prisma.CfdiWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CfdiScalarFieldEnum | Prisma.CfdiScalarFieldEnum[]
 }
 
 /**

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import api from '../services/api'
+import { subirCsd } from '../services/cfdi.service'
 
 interface Config {
   nombre:    string
@@ -10,6 +11,16 @@ interface Config {
   rfc:       string
   email:     string
   horario:   string
+}
+
+interface CfdiConfig {
+  cfdiRegimenFiscal:  string
+  cfdiCodigoPostal:   string
+  cfdiSerie:          string
+  cfdiFacturamaUser:  string
+  cfdiFacturamaPass:  string
+  cfdiSandbox:        boolean
+  cfdiCsdSubido:      boolean
 }
 
 const CAMPOS: { key: keyof Config; label: string; placeholder: string; icono: string; required?: boolean }[] = [
@@ -38,6 +49,26 @@ export default function Configuracion() {
   const [limpiando,      setLimpiando]      = useState(false)
   const [confirmReset,   setConfirmReset]   = useState(false)
 
+  // CFDI / Facturación
+  const [cfdi,           setCfdi]           = useState<CfdiConfig>({
+    cfdiRegimenFiscal: '', cfdiCodigoPostal: '', cfdiSerie: 'A',
+    cfdiFacturamaUser: '', cfdiFacturamaPass: '',
+    cfdiSandbox: true, cfdiCsdSubido: false,
+  })
+  const [guardandoCfdi,  setGuardandoCfdi]  = useState(false)
+  const [okCfdi,         setOkCfdi]         = useState(false)
+  const [errorCfdi,      setErrorCfdi]      = useState('')
+
+  // CSD upload
+  const [cerBase64,      setCerBase64]      = useState('')
+  const [keyBase64,      setKeyBase64]      = useState('')
+  const [keyPass,        setKeyPass]        = useState('')
+  const [subiendoCsd,    setSubiendoCsd]    = useState(false)
+  const [okCsd,          setOkCsd]          = useState(false)
+  const [errorCsd,       setErrorCsd]       = useState('')
+  const cerRef = useRef<HTMLInputElement>(null)
+  const keyRef = useRef<HTMLInputElement>(null)
+
   // Logo: base64 sin prefijo (igual que lo guarda la BD)
   const [logoGuardado,   setLogoGuardado]   = useState<string | null>(null)
   const [logoPreview,    setLogoPreview]    = useState<string | null>(null)  // con prefijo para <img>
@@ -61,6 +92,15 @@ export default function Configuracion() {
           setLogoGuardado(data.logo)
           setLogoPreview(`data:image/png;base64,${data.logo}`)
         }
+        setCfdi({
+          cfdiRegimenFiscal: data.cfdiRegimenFiscal ?? '',
+          cfdiCodigoPostal:  data.cfdiCodigoPostal  ?? '',
+          cfdiSerie:         data.cfdiSerie         ?? 'A',
+          cfdiFacturamaUser: data.cfdiFacturamaUser ?? '',
+          cfdiFacturamaPass: data.cfdiFacturamaPass ?? '',
+          cfdiSandbox:       data.cfdiSandbox       ?? true,
+          cfdiCsdSubido:     data.cfdiCsdSubido     ?? false,
+        })
       })
       .catch(() => setError('No se pudo cargar la configuración'))
       .finally(() => setCargando(false))
@@ -140,6 +180,80 @@ export default function Configuracion() {
       setError(err.response?.data?.mensaje ?? 'Error al guardar')
     } finally {
       setGuardando(false)
+    }
+  }
+
+  /* ── Guardar config CFDI ───────────────────────────────── */
+  const handleGuardarCfdi = async () => {
+    setErrorCfdi('')
+    setOkCfdi(false)
+    setGuardandoCfdi(true)
+    try {
+      await api.put('/config', {
+        cfdiRegimenFiscal: cfdi.cfdiRegimenFiscal,
+        cfdiCodigoPostal:  cfdi.cfdiCodigoPostal,
+        cfdiSerie:         cfdi.cfdiSerie,
+        cfdiFacturamaUser: cfdi.cfdiFacturamaUser,
+        cfdiFacturamaPass: cfdi.cfdiFacturamaPass,
+        cfdiSandbox:       cfdi.cfdiSandbox,
+      })
+      setOkCfdi(true)
+      setTimeout(() => setOkCfdi(false), 3000)
+    } catch (err: any) {
+      setErrorCfdi(err.response?.data?.mensaje ?? 'Error al guardar')
+    } finally {
+      setGuardandoCfdi(false)
+    }
+  }
+
+  /* ── Leer archivo .cer o .key y convertir a base64 ──────── */
+  const leerArchivoBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = e => {
+        const result = e.target?.result as string
+        // data:application/...;base64,XXXX → tomar solo XXXX
+        const b64 = result.includes(',') ? result.split(',')[1] : result
+        resolve(b64)
+      }
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+
+  const onCerSeleccionado = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try { setCerBase64(await leerArchivoBase64(file)) }
+    catch { setErrorCsd('Error leyendo archivo .cer') }
+  }
+
+  const onKeySeleccionado = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try { setKeyBase64(await leerArchivoBase64(file)) }
+    catch { setErrorCsd('Error leyendo archivo .key') }
+  }
+
+  const handleSubirCsd = async () => {
+    setErrorCsd('')
+    if (!cerBase64 || !keyBase64 || !keyPass) {
+      setErrorCsd('Selecciona el .cer, el .key y escribe la contraseña')
+      return
+    }
+    setSubiendoCsd(true)
+    try {
+      await subirCsd({ cerBase64, keyBase64, keyPass })
+      setCfdi(prev => ({ ...prev, cfdiCsdSubido: true }))
+      setOkCsd(true)
+      setCerBase64('')
+      setKeyBase64('')
+      setKeyPass('')
+      if (cerRef.current) cerRef.current.value = ''
+      if (keyRef.current) keyRef.current.value = ''
+    } catch (err: any) {
+      setErrorCsd(err.response?.data?.mensaje ?? err.message ?? 'Error al subir CSD')
+    } finally {
+      setSubiendoCsd(false)
     }
   }
 
@@ -370,6 +484,212 @@ export default function Configuracion() {
           </button>
         </div>
       </form>
+
+      {/* ── Sección Facturación CFDI ─────────────────────────── */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-sm font-bold text-gray-700">Facturación electrónica (CFDI 4.0)</h2>
+            <p className="text-xs text-gray-400 mt-0.5">
+              Integración con Facturama — PAC certificado por el SAT
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+              cfdi.cfdiSandbox
+                ? 'bg-amber-100 text-amber-700'
+                : 'bg-green-100 text-green-700'
+            }`}>
+              {cfdi.cfdiSandbox ? 'Modo pruebas' : 'Producción'}
+            </span>
+            {cfdi.cfdiCsdSubido && (
+              <span className="text-xs px-2.5 py-1 rounded-full font-medium bg-blue-100 text-blue-700">
+                CSD subido
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Campos */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Usuario Facturama</label>
+            <input
+              value={cfdi.cfdiFacturamaUser}
+              onChange={e => setCfdi(p => ({ ...p, cfdiFacturamaUser: e.target.value }))}
+              placeholder="tu-usuario-facturama"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm
+                         focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Contraseña Facturama</label>
+            <input
+              type="password"
+              value={cfdi.cfdiFacturamaPass}
+              onChange={e => setCfdi(p => ({ ...p, cfdiFacturamaPass: e.target.value }))}
+              placeholder="••••••••"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm
+                         focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Régimen fiscal (emisor)</label>
+            <select
+              value={cfdi.cfdiRegimenFiscal}
+              onChange={e => setCfdi(p => ({ ...p, cfdiRegimenFiscal: e.target.value }))}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm
+                         focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">— Selecciona —</option>
+              <option value="601">601 — General de Ley Personas Morales</option>
+              <option value="612">612 — Personas Físicas con Actividades Empresariales</option>
+              <option value="616">616 — Sin obligaciones fiscales</option>
+              <option value="626">626 — RESICO</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">CP domicilio fiscal</label>
+            <input
+              value={cfdi.cfdiCodigoPostal}
+              onChange={e => setCfdi(p => ({ ...p, cfdiCodigoPostal: e.target.value }))}
+              placeholder="58000"
+              maxLength={5}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono
+                         focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Serie de folios</label>
+            <input
+              value={cfdi.cfdiSerie}
+              onChange={e => setCfdi(p => ({ ...p, cfdiSerie: e.target.value.toUpperCase().slice(0,3) }))}
+              placeholder="A"
+              maxLength={3}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono
+                         focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="flex items-center gap-3 pt-5">
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={cfdi.cfdiSandbox}
+                onChange={e => setCfdi(p => ({ ...p, cfdiSandbox: e.target.checked }))}
+                className="sr-only peer"
+              />
+              <div className="w-10 h-5 bg-gray-200 peer-checked:bg-amber-500 rounded-full peer
+                              after:content-[''] after:absolute after:top-0.5 after:left-0.5
+                              after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all
+                              peer-checked:after:translate-x-5" />
+            </label>
+            <span className="text-sm text-gray-700">
+              {cfdi.cfdiSandbox ? 'Modo pruebas (sandbox)' : 'Producción (facturas reales)'}
+            </span>
+          </div>
+        </div>
+
+        {errorCfdi && (
+          <p className="text-xs text-red-600 bg-red-50 border border-red-200 px-3 py-2 rounded-lg">{errorCfdi}</p>
+        )}
+        {okCfdi && (
+          <p className="text-xs text-green-700 bg-green-50 border border-green-200 px-3 py-2 rounded-lg">
+            ✅ Configuración de facturación guardada
+          </p>
+        )}
+
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={handleGuardarCfdi}
+            disabled={guardandoCfdi}
+            className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700
+                       disabled:bg-blue-400 text-white text-sm font-semibold rounded-xl transition-colors"
+          >
+            {guardandoCfdi ? (
+              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : '💾'}
+            Guardar configuración CFDI
+          </button>
+        </div>
+
+        {/* CSD upload */}
+        <div className="border-t border-gray-100 pt-5">
+          <h3 className="text-xs font-bold text-gray-600 mb-1">Subir Certificado de Sello Digital (CSD)</h3>
+          <p className="text-xs text-gray-400 mb-4">
+            Solo se necesita hacer una vez. Sube tus archivos .cer y .key del CSD.
+            {cfdi.cfdiCsdSubido && (
+              <span className="ml-2 text-green-600 font-medium">✅ Ya está subido</span>
+            )}
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Archivo .cer</label>
+              <button
+                type="button"
+                onClick={() => cerRef.current?.click()}
+                className={`w-full border-2 border-dashed rounded-lg px-3 py-2.5 text-xs text-center
+                            transition-colors ${cerBase64
+                              ? 'border-green-400 text-green-600 bg-green-50'
+                              : 'border-gray-300 text-gray-500 hover:border-gray-400'}`}
+              >
+                {cerBase64 ? '✅ .cer cargado' : '📁 Seleccionar .cer'}
+              </button>
+              <input ref={cerRef} type="file" accept=".cer" className="hidden" onChange={onCerSeleccionado} />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Archivo .key</label>
+              <button
+                type="button"
+                onClick={() => keyRef.current?.click()}
+                className={`w-full border-2 border-dashed rounded-lg px-3 py-2.5 text-xs text-center
+                            transition-colors ${keyBase64
+                              ? 'border-green-400 text-green-600 bg-green-50'
+                              : 'border-gray-300 text-gray-500 hover:border-gray-400'}`}
+              >
+                {keyBase64 ? '✅ .key cargado' : '📁 Seleccionar .key'}
+              </button>
+              <input ref={keyRef} type="file" accept=".key" className="hidden" onChange={onKeySeleccionado} />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Contraseña del .key</label>
+              <input
+                type="password"
+                value={keyPass}
+                onChange={e => setKeyPass(e.target.value)}
+                placeholder="Contraseña CSD"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm
+                           focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          {errorCsd && (
+            <p className="mt-2 text-xs text-red-600 bg-red-50 border border-red-200 px-3 py-2 rounded-lg">{errorCsd}</p>
+          )}
+          {okCsd && (
+            <p className="mt-2 text-xs text-green-700 bg-green-50 border border-green-200 px-3 py-2 rounded-lg">
+              ✅ CSD subido exitosamente a Facturama
+            </p>
+          )}
+
+          <div className="mt-3 flex justify-end">
+            <button
+              type="button"
+              onClick={handleSubirCsd}
+              disabled={subiendoCsd || (!cerBase64 && !keyBase64)}
+              className="flex items-center gap-2 px-5 py-2 bg-gray-800 hover:bg-gray-900
+                         disabled:bg-gray-400 text-white text-sm font-medium rounded-xl transition-colors"
+            >
+              {subiendoCsd ? (
+                <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : '🔐'}
+              Subir CSD a Facturama
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Nota informativa */}
       <div className="bg-blue-50 border border-blue-100 rounded-xl px-5 py-4 text-sm text-blue-700">

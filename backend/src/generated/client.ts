@@ -144,3 +144,8 @@ export type BitacoraOrden = Prisma.BitacoraOrdenModel
  * 
  */
 export type ConfigNegocio = Prisma.ConfigNegocioModel
+/**
+ * Model Cfdi
+ * 
+ */
+export type Cfdi = Prisma.CfdiModel

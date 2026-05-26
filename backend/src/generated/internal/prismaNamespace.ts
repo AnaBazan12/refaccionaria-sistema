@@ -404,7 +404,8 @@ export const ModelName = {
   CotizacionItem: 'CotizacionItem',
   GastoCaja: 'GastoCaja',
   BitacoraOrden: 'BitacoraOrden',
-  ConfigNegocio: 'ConfigNegocio'
+  ConfigNegocio: 'ConfigNegocio',
+  Cfdi: 'Cfdi'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -420,7 +421,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "usuario" | "cliente" | "vehiculo" | "mecanico" | "tipoServicio" | "ordenTrabajo" | "ordenServicio" | "proveedor" | "refaccion" | "ventaRefaccion" | "movimientoInventario" | "facturaProveedor" | "compra" | "compraItem" | "ordenDetalle" | "pago" | "cotizacion" | "cotizacionItem" | "gastoCaja" | "bitacoraOrden" | "configNegocio"
+    modelProps: "usuario" | "cliente" | "vehiculo" | "mecanico" | "tipoServicio" | "ordenTrabajo" | "ordenServicio" | "proveedor" | "refaccion" | "ventaRefaccion" | "movimientoInventario" | "facturaProveedor" | "compra" | "compraItem" | "ordenDetalle" | "pago" | "cotizacion" | "cotizacionItem" | "gastoCaja" | "bitacoraOrden" | "configNegocio" | "cfdi"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1978,6 +1979,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Cfdi: {
+      payload: Prisma.$CfdiPayload<ExtArgs>
+      fields: Prisma.CfdiFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CfdiFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CfdiPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CfdiFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CfdiPayload>
+        }
+        findFirst: {
+          args: Prisma.CfdiFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CfdiPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CfdiFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CfdiPayload>
+        }
+        findMany: {
+          args: Prisma.CfdiFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CfdiPayload>[]
+        }
+        create: {
+          args: Prisma.CfdiCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CfdiPayload>
+        }
+        createMany: {
+          args: Prisma.CfdiCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CfdiCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CfdiPayload>[]
+        }
+        delete: {
+          args: Prisma.CfdiDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CfdiPayload>
+        }
+        update: {
+          args: Prisma.CfdiUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CfdiPayload>
+        }
+        deleteMany: {
+          args: Prisma.CfdiDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CfdiUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CfdiUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CfdiPayload>[]
+        }
+        upsert: {
+          args: Prisma.CfdiUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CfdiPayload>
+        }
+        aggregate: {
+          args: Prisma.CfdiAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCfdi>
+        }
+        groupBy: {
+          args: Prisma.CfdiGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CfdiGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CfdiCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CfdiCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2351,10 +2426,41 @@ export const ConfigNegocioScalarFieldEnum = {
   rfc: 'rfc',
   email: 'email',
   horario: 'horario',
+  logo: 'logo',
+  cfdiRegimenFiscal: 'cfdiRegimenFiscal',
+  cfdiCodigoPostal: 'cfdiCodigoPostal',
+  cfdiSerie: 'cfdiSerie',
+  cfdiFacturamaUser: 'cfdiFacturamaUser',
+  cfdiFacturamaPass: 'cfdiFacturamaPass',
+  cfdiSandbox: 'cfdiSandbox',
+  cfdiCsdSubido: 'cfdiCsdSubido',
   updatedAt: 'updatedAt'
 } as const
 
 export type ConfigNegocioScalarFieldEnum = (typeof ConfigNegocioScalarFieldEnum)[keyof typeof ConfigNegocioScalarFieldEnum]
+
+
+export const CfdiScalarFieldEnum = {
+  id: 'id',
+  uuid: 'uuid',
+  serie: 'serie',
+  folio: 'folio',
+  fecha: 'fecha',
+  subtotal: 'subtotal',
+  iva: 'iva',
+  total: 'total',
+  rfcEmisor: 'rfcEmisor',
+  rfcReceptor: 'rfcReceptor',
+  receptor: 'receptor',
+  usoCfdi: 'usoCfdi',
+  formaPago: 'formaPago',
+  estado: 'estado',
+  facturamaId: 'facturamaId',
+  createdAt: 'createdAt',
+  ordenId: 'ordenId'
+} as const
+
+export type CfdiScalarFieldEnum = (typeof CfdiScalarFieldEnum)[keyof typeof CfdiScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2691,6 +2797,7 @@ export type GlobalOmitConfig = {
   gastoCaja?: Prisma.GastoCajaOmit
   bitacoraOrden?: Prisma.BitacoraOrdenOmit
   configNegocio?: Prisma.ConfigNegocioOmit
+  cfdi?: Prisma.CfdiOmit
 }
 
 /* Types for Logging */
