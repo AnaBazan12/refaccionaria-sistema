@@ -35,6 +35,8 @@ export default function Configuracion() {
   const [okLogo,         setOkLogo]         = useState(false)
   const [error,          setError]          = useState('')
   const [errorLogo,      setErrorLogo]      = useState('')
+  const [limpiando,      setLimpiando]      = useState(false)
+  const [confirmReset,   setConfirmReset]   = useState(false)
 
   // Logo: base64 sin prefijo (igual que lo guarda la BD)
   const [logoGuardado,   setLogoGuardado]   = useState<string | null>(null)
@@ -138,6 +140,19 @@ export default function Configuracion() {
       setError(err.response?.data?.mensaje ?? 'Error al guardar')
     } finally {
       setGuardando(false)
+    }
+  }
+
+  const handleReset = async () => {
+    setLimpiando(true)
+    try {
+      await api.delete('/config/reset')
+      setConfirmReset(false)
+      alert('✅ Base de datos limpiada. Ya puedes empezar a usar el sistema con datos reales.')
+    } catch (err: any) {
+      alert(err.response?.data?.mensaje ?? 'Error al limpiar datos')
+    } finally {
+      setLimpiando(false)
     }
   }
 
@@ -365,6 +380,56 @@ export default function Configuracion() {
           <li>Los mensajes de WhatsApp incluyen el nombre del taller automáticamente</li>
           <li>El RFC se puede usar en facturas cuando se integre facturación</li>
         </ul>
+      </div>
+
+      {/* Zona de peligro */}
+      <div className="border border-red-200 rounded-2xl p-6 space-y-3">
+        <h2 className="text-sm font-bold text-red-700">⚠️ Zona de peligro</h2>
+        <p className="text-xs text-gray-500">
+          Borra todos los clientes, vehículos, órdenes, inventario, ventas y compras.
+          Conserva tus usuarios, servicios y configuración del negocio.
+          Úsalo para arrancar con datos reales después de probar el sistema.
+        </p>
+
+        {!confirmReset ? (
+          <button
+            onClick={() => setConfirmReset(true)}
+            className="px-5 py-2.5 border border-red-300 text-red-600 text-sm font-semibold
+                       rounded-xl hover:bg-red-50 transition-colors"
+          >
+            🗑 Limpiar todos los datos de prueba
+          </button>
+        ) : (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-3">
+            <p className="text-sm font-bold text-red-700">
+              ¿Estás seguro? Esta acción no se puede deshacer.
+            </p>
+            <p className="text-xs text-red-500">
+              Se borrarán permanentemente todos los clientes, órdenes, inventario, ventas y compras.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={handleReset}
+                disabled={limpiando}
+                className="px-5 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400
+                           text-white text-sm font-bold rounded-xl transition-colors
+                           flex items-center gap-2"
+              >
+                {limpiando ? (
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : '🗑'}
+                {limpiando ? 'Limpiando...' : 'Sí, borrar todo'}
+              </button>
+              <button
+                onClick={() => setConfirmReset(false)}
+                className="px-5 py-2 border border-gray-300 text-gray-600 text-sm
+                           font-medium rounded-xl hover:bg-gray-50 transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
     </div>

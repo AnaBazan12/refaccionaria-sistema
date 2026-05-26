@@ -48,6 +48,38 @@ export const updateConfig = async (req: RequestConUsuario, res: Response) => {
   }
 }
 
+/* ── DELETE /api/config/reset-demo ──────────────────────────── */
+export const resetDemo = async (req: RequestConUsuario, res: Response) => {
+  try {
+    // Borra en orden correcto respetando FK constraints
+    await prisma.$transaction([
+      prisma.bitacoraOrden.deleteMany(),
+      prisma.ordenServicio.deleteMany(),
+      prisma.ordenDetalle.deleteMany(),
+      prisma.pago.deleteMany(),
+      prisma.ventaRefaccion.deleteMany(),
+      prisma.cotizacionItem.deleteMany(),
+      prisma.cotizacion.deleteMany(),
+      prisma.compraItem.deleteMany(),
+      prisma.compra.deleteMany(),
+      prisma.facturaProveedor.deleteMany(),
+      prisma.ordenTrabajo.deleteMany(),
+      prisma.movimientoInventario.deleteMany(),
+      prisma.refaccion.deleteMany(),
+      prisma.vehiculo.deleteMany(),
+      prisma.cliente.deleteMany(),
+      prisma.mecanico.deleteMany(),
+      prisma.proveedor.deleteMany(),
+      prisma.gastoCaja.deleteMany(),
+      // Conserva: usuarios, tipos_servicio, config_negocio
+    ])
+
+    return res.json({ mensaje: 'Base de datos limpiada. El sistema está listo para usar.' })
+  } catch (error) {
+    return res.status(500).json({ mensaje: 'Error al limpiar datos', error })
+  }
+}
+
 /* ── PUT /api/config/logo ────────────────────────────────────── */
 export const updateLogo = async (req: RequestConUsuario, res: Response) => {
   try {
