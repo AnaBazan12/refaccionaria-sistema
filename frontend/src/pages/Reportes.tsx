@@ -676,6 +676,102 @@ function ReporteMensual({ datos }: { datos: any }) {
         </Section>
       )}
 
+      {/* ── Sección CUENTAS POR COBRAR ──────────────────────── */}
+      {(datos.deudas?.cantidad > 0) && (
+        <Section title="💳 Cuentas por cobrar pendientes">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <Card label="Clientes con saldo"
+                  val={datos.deudas.cantidad}
+                  color="rose" />
+            <Card label="Total por cobrar"
+                  val={fmt(datos.deudas.total)}
+                  color="rose"
+                  sub="Al cierre del mes" />
+            <Card label="Promedio por cliente"
+                  val={datos.deudas.cantidad > 0
+                    ? fmt(Number(datos.deudas.total) / datos.deudas.cantidad)
+                    : '$0.00'}
+                  color="amber" />
+            <Card label="Más antigua"
+                  val={datos.deudas.detalle?.length > 0
+                    ? `${Math.floor((Date.now() - new Date(datos.deudas.detalle[0].createdAt).getTime()) / 86_400_000)}d`
+                    : '—'}
+                  color="gray"
+                  sub="Días sin cobrar" />
+          </div>
+
+          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div className="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
+              <span className="text-sm font-semibold text-gray-700">Detalle de deudas</span>
+              <span className="text-xs text-red-600 font-semibold bg-red-50 px-2 py-0.5 rounded-full">
+                {datos.deudas.cantidad} pendiente{datos.deudas.cantidad !== 1 ? 's' : ''}
+              </span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-xs text-gray-500 border-b border-gray-100 bg-gray-50">
+                    <th className="text-left px-5 py-3 font-medium">Cliente</th>
+                    <th className="text-center px-3 py-3 font-medium"># Orden</th>
+                    <th className="text-left px-3 py-3 font-medium">Fecha</th>
+                    <th className="text-center px-3 py-3 font-medium">Días</th>
+                    <th className="text-right px-3 py-3 font-medium">Total OT</th>
+                    <th className="text-right px-3 py-3 font-medium">Pagado</th>
+                    <th className="text-right px-5 py-3 font-medium">Saldo</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {datos.deudas.detalle.map((d: any) => {
+                    const dias = Math.floor(
+                      (Date.now() - new Date(d.createdAt).getTime()) / 86_400_000
+                    )
+                    const alerta = dias > 30 ? 'text-red-600' : dias > 15 ? 'text-amber-600' : 'text-gray-600'
+                    return (
+                      <tr key={d.numero} className="hover:bg-gray-50">
+                        <td className="px-5 py-3">
+                          <div className="font-medium text-gray-800">{d.cliente?.nombre ?? '—'}</div>
+                          {d.cliente?.telefono && (
+                            <div className="text-xs text-gray-400">{d.cliente.telefono}</div>
+                          )}
+                        </td>
+                        <td className="px-3 py-3 text-center text-gray-600 font-mono text-xs">
+                          #{d.numero}
+                        </td>
+                        <td className="px-3 py-3 text-gray-500 text-xs">
+                          {new Date(d.createdAt).toLocaleDateString('es-MX', {
+                            day: '2-digit', month: 'short', year: '2-digit'
+                          })}
+                        </td>
+                        <td className={`px-3 py-3 text-center text-xs font-bold ${alerta}`}>
+                          {dias}d
+                        </td>
+                        <td className="px-3 py-3 text-right text-gray-600">{fmt(d.total)}</td>
+                        <td className="px-3 py-3 text-right text-emerald-600">
+                          {d.estadoPago === 'PARCIAL' ? fmt(d.totalPagado) : '$0.00'}
+                        </td>
+                        <td className="px-5 py-3 text-right font-bold text-red-600">
+                          {fmt(d.saldoPendiente)}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+                <tfoot>
+                  <tr className="bg-red-50 border-t-2 border-red-100 font-semibold text-sm">
+                    <td colSpan={6} className="px-5 py-3 text-gray-600">
+                      Total por cobrar
+                    </td>
+                    <td className="px-5 py-3 text-right text-red-700 font-bold">
+                      {fmt(datos.deudas.total)}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </Section>
+      )}
+
     </div>
   )
 }

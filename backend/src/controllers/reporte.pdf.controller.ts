@@ -337,7 +337,7 @@ export const pdfReporteMensual = async (req: Request, res: Response) => {
     const inicio = new Date(anio, mes - 1, 1)
     const fin    = new Date(anio, mes, 0, 23, 59, 59)
 
-    const [ordenes, ventas, compras] = await Promise.all([
+    const [ordenes, ventas, compras, deudas] = await Promise.all([
       prisma.ordenTrabajo.findMany({
         where: { createdAt: { gte: inicio, lte: fin }, activo: true },
         include: { mecanico: { select: { nombre: true } } }
@@ -349,6 +349,16 @@ export const pdfReporteMensual = async (req: Request, res: Response) => {
       prisma.compra.findMany({
         where:   { fecha: { gte: inicio, lte: fin } },
         include: { proveedor: { select: { nombre: true } } }
+      }),
+      // Deudas pendientes al cierre del mes (creadas hasta el último día del mes)
+      prisma.ordenTrabajo.findMany({
+        where: {
+          estadoPago: { in: ['PENDIENTE', 'PARCIAL'] },
+          activo:     true,
+          createdAt:  { lte: fin },
+        },
+        include: { cliente: { select: { nombre: true, telefono: true } } },
+        orderBy: { createdAt: 'asc' },
       })
     ])
 
@@ -505,6 +515,68 @@ export const pdfReporteMensual = async (req: Request, res: Response) => {
       tableFoot(doc, y, [
         { text: `${compras.length} entradas de compra`, x: 48, w: 344 },
         { text: fmtMXN(totalCompras), x: 395, w: 160, align: 'right' },
+      ])
+      y += 32
+    }
+
+    // ── Cuentas por cobrar pendientes ────────────────────────
+    if (deudas.length > 0) {
+      if (y > 580) { doc.addPage(); y = 40 }
+      y = secTitle(doc, y, '  CUENTAS POR COBRAR PENDIENTES', '#7f1d1d')
+
+      const totalDeuda     = deudas.reduce((s, d) => s + Number(d.saldoPendiente), 0)
+      const totalFacturado = deudas.reduce((s, d) => s + Number(d.total), 0)
+      const hoy            = new Date()
+
+      y = metricRow(doc, y, [
+        { label: 'Clientes con saldo', value: String(deudas.length),           bg: '#fef2f2', fg: '#b91c1c' },
+        { label: 'Total por cobrar',   value: fmtMXN(totalDeuda),              bg: '#fff1f2', fg: '#9f1239' },
+        { label: 'Total facturado',    value: fmtMXN(totalFacturado),          bg: '#fffbeb', fg: '#92400e' },
+        { label: 'Ya cobrado',         value: fmtMXN(totalFacturado - totalDeuda), bg: '#f0fdf4', fg: '#166534' },
+      ])
+      y += 4
+
+      const cols = [
+        { text: 'CLIENTE',  x: 48,  w: 155 },
+        { text: '# ORDEN',  x: 207, w: 50,  align: 'center' },
+        { text: 'INGRESO',  x: 261, w: 72  },
+        { text: 'DIAS',     x: 337, w: 35,  align: 'center' },
+        { text: 'TOTAL OT', x: 376, w: 70,  align: 'right'  },
+        { text: 'PAGADO',   x: 450, w: 60,  align: 'right'  },
+        { text: 'SALDO',    x: 513, w: 40,  align: 'right'  },
+      ]
+      y = tableHead(doc, y, cols)
+
+      let totalSaldo = 0
+      deudas.forEach((d, i) => {
+        if (y > 700) { doc.addPage(); y = 40 }
+        const dias      = Math.floor((hoy.getTime() - new Date(d.createdAt).getTime()) / 86_400_000)
+        const esParcial = d.estadoPago === 'PARCIAL'
+        y = tableRow(doc, y, [
+          { text: d.cliente?.nombre ?? '—',
+              x: 48,  w: 155 },
+          { text: String(d.numero),
+              x: 207, w: 50,  align: 'center' },
+          { text: new Date(d.createdAt).toLocaleDateString('es-MX',
+              { day: '2-digit', month: 'short', year: '2-digit' }),
+              x: 261, w: 72  },
+          { text: `${dias}d`,
+              x: 337, w: 35,  align: 'center' },
+          { text: fmtMXN(d.total),
+              x: 376, w: 70,  align: 'right'  },
+          { text: esParcial ? fmtMXN(d.totalPagado) : '$0.00',
+              x: 450, w: 60,  align: 'right'  },
+          { text: fmtMXN(d.saldoPendiente),
+              x: 513, w: 40,  align: 'right'  },
+        ], i % 2 === 0)
+        totalSaldo += Number(d.saldoPendiente)
+      })
+
+      tableFoot(doc, y, [
+        { text: `${deudas.length} cuenta${deudas.length !== 1 ? 's' : ''} pendiente${deudas.length !== 1 ? 's' : ''}`,
+            x: 48,  w: 462 },
+        { text: fmtMXN(totalSaldo),
+            x: 513, w: 40,  align: 'right' },
       ])
     }
 

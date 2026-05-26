@@ -244,6 +244,27 @@ export const reporteMensual = async (req: Request, res: Response) => {
       comprasPorProveedor[key].compras += 1
     }
 
+    // ── Cuentas por cobrar pendientes al cierre del mes ──────
+    const deudasPendientes = await prisma.ordenTrabajo.findMany({
+      where: {
+        estadoPago: { in: ['PENDIENTE', 'PARCIAL'] },
+        activo:     true,
+        createdAt:  { lte: fin },
+      },
+      select: {
+        numero:         true,
+        createdAt:      true,
+        total:          true,
+        totalPagado:    true,
+        saldoPendiente: true,
+        estadoPago:     true,
+        cliente:        { select: { nombre: true, telefono: true } },
+      },
+      orderBy: { createdAt: 'asc' },
+    })
+
+    const totalDeudas = deudasPendientes.reduce((s, d) => s + Number(d.saldoPendiente), 0)
+
     return res.json({
       periodo: `${mes}/${anio}`,
 
@@ -288,6 +309,12 @@ export const reporteMensual = async (req: Request, res: Response) => {
         totalFacturas: facturas.length,
         totalCompras:  totalFacturas.toFixed(2),
         detalle:       facturas
+      },
+
+      deudas: {
+        total:     totalDeudas.toFixed(2),
+        cantidad:  deudasPendientes.length,
+        detalle:   deudasPendientes,
       },
 
       ordenes
