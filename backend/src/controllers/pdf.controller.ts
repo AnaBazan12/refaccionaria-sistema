@@ -3,6 +3,7 @@ import PDFDocument           from 'pdfkit'
 import { prisma }            from '../utils/prisma'
 import path                  from 'path'
 import fs                    from 'fs'
+import QRCode                from 'qrcode'
 
 // Ruta al logo del negocio
 const LOGO_PATH = path.join(__dirname, '../assets/LogoRefaccionaria.png')
@@ -344,6 +345,25 @@ export const pdfOrden = async (req: Request, res: Response) => {
     doc.fillColor('#94a3b8').fontSize(8).font('Helvetica')
        .text('Firma del cliente', 60, y + 35, { width: 180, align: 'center' })
        .text('Firma del taller', 310, y + 35, { width: 180, align: 'center' })
+
+    // ── QR historial del vehículo ──────────────────────────
+    y += 30
+    try {
+      const placa      = orden.vehiculo?.placa ?? ''
+      const frontUrl   = process.env.FRONTEND_URL ?? 'https://refaccionaria-sistema.vercel.app'
+      const historialUrl = `${frontUrl}/historial/${placa}`
+      const qrBuffer   = await QRCode.toBuffer(historialUrl, {
+        type:   'png',
+        width:  80,
+        margin: 1,
+        color:  { dark: '#1e293b', light: '#ffffff' },
+      })
+      const qrX = 460
+      doc.image(qrBuffer, qrX, y, { width: 55, height: 55 })
+      doc.fillColor('#64748b').fontSize(6.5).font('Helvetica')
+         .text('Escanea para ver', qrX - 2, y + 57, { width: 59, align: 'center' })
+         .text('el historial del auto', qrX - 2, y + 65, { width: 59, align: 'center' })
+    } catch { /* sin QR si hay error */ }
 
     // ── Pie de página ───────────────────────────────────────
     y += 55

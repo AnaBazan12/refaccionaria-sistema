@@ -22,7 +22,8 @@ import Landing       from './pages/Landing'
 import Caja          from './pages/Caja'
 import Compras         from './pages/Compras'
 import Configuracion  from './pages/Configuracion'
-import Facturas       from './pages/Facturas'
+import Facturas          from './pages/Facturas'
+import HistorialVehiculo from './pages/HistorialVehiculo'
 
 // ── Pantalla de carga ─────────────────────────────────────────
 const Cargando = () => (
@@ -253,6 +254,9 @@ export default function App() {
             path="/"
             element={<RutaRaiz />}
           />
+
+          {/* ── Historial público del vehículo (sin auth) ─────── */}
+          <Route path="/historial/:placa" element={<HistorialVehiculo />} />
 
         </Routes>
       </BrowserRouter>
