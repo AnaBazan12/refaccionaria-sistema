@@ -32,8 +32,11 @@ export default function OrdenDetalleModal({
   const [resumenPago, setResumenPago] = useState<any>(null)
   const [bitacora, setBitacora] = useState<any[]>([])
   const [cargando, setCargando] = useState(false)
-  const [confirmEliminar, setConfirmEliminar] = useState(false)
-  const [modalFacturar,   setModalFacturar]   = useState(false)
+  const [confirmEliminar,  setConfirmEliminar]  = useState(false)
+  const [modalFacturar,    setModalFacturar]    = useState(false)
+  const [garantiaMeses,    setGarantiaMeses]    = useState<number>(0)
+  const [guardandoGarantia,setGuardandoGarantia]= useState(false)
+  const [okGarantia,       setOkGarantia]       = useState(false)
 
   // Datos frescos de la orden (totales, estado) — se re-fetcha al abrir
   const [ordenActual, setOrdenActual] = useState(orden)
@@ -41,8 +44,11 @@ export default function OrdenDetalleModal({
   // Fetch fresco de la orden al abrir el modal (para que los totales sean actuales)
   useEffect(() => {
     api.get(`/ordenes/${orden.id}`)
-       .then(({ data }) => setOrdenActual(data))
-       .catch(() => {}) // silencioso — usamos prop como fallback
+       .then(({ data }) => {
+         setOrdenActual(data)
+         setGarantiaMeses(data.garantiaMeses ?? 0)
+       })
+       .catch(() => {})
   }, [orden.id])
 
   // Form agregar refacción
@@ -285,6 +291,56 @@ export default function OrdenDetalleModal({
                             <span className="text-gray-400 block">Ingreso</span>
                             <span className="font-medium">{new Date(ordenActual.fechaIngreso).toLocaleDateString('es-MX')}</span>
                         </div>
+                    </div>
+
+                    {/* ── Garantía ─────────────────────────────────── */}
+                    <div className="border-t pt-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-sm font-semibold text-gray-700">🛡️ Garantía del servicio</span>
+                        {ordenActual.garantiaVence && (
+                          (() => {
+                            const vence   = new Date(ordenActual.garantiaVence)
+                            const vigente = vence > new Date()
+                            return (
+                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium
+                                ${vigente ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                                {vigente ? '✓ Vigente' : 'Vencida'} · hasta {vence.toLocaleDateString('es-MX')}
+                              </span>
+                            )
+                          })()
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={garantiaMeses}
+                          onChange={e => setGarantiaMeses(Number(e.target.value))}
+                          className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm
+                                     focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                        >
+                          <option value={0}>Sin garantía</option>
+                          <option value={1}>1 mes</option>
+                          <option value={3}>3 meses</option>
+                          <option value={6}>6 meses</option>
+                          <option value={12}>12 meses (1 año)</option>
+                        </select>
+                        <button
+                          onClick={async () => {
+                            setGuardandoGarantia(true)
+                            try {
+                              await api.patch(`/ordenes/${ordenActual.id}/garantia`, { garantiaMeses })
+                              setOkGarantia(true)
+                              refrescarOrden()
+                              setTimeout(() => setOkGarantia(false), 2500)
+                            } catch { /* silencioso */ }
+                            finally { setGuardandoGarantia(false) }
+                          }}
+                          disabled={guardandoGarantia}
+                          className="text-xs font-medium px-3 py-1.5 bg-blue-600 hover:bg-blue-700
+                                     disabled:bg-blue-300 text-white rounded-lg transition-colors"
+                        >
+                          {guardandoGarantia ? '…' : okGarantia ? '✓ Guardado' : 'Guardar'}
+                        </button>
+                      </div>
                     </div>
 
                     {/* Botón eliminar — solo ADMIN */}

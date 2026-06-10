@@ -26,6 +26,7 @@ import busquedaRoutes    from './routes/busqueda.routes'
 import configRoutes      from './routes/config.routes'
 import cfdiRoutes        from './routes/cfdi.routes'
 import historialRoutes   from './routes/historial.routes'
+import exportarRoutes    from './routes/exportar.routes'
 
 dotenv.config()
 validarEnv()   // ← falla rápido si falta configuración crítica
@@ -122,6 +123,7 @@ app.use('/api/buscar',      busquedaRoutes)
 app.use('/api/config',      configRoutes)
 app.use('/api/cfdi',        cfdiRoutes)
 app.use('/api/historial',   historialRoutes)   // público — sin auth
+app.use('/api/exportar',    exportarRoutes)
 
 // ── Manejo de errores global ──────────────────────────────────
 app.use((err: any, _req: express.Request, res: express.Response,

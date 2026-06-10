@@ -539,3 +539,38 @@ export const obtenerBitacora = async (req: Request, res: Response) => {
     return res.status(500).json({ mensaje: 'Error del servidor', error })
   }
 }
+
+// ── PATCH /ordenes/:id/garantia ───────────────────────────────
+export const actualizarGarantia = async (req: Request, res: Response) => {
+  try {
+    const id     = String(req.params.id)
+    const meses  = Number(req.body.garantiaMeses)
+
+    if (isNaN(meses) || meses < 0) {
+      return res.status(400).json({ mensaje: 'Meses de garantía inválido' })
+    }
+
+    const orden = await prisma.ordenTrabajo.findUnique({ where: { id } })
+    if (!orden) return res.status(404).json({ mensaje: 'Orden no encontrada' })
+
+    // Calcular fecha de vencimiento a partir de la entrega (o hoy si no hay)
+    let garantiaVence: Date | null = null
+    if (meses > 0) {
+      const base = orden.fechaEntrega ?? new Date()
+      garantiaVence = new Date(base)
+      garantiaVence.setMonth(garantiaVence.getMonth() + meses)
+    }
+
+    const actualizada = await prisma.ordenTrabajo.update({
+      where: { id },
+      data:  { garantiaMeses: meses > 0 ? meses : null, garantiaVence },
+    })
+
+    return res.json({
+      garantiaMeses: actualizada.garantiaMeses,
+      garantiaVence: actualizada.garantiaVence,
+    })
+  } catch (err) {
+    return res.status(500).json({ mensaje: 'Error del servidor', error: err })
+  }
+}

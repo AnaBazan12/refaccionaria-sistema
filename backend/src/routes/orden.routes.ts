@@ -5,7 +5,7 @@ import {
   cambiarEstado, marcarPagada,
   agregarServicio, cancelarOrden,
   archivarOrden, archivarOrdeneViejas,
-  actualizarOrden, eliminarOrden
+  actualizarOrden, eliminarOrden, actualizarGarantia
 } from '../controllers/orden.controller'
 import {
   agregarRefaccion, quitarRefaccion, obtenerDetalle,
@@ -44,6 +44,9 @@ router.post('/:id/pagos',   registrarPago)
 
 // Bitácora
 router.get('/:id/bitacora', obtenerBitacora)
+
+// Garantía
+router.patch('/:id/garantia', actualizarGarantia)
 
 // Deudas
 router.get('/deudas/pendientes', protegerRuta, soloRoles('ADMIN','RECEPCIONISTA'), clientesConDeuda)

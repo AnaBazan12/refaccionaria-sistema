@@ -332,6 +332,11 @@ export default function Ordenes() {
                         ✓ PAGADA
                       </span>
                     )}
+                    {orden.garantiaVence && new Date(orden.garantiaVence) > new Date() && (
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-blue-100 text-blue-700">
+                        🛡️ GARANTÍA
+                      </span>
+                    )}
                     <span className="text-xs text-gray-400 ml-1">
                       {new Date(orden.createdAt).toLocaleDateString('es-MX', {
                         day: '2-digit', month: 'short', year: 'numeric'

@@ -172,6 +172,10 @@ model OrdenTrabajo {
   archivada        Boolean     @default(false)
   activo           Boolean     @default(true)
 
+  // Garantía del servicio
+  garantiaMeses    Int?
+  garantiaVence    DateTime?
+
   // Auditoría
   creadoPorId      String?
   creadoPor        Usuario?    @relation("OrdenCreadaPor", fields: [creadoPorId], references: [id])

@@ -7,6 +7,7 @@ import {
   getReporteDiario, getReporteMensual,
   descargarPdfDiario, descargarPdfMensual
 } from '../services/reporte.service'
+import { exportOrdenes, exportClientes, exportInventario, exportDeudas } from '../services/exportar.service'
 import * as XLSX from 'xlsx'
 
 type Vista = 'diario' | 'mensual'
@@ -772,7 +773,60 @@ function ReporteMensual({ datos }: { datos: any }) {
         </Section>
       )}
 
+      {/* ── Exportar datos completos ─────────────────────────── */}
+      <Section titulo="📥 Exportar datos completos (Excel)">
+        <p className="text-sm text-gray-500 mb-4">
+          Descarga todos los registros en formato Excel — útil para contabilidad, SAT o respaldo.
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <ExportBtn
+            icono="📋"
+            label="Todas las órdenes"
+            color="bg-blue-600 hover:bg-blue-700"
+            onClick={() => exportOrdenes()}
+          />
+          <ExportBtn
+            icono="👥"
+            label="Clientes"
+            color="bg-purple-600 hover:bg-purple-700"
+            onClick={exportClientes}
+          />
+          <ExportBtn
+            icono="🔩"
+            label="Inventario"
+            color="bg-amber-600 hover:bg-amber-700"
+            onClick={exportInventario}
+          />
+          <ExportBtn
+            icono="💸"
+            label="Deudas pendientes"
+            color="bg-rose-600 hover:bg-rose-700"
+            onClick={exportDeudas}
+          />
+        </div>
+      </Section>
+
     </div>
+  )
+}
+
+function ExportBtn({ icono, label, color, onClick }: {
+  icono: string; label: string; color: string; onClick: () => void
+}) {
+  const [cargando, setCargando] = useState(false)
+  return (
+    <button
+      onClick={async () => { setCargando(true); try { await onClick() } finally { setCargando(false) } }}
+      disabled={cargando}
+      className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-white
+                  text-sm font-medium transition-colors disabled:opacity-60 ${color}`}
+    >
+      {cargando
+        ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+        : <span>{icono}</span>
+      }
+      {label}
+    </button>
   )
 }
 
