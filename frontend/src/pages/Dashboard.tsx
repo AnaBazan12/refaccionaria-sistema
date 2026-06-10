@@ -44,6 +44,11 @@ interface DashboardData {
     id: string; nombre: string; codigo: string
     stockActual: number; stockMinimo: number; proveedor: string
   }[]
+  deudas: {
+    total: string
+    count: number
+    lista: { id: string; numero: number; saldoPendiente: number; cliente: string; vehiculo: string; placa: string }[]
+  }
 }
 
 /* ─── helpers ─────────────────────────────────────────────────── */
@@ -171,7 +176,7 @@ export default function Dashboard() {
     )
   }
 
-  const { hoy: dHoy, mes, activas, mecanicos, ultimos7, ultimasOrdenes, stockBajo, cotizaciones } = datos
+  const { hoy: dHoy, mes, activas, mecanicos, ultimos7, ultimasOrdenes, stockBajo, cotizaciones, deudas } = datos
 
   const badgeCrecimiento = mes.crecimiento !== null
     ? { texto: `${Math.abs(Number(mes.crecimiento))}% vs mes ant.`, positivo: Number(mes.crecimiento) >= 0 }
@@ -250,6 +255,51 @@ export default function Dashboard() {
           />
         </div>
       </div>
+
+      {/* ══════════════════════════════════════════════════════
+          DEUDAS PENDIENTES
+      ══════════════════════════════════════════════════════ */}
+      {deudas && (
+        <div>
+          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+            💸 Deudas pendientes
+          </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+            {/* Tarjeta resumen */}
+            <MetricCard
+              icono="💸"
+              titulo="Total por cobrar"
+              valor={fmt(deudas.total)}
+              subtitulo={`${deudas.count} orden${deudas.count !== 1 ? 'es' : ''} con saldo pendiente`}
+              color={deudas.count > 0 ? 'rose' : 'green'}
+              badge={null}
+            />
+
+            {/* Lista de deudores */}
+            {deudas.lista.length > 0 && (
+              <div className="lg:col-span-2 bg-white rounded-xl border border-rose-100 p-5">
+                <h3 className="text-sm font-semibold text-rose-600 mb-3">Clientes con saldo pendiente</h3>
+                <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
+                  {deudas.lista.map(d => (
+                    <div key={d.id} className="flex items-center justify-between bg-rose-50 rounded-lg px-3 py-2">
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium text-gray-800 truncate">{d.cliente}</div>
+                        <div className="text-xs text-gray-400">
+                          {d.vehiculo} <span className="font-mono">{d.placa}</span> · #{d.numero}
+                        </div>
+                      </div>
+                      <span className="text-sm font-bold text-rose-600 shrink-0 ml-3">
+                        {fmt(d.saldoPendiente)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ══════════════════════════════════════════════════════
           COTIZACIONES

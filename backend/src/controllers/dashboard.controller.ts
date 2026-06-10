@@ -34,6 +34,8 @@ export const getDashboard = async (_req: Request, res: Response) => {
       comprasMes,
       cotizacionesPendientes,
       cotizacionesAprobadas,
+      deudasLista,
+      deudasAgregado,
     ] = await Promise.all([
 
       // Órdenes del mes actual
@@ -123,6 +125,27 @@ export const getDashboard = async (_req: Request, res: Response) => {
 
       // ── Cotizaciones aprobadas (listas para convertir) ───────
       prisma.cotizacion.count({ where: { estado: 'APROBADA' } }),
+
+      // ── Órdenes con saldo pendiente (deudas) ─────────────────
+      prisma.ordenTrabajo.findMany({
+        where: { saldoPendiente: { gt: 0 }, activo: true },
+        select: {
+          id:             true,
+          numero:         true,
+          saldoPendiente: true,
+          cliente:        { select: { nombre: true } },
+          vehiculo:       { select: { marca: true, modelo: true, placa: true } },
+        },
+        orderBy: { saldoPendiente: 'desc' },
+        take: 8,
+      }),
+
+      // ── Total adeudado global ─────────────────────────────────
+      prisma.ordenTrabajo.aggregate({
+        where: { saldoPendiente: { gt: 0 }, activo: true },
+        _sum:   { saldoPendiente: true },
+        _count: { id: true },
+      }),
     ])
 
     // ── Métricas del mes actual ───────────────────────────────────
@@ -208,6 +231,10 @@ export const getDashboard = async (_req: Request, res: Response) => {
     // ── Stock bajo ───────────────────────────────────────────────
     const stockBajo = stockBajoRaw.filter(r => r.stockActual <= r.stockMinimo)
 
+    // ── Deudas ───────────────────────────────────────────────────
+    const totalDeudas = Number(deudasAgregado._sum.saldoPendiente ?? 0)
+    const countDeudas = deudasAgregado._count.id
+
     return res.json({
       hoy: {
         nuevasOrdenes:   ordenesHoy,
@@ -247,6 +274,18 @@ export const getDashboard = async (_req: Request, res: Response) => {
         stockMinimo: r.stockMinimo,
         proveedor:   r.proveedor?.nombre ?? '—'
       })),
+      deudas: {
+        total: totalDeudas.toFixed(2),
+        count: countDeudas,
+        lista: deudasLista.map(o => ({
+          id:             o.id,
+          numero:         o.numero,
+          saldoPendiente: Number(o.saldoPendiente),
+          cliente:        o.cliente?.nombre ?? '—',
+          vehiculo:       `${o.vehiculo?.marca ?? ''} ${o.vehiculo?.modelo ?? ''}`.trim(),
+          placa:          o.vehiculo?.placa ?? '',
+        })),
+      },
     })
   } catch (error) {
     return res.status(500).json({ mensaje: 'Error del servidor', error })
