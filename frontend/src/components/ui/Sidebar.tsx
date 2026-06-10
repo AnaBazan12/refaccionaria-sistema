@@ -206,11 +206,15 @@ function ModalCambiarPassword({ onCerrar }: { onCerrar: () => void }) {
 export default function Sidebar() {
   const { usuario, logout }    = useAuth()
   const { conteo }             = useStockBajo()
-  const [panelAbierto, setPanelAbierto] = useState(false)
-  const [modalPassword, setModalPassword] = useState(false)
+  const [panelAbierto,   setPanelAbierto]   = useState(false)
+  const [modalPassword,  setModalPassword]  = useState(false)
+  const [menuMovil,      setMenuMovil]      = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
 
-  // Cerrar panel al hacer clic fuera
+  // Cerrar sidebar móvil al navegar
+  const cerrarMovil = () => setMenuMovil(false)
+
+  // Cerrar panel stock al hacer clic fuera
   useEffect(() => {
     if (!panelAbierto) return
     const handler = (e: MouseEvent) => {
@@ -222,14 +226,20 @@ export default function Sidebar() {
     return () => document.removeEventListener('mousedown', handler)
   }, [panelAbierto])
 
+  // Cerrar menú móvil con Escape
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenuMovil(false) }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [])
+
   const menuVisible = menu.filter(item =>
     item.roles.includes(usuario?.rol ?? '')
   )
 
-  return (
+  // ── Contenido del sidebar (reutilizado en móvil y desktop) ──
+  const contenidoSidebar = (
     <>
-    <aside className="w-64 min-h-screen bg-gray-900 text-white flex flex-col">
-
       {/* Logo */}
       <div className="px-5 py-4 border-b border-gray-700">
         <div className="flex items-center gap-3">
@@ -243,24 +253,27 @@ export default function Sidebar() {
               img.nextElementSibling?.classList.remove('hidden')
             }}
           />
-          <div className="hidden">
-            <LogoRefaccionaria size={36} />
-          </div>
+          <div className="hidden"><LogoRefaccionaria size={36} /></div>
           <div>
             <div className="text-sm font-bold leading-tight">Refaccionaria El Chino</div>
             <div className="text-xs text-purple-300 font-medium">y Taller Mecánico</div>
           </div>
+          {/* X en móvil */}
+          <button
+            onClick={cerrarMovil}
+            className="md:hidden ml-auto text-gray-400 hover:text-white text-2xl leading-none"
+          >×</button>
         </div>
       </div>
 
-      {/* Usuario actual */}
+      {/* Usuario */}
       <div className="px-4 py-3 border-b border-gray-700">
         <div className="text-sm font-medium">{usuario?.nombre}</div>
         <div className={`text-xs font-medium mt-0.5 ${colorRol[usuario?.rol ?? '']}`}>
           {usuario?.rol}
         </div>
         <button
-          onClick={() => setModalPassword(true)}
+          onClick={() => { setModalPassword(true); cerrarMovil() }}
           className="mt-2 text-xs text-gray-400 hover:text-gray-200 transition-colors
                      flex items-center gap-1"
         >
@@ -281,6 +294,7 @@ export default function Sidebar() {
             <div key={item.ruta} className="relative" ref={hayAlerta ? panelRef : undefined}>
               <NavLink
                 to={item.ruta}
+                onClick={cerrarMovil}
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm
                    transition-colors ${isActive
@@ -290,28 +304,18 @@ export default function Sidebar() {
               >
                 <span>{item.icono}</span>
                 <span className="flex-1">{item.label}</span>
-
-                {/* Badge de stock bajo */}
                 {hayAlerta && (
                   <button
-                    onClick={e => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      setPanelAbierto(prev => !prev)
-                    }}
-                    className="flex items-center justify-center
-                               min-w-[20px] h-5 px-1.5 rounded-full
-                               bg-red-500 hover:bg-red-400
-                               text-white text-[10px] font-bold
-                               transition-colors animate-pulse"
+                    onClick={e => { e.preventDefault(); e.stopPropagation(); setPanelAbierto(p => !p) }}
+                    className="flex items-center justify-center min-w-[20px] h-5 px-1.5
+                               rounded-full bg-red-500 hover:bg-red-400
+                               text-white text-[10px] font-bold transition-colors animate-pulse"
                     title={`${conteo} piezas bajo stock mínimo`}
                   >
                     {conteo > 99 ? '99+' : conteo}
                   </button>
                 )}
               </NavLink>
-
-              {/* Panel flotante */}
               {hayAlerta && panelAbierto && (
                 <PanelStockBajo onCerrar={() => setPanelAbierto(false)} />
               )}
@@ -327,14 +331,50 @@ export default function Sidebar() {
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm
                      text-gray-300 hover:bg-gray-800 w-full transition-colors"
         >
-          <span>🚪</span>
-          <span>Cerrar sesión</span>
+          <span>🚪</span><span>Cerrar sesión</span>
         </button>
       </div>
-    </aside>
+    </>
+  )
 
-    {/* Modal cambiar contraseña */}
-    {modalPassword && <ModalCambiarPassword onCerrar={() => setModalPassword(false)} />}
-  </>
+  return (
+    <>
+      {/* ── Botón hamburguesa (solo móvil) ──────────────────── */}
+      <button
+        onClick={() => setMenuMovil(true)}
+        className="md:hidden fixed top-3 left-3 z-40 w-10 h-10
+                   bg-gray-900 text-white rounded-xl shadow-lg
+                   flex items-center justify-center text-lg"
+        aria-label="Abrir menú"
+      >
+        ☰
+      </button>
+
+      {/* ── Overlay fondo (móvil) ────────────────────────────── */}
+      {menuMovil && (
+        <div
+          className="md:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+          onClick={cerrarMovil}
+        />
+      )}
+
+      {/* ── Sidebar desktop (siempre visible) ───────────────── */}
+      <aside className="hidden md:flex w-64 min-h-screen bg-gray-900 text-white flex-col shrink-0">
+        {contenidoSidebar}
+      </aside>
+
+      {/* ── Sidebar móvil (drawer) ───────────────────────────── */}
+      <aside className={`
+        md:hidden fixed top-0 left-0 z-50 h-full w-72
+        bg-gray-900 text-white flex flex-col
+        transform transition-transform duration-300 ease-in-out
+        ${menuMovil ? 'translate-x-0' : '-translate-x-full'}
+      `}>
+        {contenidoSidebar}
+      </aside>
+
+      {/* Modal cambiar contraseña */}
+      {modalPassword && <ModalCambiarPassword onCerrar={() => setModalPassword(false)} />}
+    </>
   )
 }

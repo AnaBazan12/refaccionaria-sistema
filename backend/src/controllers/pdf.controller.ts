@@ -347,23 +347,25 @@ export const pdfOrden = async (req: Request, res: Response) => {
        .text('Firma del taller', 310, y + 35, { width: 180, align: 'center' })
 
     // ── QR historial del vehículo ──────────────────────────
-    y += 30
     try {
-      const placa      = orden.vehiculo?.placa ?? ''
-      const frontUrl   = process.env.FRONTEND_URL ?? 'https://refaccionaria-sistema.vercel.app'
+      const placa        = orden.vehiculo?.placa ?? ''
+      const frontUrl     = process.env.FRONTEND_URL ?? 'https://refaccionaria-sistema.vercel.app'
       const historialUrl = `${frontUrl}/historial/${placa}`
-      const qrBuffer   = await QRCode.toBuffer(historialUrl, {
-        type:   'png',
-        width:  80,
-        margin: 1,
-        color:  { dark: '#1e293b', light: '#ffffff' },
+      const qrBuffer     = await QRCode.toBuffer(historialUrl, {
+        type: 'png', width: 80, margin: 1,
+        color: { dark: '#1e293b', light: '#ffffff' },
       })
+      // Colocar el QR flotando alineado con las firmas, a la derecha
+      const qrY = y + 10
       const qrX = 460
-      doc.image(qrBuffer, qrX, y, { width: 55, height: 55 })
-      doc.fillColor('#64748b').fontSize(6.5).font('Helvetica')
-         .text('Escanea para ver', qrX - 2, y + 57, { width: 59, align: 'center' })
-         .text('el historial del auto', qrX - 2, y + 65, { width: 59, align: 'center' })
+      if (qrY + 75 < 720) {          // solo si cabe en la página (LETTER = 792pt)
+        doc.image(qrBuffer, qrX, qrY, { width: 55, height: 55 })
+        doc.fillColor('#64748b').fontSize(6.5).font('Helvetica')
+           .text('Escanea para ver', qrX - 2, qrY + 57, { width: 59, align: 'center' })
+           .text('historial del auto',  qrX - 2, qrY + 65, { width: 59, align: 'center' })
+      }
     } catch { /* sin QR si hay error */ }
+    y += 30
 
     // ── Pie de página ───────────────────────────────────────
     y += 55
