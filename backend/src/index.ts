@@ -3,6 +3,8 @@ import helmet     from 'helmet'
 import rateLimit  from 'express-rate-limit'
 import compression from 'compression'
 import dotenv     from 'dotenv'
+import path       from 'path'
+import fs         from 'fs'
 import { validarEnv }    from './utils/validarEnv'
 import authRoutes        from './routes/auth.routes'
 import clienteRoutes     from './routes/cliente.routes'
@@ -130,6 +132,17 @@ app.use((err: any, _req: express.Request, res: express.Response,
     error:   process.env.NODE_ENV === 'development' ? err.message : undefined
   })
 })
+
+// ── Servir frontend (modo local/estático) ─────────────────────
+// Si existe el build del frontend en ../frontend/dist, lo sirve aquí
+const frontendDist = path.resolve(__dirname, '../../frontend/dist')
+if (fs.existsSync(frontendDist)) {
+  app.use(express.static(frontendDist))
+  app.get('*', (_req, res) => {
+    res.sendFile(path.join(frontendDist, 'index.html'))
+  })
+  console.log(`🖥️  Sirviendo frontend desde: ${frontendDist}`)
+}
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en puerto ${PORT}`)
