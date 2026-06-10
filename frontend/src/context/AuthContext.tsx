@@ -17,19 +17,35 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType)
 
+// Decodifica el payload del JWT sin verificar firma (solo para leer expiración)
+function jwtExpira(token: string): number | null {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    return payload.exp ?? null  // segundos Unix
+  } catch { return null }
+}
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [usuario,  setUsuario]  = useState<Usuario | null>(null)
   const [token,    setToken]    = useState<string | null>(null)
   const [cargando, setCargando] = useState(true)
 
-  // Al cargar la app, recuperar sesión guardada
+  // Al cargar la app, recuperar sesión guardada — pero verificar que el token no haya expirado
   useEffect(() => {
     const tokenGuardado   = localStorage.getItem('token')
     const usuarioGuardado = localStorage.getItem('usuario')
 
     if (tokenGuardado && usuarioGuardado) {
-      setToken(tokenGuardado)
-      setUsuario(JSON.parse(usuarioGuardado))
+      const exp = jwtExpira(tokenGuardado)
+      const ahoraSegundos = Date.now() / 1000
+      if (exp && exp < ahoraSegundos) {
+        // Token ya expiró — limpiar y forzar login
+        localStorage.removeItem('token')
+        localStorage.removeItem('usuario')
+      } else {
+        setToken(tokenGuardado)
+        setUsuario(JSON.parse(usuarioGuardado))
+      }
     }
     setCargando(false)
   }, [])
