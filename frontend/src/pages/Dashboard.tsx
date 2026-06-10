@@ -4,6 +4,7 @@ import {
   ResponsiveContainer, CartesianGrid, Legend
 } from 'recharts'
 import { getDashboardData } from '../services/dashboard.service'
+import api from '../services/api'
 
 /* ─── tipos ──────────────────────────────────────────────────── */
 interface DashboardData {
@@ -282,16 +283,27 @@ export default function Dashboard() {
                 <h3 className="text-sm font-semibold text-rose-600 mb-3">Clientes con saldo pendiente</h3>
                 <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
                   {deudas.lista.map(d => (
-                    <div key={d.id} className="flex items-center justify-between bg-rose-50 rounded-lg px-3 py-2">
-                      <div className="min-w-0">
+                    <div key={d.id} className="flex items-center justify-between bg-rose-50 rounded-lg px-3 py-2 gap-2">
+                      <div className="min-w-0 flex-1">
                         <div className="text-sm font-medium text-gray-800 truncate">{d.cliente}</div>
                         <div className="text-xs text-gray-400">
                           {d.vehiculo} <span className="font-mono">{d.placa}</span> · #{d.numero}
                         </div>
                       </div>
-                      <span className="text-sm font-bold text-rose-600 shrink-0 ml-3">
+                      <span className="text-sm font-bold text-rose-600 shrink-0">
                         {fmt(d.saldoPendiente)}
                       </span>
+                      <button
+                        onClick={async () => {
+                          const { data } = await api.get(`/pdf/whatsapp/${d.id}?tipo=deuda`)
+                          window.open(data.url, '_blank')
+                        }}
+                        title="Enviar recordatorio por WhatsApp"
+                        className="shrink-0 bg-green-500 hover:bg-green-600 text-white text-xs font-bold
+                                   px-2.5 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                      >
+                        📱 WA
+                      </button>
                     </div>
                   ))}
                 </div>
