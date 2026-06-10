@@ -5,6 +5,7 @@ import { buscarRefaccion } from '../../services/inventario.service'
 import { abrirPDF } from '../../utils/pdf'
 import { eliminarOrden } from '../../services/orden.service'
 import { useAuth } from '../../context/AuthContext'
+import ModalFacturar from './ModalFacturar'
 
 interface Props {
   orden: any
@@ -32,6 +33,7 @@ export default function OrdenDetalleModal({
   const [bitacora, setBitacora] = useState<any[]>([])
   const [cargando, setCargando] = useState(false)
   const [confirmEliminar, setConfirmEliminar] = useState(false)
+  const [modalFacturar,   setModalFacturar]   = useState(false)
 
   // Datos frescos de la orden (totales, estado) — se re-fetcha al abrir
   const [ordenActual, setOrdenActual] = useState(orden)
@@ -245,7 +247,7 @@ export default function OrdenDetalleModal({
                         </div>
                     </div>
 
-                    <div className="grid gap-3 sm:grid-cols-3">
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                         <button onClick={() => abrirPDF(`/pdf/orden/${ordenActual.id}`, `orden-${ordenActual.numero}.pdf`)}
                                 className="bg-gray-800 hover:bg-gray-700 text-white text-sm font-medium py-2.5 rounded-lg flex items-center justify-center gap-2">
                             📄 PDF Orden
@@ -262,6 +264,14 @@ export default function OrdenDetalleModal({
                                 window.open(data.url, '_blank')
                             }} className="bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium py-2.5 rounded-lg flex items-center justify-center gap-2">
                                 💬 Cobrar Deuda
+                            </button>
+                        )}
+                        {usuario?.rol !== 'MECANICO' && (
+                            <button
+                                onClick={() => setModalFacturar(true)}
+                                className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-2.5 rounded-lg flex items-center justify-center gap-2"
+                            >
+                                🧾 Facturar
                             </button>
                         )}
                     </div>
@@ -469,6 +479,26 @@ export default function OrdenDetalleModal({
         </div>
       </div>
     )}
+
+    {/* ── Modal Facturar CFDI ───────────────────────────────── */}
+    {modalFacturar && (() => {
+      const conceptos = [
+        Number(ordenActual.totalManoObra) > 0
+          ? { descripcion: 'Mano de obra', cantidad: 1, precioUnitario: Number(ordenActual.totalManoObra), codigoSat: '78101803', claveUnidad: 'E48' }
+          : null,
+        Number(ordenActual.totalRefacciones) > 0
+          ? { descripcion: 'Refacciones y materiales', cantidad: 1, precioUnitario: Number(ordenActual.totalRefacciones), codigoSat: '25172500', claveUnidad: 'H87' }
+          : null,
+      ].filter((x): x is NonNullable<typeof x> => x !== null)
+      return (
+        <ModalFacturar
+          ordenId={ordenActual.id}
+          onCerrar={() => setModalFacturar(false)}
+          onFacturada={() => setModalFacturar(false)}
+          itemsPrevios={conceptos.length > 0 ? conceptos : undefined}
+        />
+      )
+    })()}
   </>
   )
 }
