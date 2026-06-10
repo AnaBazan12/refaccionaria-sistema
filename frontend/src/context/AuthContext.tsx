@@ -32,22 +32,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Al cargar la app, recuperar sesión guardada — pero verificar que el token no haya expirado
   useEffect(() => {
-    const tokenGuardado   = localStorage.getItem('token')
-    const usuarioGuardado = localStorage.getItem('usuario')
+    try {
+      const tokenGuardado   = localStorage.getItem('token')
+      const usuarioGuardado = localStorage.getItem('usuario')
 
-    if (tokenGuardado && usuarioGuardado) {
-      const exp = jwtExpira(tokenGuardado)
-      const ahoraSegundos = Date.now() / 1000
-      if (exp && exp < ahoraSegundos) {
-        // Token ya expiró — limpiar y forzar login
-        localStorage.removeItem('token')
-        localStorage.removeItem('usuario')
-      } else {
-        setToken(tokenGuardado)
-        setUsuario(JSON.parse(usuarioGuardado))
+      if (tokenGuardado && usuarioGuardado) {
+        const exp = jwtExpira(tokenGuardado)
+        const ahoraSegundos = Date.now() / 1000
+        if (exp && exp < ahoraSegundos) {
+          localStorage.removeItem('token')
+          localStorage.removeItem('usuario')
+        } else {
+          setToken(tokenGuardado)
+          setUsuario(JSON.parse(usuarioGuardado))
+        }
       }
+    } catch {
+      localStorage.removeItem('token')
+      localStorage.removeItem('usuario')
+    } finally {
+      setCargando(false)
     }
-    setCargando(false)
   }, [])
 
   const login = (token: string, usuario: Usuario) => {
