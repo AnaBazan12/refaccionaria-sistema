@@ -93,16 +93,20 @@ export default function Deudas() {
                         <span className="font-bold text-red-600 text-base">{fmt(o.saldoPendiente)}</span>
                       </td>
                       <td className="px-5 py-3">
-                        <a 
-                          href={`https://wa.me/52${o.cliente?.telefono?.replace(/\D/g, '')}?text=${encodeURIComponent(
-                            `Hola ${o.cliente?.nombre}, te recordamos que tienes un saldo pendiente de ${fmt(o.saldoPendiente)} por el servicio de tu ${o.vehiculo?.marca} ${o.vehiculo?.modelo}. ¡Gracias!`
-                          )}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-xs bg-green-50 text-green-600 hover:bg-green-100 px-3 py-1.5 rounded-lg transition-colors"
-                        >
-                          📱 WhatsApp
-                        </a>
+                        {o.cliente?.telefono ? (
+                          <a
+                            href={`https://wa.me/52${o.cliente.telefono.replace(/\D/g, '')}?text=${encodeURIComponent(
+                              `Hola ${o.cliente?.nombre}, te recordamos que tienes un saldo pendiente de ${fmt(o.saldoPendiente)} por el servicio de tu ${o.vehiculo?.marca} ${o.vehiculo?.modelo}. ¡Gracias!`
+                            )}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-xs bg-green-50 text-green-600 hover:bg-green-100 px-3 py-1.5 rounded-lg transition-colors"
+                          >
+                            📱 WhatsApp
+                          </a>
+                        ) : (
+                          <span className="text-xs text-gray-300">Sin teléfono</span>
+                        )}
                       </td>
                     </tr>
                   ))}

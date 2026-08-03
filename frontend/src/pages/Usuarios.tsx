@@ -25,9 +25,6 @@ export default function Usuarios() {
   const [error,    setError]    = useState('')
   const [guardando,setGuardando]= useState(false)
 
-  // Solo ADMIN puede ver esta página
-  if (usuario?.rol !== 'ADMIN') return <Navigate to="/dashboard" replace />
-
   const cargar = async () => {
     setCargando(true)
     try {
@@ -38,6 +35,9 @@ export default function Usuarios() {
   }
 
   useEffect(() => { cargar() }, [])
+
+  // Guard después de los hooks (React regla: no llamar hooks después de un return condicional)
+  if (usuario?.rol !== 'ADMIN') return <Navigate to="/dashboard" replace />
 
   const handleCrear = async (e: React.FormEvent) => {
     e.preventDefault()

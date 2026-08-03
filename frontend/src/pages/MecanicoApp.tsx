@@ -10,27 +10,34 @@ import {
 import api from '../services/api'
 
 // ── Helpers de estado ──────────────────────────────────────────────────────────
+// Estados reales del backend: RECIBIDO → EN_PROCESO → LISTO → ENTREGADO
 const ESTADO_COLOR: Record<string, string> = {
-  PENDIENTE:   'bg-yellow-100 text-yellow-700',
-  EN_PROCESO:  'bg-blue-100   text-blue-700',
-  COMPLETADO:  'bg-green-100  text-green-700',
-  CANCELADO:   'bg-red-100    text-red-700',
+  RECIBIDO:             'bg-yellow-100 text-yellow-700',
+  EN_PROCESO:           'bg-blue-100   text-blue-700',
+  EN_ESPERA_REFACCION:  'bg-orange-100 text-orange-700',
+  LISTO:                'bg-green-100  text-green-700',
+  ENTREGADO:            'bg-gray-100   text-gray-600',
+  CANCELADO:            'bg-red-100    text-red-700',
 }
 const ESTADO_LABEL: Record<string, string> = {
-  PENDIENTE:  'Pendiente',
-  EN_PROCESO: 'En proceso',
-  COMPLETADO: 'Completado',
-  CANCELADO:  'Cancelado',
+  RECIBIDO:             'Recibido',
+  EN_PROCESO:           'En proceso',
+  EN_ESPERA_REFACCION:  'Esperando refacción',
+  LISTO:                'Listo',
+  ENTREGADO:            'Entregado',
+  CANCELADO:            'Cancelado',
 }
 const SIGUIENTE_ESTADO: Record<string, string | null> = {
-  PENDIENTE:  'EN_PROCESO',
-  EN_PROCESO: 'COMPLETADO',
-  COMPLETADO: null,
-  CANCELADO:  null,
+  RECIBIDO:             'EN_PROCESO',
+  EN_PROCESO:           'LISTO',
+  EN_ESPERA_REFACCION:  'LISTO',
+  LISTO:                null,
+  ENTREGADO:            null,
+  CANCELADO:            null,
 }
 const BOTON_LABEL: Record<string, string> = {
   EN_PROCESO: '▶  Iniciar trabajo',
-  COMPLETADO: '✅  Marcar como completado',
+  LISTO:      '✅  Marcar como listo',
 }
 
 // ── Componente principal ───────────────────────────────────────────────────────
@@ -47,16 +54,18 @@ export default function MecanicoApp() {
   const cargar = async () => {
     setCargando(true)
     try {
-      const [rPend, rProc, rComp, rSvcs] = await Promise.all([
-        getOrdenes({ estado: 'PENDIENTE',  limit: 100 }),
-        getOrdenes({ estado: 'EN_PROCESO', limit: 100 }),
-        getOrdenes({ estado: 'COMPLETADO', limit: 50  }),
+      const [rRecib, rProc, rEspera, rListo, rSvcs] = await Promise.all([
+        getOrdenes({ estado: 'RECIBIDO',            limit: 100 }),
+        getOrdenes({ estado: 'EN_PROCESO',          limit: 100 }),
+        getOrdenes({ estado: 'EN_ESPERA_REFACCION', limit: 100 }),
+        getOrdenes({ estado: 'LISTO',               limit: 50  }),
         getServicios(),
       ])
       const todas = [
-        ...(rPend.data ?? []),
-        ...(rProc.data ?? []),
-        ...(rComp.data ?? []),
+        ...(rRecib.data  ?? []),
+        ...(rProc.data   ?? []),
+        ...(rEspera.data ?? []),
+        ...(rListo.data  ?? []),
       ]
       setOrdenes(todas)
       setServicios(Array.isArray(rSvcs) ? rSvcs : (rSvcs.data ?? []))
@@ -70,8 +79,8 @@ export default function MecanicoApp() {
   useEffect(() => { cargar() }, [])
 
   // ── Filtrado por tab ─────────────────────────────────────────────────────────
-  const activas     = ordenes.filter(o => o.estado === 'PENDIENTE' || o.estado === 'EN_PROCESO')
-  const completadas = ordenes.filter(o => o.estado === 'COMPLETADO')
+  const activas     = ordenes.filter(o => ['RECIBIDO', 'EN_PROCESO', 'EN_ESPERA_REFACCION'].includes(o.estado))
+  const completadas = ordenes.filter(o => o.estado === 'LISTO')
   const lista       = tab === 'activas' ? activas : completadas
 
   // ── Abrir detalle (recarga la orden individual para tener servicios frescos) ─

@@ -129,7 +129,7 @@ export default function Inventario() {
       precioMayoreo:   r.precioMayoreo?.toString() ?? '',
       stockActual:     r.stockActual.toString(),
       stockMinimo:     r.stockMinimo.toString(),
-      proveedorId:     ''
+      proveedorId:     r.proveedorId ?? ''
     })
     setError('')
     setModalAbierto(true)

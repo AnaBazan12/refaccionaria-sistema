@@ -76,6 +76,12 @@ const menu = [
   label: 'Cotizaciones',
   roles: ['ADMIN', 'RECEPCIONISTA']
 },
+{
+  ruta:  '/servicios',
+  icono: '🛠️',
+  label: 'Servicios',
+  roles: ['ADMIN']
+},
 ]
 
 const colorRol: Record<string, string> = {

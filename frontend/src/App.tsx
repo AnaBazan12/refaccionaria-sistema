@@ -16,6 +16,7 @@ import Usuarios       from './pages/Usuarios'
 import Deudas         from './pages/Deudas'
 import Cotizaciones   from './pages/Cotizaciones'
 import MecanicoApp   from './pages/MecanicoApp'
+import Servicios     from './pages/Servicios'
 
 // ── Pantalla de carga ─────────────────────────────────────────
 const Cargando = () => (
@@ -191,6 +192,14 @@ export default function App() {
               element={
                 <RutaProtegida rolesPermitidos={['ADMIN']}>
                   <Usuarios />
+                </RutaProtegida>
+              }
+            />
+            <Route
+              path="/servicios"
+              element={
+                <RutaProtegida rolesPermitidos={['ADMIN']}>
+                  <Servicios />
                 </RutaProtegida>
               }
             />
