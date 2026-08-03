@@ -4,26 +4,89 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
-    <!-- PWA / app meta -->
-    <meta name="application-name" content="TallerPro" />
-    <meta name="description"      content="Sistema de gestión para talleres mecánicos y refaccionarias. Órdenes, inventario, cobros y más." />
-    <meta name="theme-color"      content="#1e40af" />
-    <meta name="mobile-web-app-capable"       content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title"   content="TallerPro" />
+    <!-- ── SEO principal ─────────────────────────────────── -->
+    <title>Refaccionaria El Chino y Taller Mecánico — Tarímbaro, Michoacán</title>
+    <meta name="description" content="Refaccionaria y taller mecánico en Peña del Panal, Tarímbaro, Michoacán. Refacciones, afinación, frenos, suspensión. Entrega a domicilio en Tarímbaro. WhatsApp: 443 939 2115." />
+    <meta name="keywords"    content="refaccionaria Tarímbaro, taller mecánico Tarímbaro, refacciones Michoacán, taller mecánico Peña del Panal, refaccionaria El Chino, afinación Tarímbaro, frenos Tarímbaro, mecánico Tarímbaro, autopartes Tarímbaro, refaccionaria Morelia" />
+    <meta name="author"      content="Refaccionaria El Chino y Taller Mecánico" />
+    <meta name="robots"      content="index, follow" />
+    <link  rel="canonical"   href="https://refaccionariaelchino.vercel.app/" />
 
-    <!-- Favicon e íconos -->
-    <link rel="icon"             type="image/png" href="/LogoRefaccionaria.png" />
-    <link rel="apple-touch-icon"                  href="/LogoRefaccionaria.png" />
+    <!-- Geo — ayuda a Google a ubicar el negocio físicamente -->
+    <meta name="geo.region"   content="MX-MIC" />
+    <meta name="geo.placename" content="Peña del Panal, Tarímbaro, Michoacán" />
+    <meta name="geo.position" content="19.7833;-101.1167" />
+    <meta name="ICBM"         content="19.7833, -101.1167" />
 
-    <!-- Open Graph (para compartir por WhatsApp / redes) -->
+    <!-- ── Open Graph — Facebook, WhatsApp, Instagram ────── -->
     <meta property="og:type"        content="website" />
-    <meta property="og:title"       content="TallerPro — Sistema para talleres mecánicos" />
-    <meta property="og:description" content="Digitaliza tu taller: órdenes, inventario, cobros y más desde tu celular." />
+    <meta property="og:url"         content="https://refaccionariaelchino.vercel.app/" />
+    <meta property="og:title"       content="Refaccionaria El Chino y Taller Mecánico — Tarímbaro, Mich." />
+    <meta property="og:description" content="Refacciones y mecánica en Tarímbaro. Entrega a domicilio, crédito semanal para talleres, precio de mecánico. WhatsApp: 443 939 2115." />
     <meta property="og:image"       content="/LogoRefaccionaria.png" />
+    <meta property="og:image:alt"   content="Refaccionaria El Chino y Taller Mecánico" />
+    <meta property="og:locale"      content="es_MX" />
+    <meta property="og:site_name"   content="Refaccionaria El Chino" />
 
-    <title>TallerPro — Sistema para talleres mecánicos</title>
+    <!-- ── PWA / app ─────────────────────────────────────── -->
+    <meta name="application-name"                content="Refaccionaria El Chino" />
+    <meta name="theme-color"                     content="#d62b1f" />
+    <meta name="mobile-web-app-capable"          content="yes" />
+    <meta name="apple-mobile-web-app-capable"    content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title"      content="Refaccionaria El Chino" />
+
+    <!-- ── Favicon ───────────────────────────────────────── -->
+    <link rel="icon"           type="image/png" href="/LogoRefaccionaria.png" />
+    <link rel="apple-touch-icon"                href="/LogoRefaccionaria.png" />
+
+    <!-- ── Datos estructurados JSON-LD (Google local search) ── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "AutoPartsStore",
+      "name": "Refaccionaria El Chino y Taller Mecánico",
+      "description": "Refaccionaria y taller mecánico en Peña del Panal, Tarímbaro, Michoacán. Refacciones, afinación, frenos, suspensión, entrega a domicilio.",
+      "url": "https://refaccionariaelchino.vercel.app/",
+      "telephone": "+524439392115",
+      "image": "/LogoRefaccionaria.png",
+      "priceRange": "$$",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Peña del Panal",
+        "addressLocality": "Tarímbaro",
+        "addressRegion": "Michoacán de Ocampo",
+        "postalCode": "58883",
+        "addressCountry": "MX"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 19.7833,
+        "longitude": -101.1167
+      },
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+          "opens": "08:00",
+          "closes": "19:00"
+        }
+      ],
+      "sameAs": [],
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Servicios",
+        "itemListElement": [
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Refacciones y autopartes" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Afinación mayor y menor" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Frenos y suspensión" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Cambio de aceite" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Diagnóstico computarizado" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Entrega de refacciones a domicilio" } }
+        ]
+      }
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
