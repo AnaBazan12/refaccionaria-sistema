@@ -35,8 +35,6 @@ export default function Usuarios() {
   const [eError,    setEError]    = useState('')
   const [eGuardando,setEGuardando]= useState(false)
 
-  if (usuario?.rol !== 'ADMIN') return <Navigate to="/dashboard" replace />
-
   const cargar = async () => {
     setCargando(true)
     try { setUsuarios(await getUsuarios()) }
@@ -44,6 +42,8 @@ export default function Usuarios() {
   }
 
   useEffect(() => { cargar() }, [])
+
+  if (usuario?.rol !== 'ADMIN') return <Navigate to="/dashboard" replace />
 
   const handleCrear = async (e: React.FormEvent) => {
     e.preventDefault()
