@@ -11,7 +11,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "prisma:migrate": "npx prisma migrate dev",
-    "prisma:studio": "npx prisma studio"
+    "prisma:studio": "npx prisma studio",
+    "seed:motos": "npx tsx prisma/seed-motos.ts"
   },
   "keywords": [],
   "author": "",
@@ -42,6 +43,7 @@
     "@vitest/coverage-v8": "^3.2.4",
     "prisma": "^7.6.0",
     "ts-node-dev": "^2.0.0",
+    "tsx": "^4.22.3",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   }

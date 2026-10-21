@@ -1,0 +1,44 @@
+{
+  "proveedor": {
+    "nombre": "Supermoto",
+    "contacto": "RFC: MTO090623IM9",
+    "telefono": "",
+    "ivaPorcentaje": 16,
+    "descuentoPorcentaje": 16
+  },
+  "factura": {
+    "numeroFactura": "FACT241367",
+    "fecha": "2024-08-15",
+    "subtotal": 13173.16,
+    "ivaPorcentaje": 16,
+    "ivaImporte": 2107.76,
+    "descuentoPorcentaje": 16,
+    "descuentoImporte": 2509.23,
+    "totalPagar": 15280.92,
+    "notas": "Descuento 16% aplicado ANTES del IVA. Subtotal = monto neto post-descuento."
+  },
+  "refacciones": [
+    {
+      "codigo": "07-5000-001",
+      "nombre": "Retén barra AT110",
+      "categoria": "Frenos",
+      "cantidad": 2,
+      "costoUnitario": 28.24,
+      "precioMostrador": 60,
+      "precioMayoreo": 50,
+      "marca": "Supermoto",
+      "unidad": "pieza"
+    },
+    {
+      "codigo": "36-5218-010",
+      "nombre": "Filtro aire FT150",
+      "categoria": "Motor",
+      "cantidad": 40,
+      "costoUnitario": 10.07,
+      "precioMostrador": 40,
+      "marca": "Supermoto",
+      "unidad": "pieza",
+      "descripcion": "Paquete x10"
+    }
+  ]
+}
